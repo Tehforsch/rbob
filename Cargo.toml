@@ -1,0 +1,24 @@
+[package]
+name = "bob"
+version = "0.1.0"
+authors = ["tehforsch <Tonipeter92@googlemail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "bob"
+doctest = false
+test = true
+
+[dependencies]
+plotters = "0.3"
+regex = "1"
+clap = "3.0.0-beta.2"
+anyhow = "1.0.13"
+serde = {version = "1.0.117", features=["derive"]}
+serde_derive = {version = "1.0.117"}
+serde_yaml = {version = "0.8"}
+
+[dev-dependencies]
+tempdir = "0.3.7"

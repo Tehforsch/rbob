@@ -1,0 +1,6 @@
+substitutionType: All
+substitutions:
+    SX_SWEEP: [False, True]
+    numCores: [16]
+    runParams: ["0"]
+    wallTime: ["10:00:00"]
