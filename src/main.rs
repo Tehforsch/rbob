@@ -1,6 +1,8 @@
 pub mod args;
 pub mod config;
-pub mod simulation;
+pub mod param_file;
+pub mod param_value;
+pub mod sim_params;
 pub mod simulation_set;
 
 use crate::args::Opts;
@@ -24,10 +26,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
-    for sim in sim_set.iter() {
+    for (i, sim) in sim_set.iter().enumerate() {
+        println!("{}:", i);
         for param in param_names.iter() {
-            let param_value = &sim.params[param];
-            println!("\t{}: {:?}", &param, &param_value);
+            let param_value = &sim[param];
+            println!("\t{}: {}", &param, &param_value);
         }
     }
     Ok(())
@@ -35,5 +38,5 @@ fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
 
 fn get_sim_set(folder: &Path) -> Result<SimSet> {
     let config_file_path = folder.join(DEFAULT_BOB_CONFIG_NAME);
-    SimSet::from_file(config_file_path)
+    SimSet::from_file(&config_file_path, folder)
 }

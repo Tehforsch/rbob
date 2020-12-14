@@ -1,0 +1,7 @@
+cartesian_type:
+    Grouped:
+        [["a", "b"], ["c"]]
+substitutions:
+    a: [False, True]
+    b: [1, 2, 3]
+    c: [1,2,3,4,5]
