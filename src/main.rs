@@ -8,9 +8,10 @@ pub mod simulation_set;
 use crate::args::Opts;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use args::SubCommand;
 use clap::Clap;
+use sim_params::SimParams;
 use simulation_set::SimSet;
 use std::{error::Error, path::Path};
 
@@ -26,11 +27,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
+    let print_param = |sim: &SimParams, param: &str| println!("\t{}: {}", param, sim[param]);
     for (i, sim) in sim_set.iter().enumerate() {
         println!("{}:", i);
-        for param in param_names.iter() {
-            let param_value = &sim[param];
-            println!("\t{}: {}", &param, &param_value);
+        if param_names.is_empty() {
+            for param in sim.keys() {
+                print_param(sim, param)
+            }
+        } else {
+            for param in param_names.iter() {
+                if !sim.contains_key(param) {
+                    return Err(anyhow!("Parameter {} not present in parameter files!"));
+                }
+                print_param(sim, param)
+            }
         }
     }
     Ok(())

@@ -1,5 +1,5 @@
 cartesian_type: NoCartesian
 substitutions:
-    a: [1, 2, 3]
-    b: [4, 5, 6]
-    c: "0"
+    MultipleDomains: [1, 2, 3]
+    SX_SWEEP: [true, false, false]
+    SX_NUM_ROT: "8"

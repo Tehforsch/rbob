@@ -23,7 +23,10 @@ pub struct SimSetConfig {
 
 impl SimSetConfig {
     pub fn from_file<U: AsRef<Path>>(path: U) -> Result<SimSetConfig> {
-        let data = fs::read_to_string(path).context("While reading bob config file")?;
+        let data = fs::read_to_string(path.as_ref()).context(format!(
+            "While reading bob config file at {:?}",
+            path.as_ref()
+        ))?;
         Ok(serde_yaml::from_str(&data).context("Reading bob config file contents")?)
     }
 }
@@ -63,16 +66,19 @@ fn get_sim_params_from_substitutions(
     base: SimParams,
     substitutions: Vec<HashMap<String, ParamValue>>,
 ) -> Result<Vec<SimParams>> {
-    Ok(substitutions
+    substitutions
         .iter()
         .map(|substitution_map| {
             let mut new_sim = base.clone();
             for (k, v) in substitution_map.iter() {
-                new_sim.insert(k, v);
+                match new_sim.insert(k, v) {
+                    None => Err(anyhow!("Found parameter in substitutions that does not appear in parameter files: {}", k))?,
+                    _ => {}
+                }
             }
-            new_sim
+            Ok(new_sim)
         })
-        .collect())
+        .collect()
 }
 
 fn get_substitutions_normal(
@@ -136,7 +142,6 @@ fn get_substitutions_cartesian(
         }
     };
     for multi_index in indices {
-        dbg!(&multi_index);
         let mut r = HashMap::new();
         for (k, param) in substitutions.iter() {
             let k_index = find_k_index(k)?;
@@ -243,6 +248,23 @@ mod tests {
         assert_eq!(s[3]["a"], ParamValue::Int(2));
         assert_eq!(s[3]["b"], ParamValue::Int(4));
         assert_eq!(s[3]["c"], ParamValue::Int(5));
+        Ok(())
+    }
+
+    #[test]
+    fn test_cartesian_sim_set_config_parameter_groups_wrong_lengths() -> Result<()> {
+        let mut substitutions = HashMap::new();
+        substitutions.insert("a".to_owned(), to_value([1, 2])?);
+        substitutions.insert("b".to_owned(), to_value([3, 4])?);
+        substitutions.insert("c".to_owned(), to_value([4, 5, 6])?);
+        assert!(get_substitutions_cartesian(
+            &substitutions,
+            Some(vec![
+                vec!["a".to_owned(), "c".to_owned()],
+                vec!["b".to_owned()]
+            ])
+        )
+        .is_err());
         Ok(())
     }
 }

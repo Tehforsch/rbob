@@ -33,7 +33,7 @@ impl ParamValue {
                 } else if x.is_f64() {
                     Ok(ParamValue::Float(x.as_f64().unwrap()))
                 } else {
-                    Err(anyhow!(format!("Found invalid number type: {}", &x)))
+                    Err(anyhow!("Found invalid number type: {}", &x))
                 }
             }
             Value::String(x) => Ok(ParamValue::Str(x.as_str().to_owned())),
@@ -46,6 +46,15 @@ impl ParamValue {
         s.parse::<i64>()
             .map(|x| ParamValue::Int(x))
             .or(s.parse::<f64>().map(|x| ParamValue::Float(x)))
+            .or(s.parse::<bool>().map(|x| ParamValue::Bool(x)))
             .or(Ok(ParamValue::Str(s.to_string())))
+    }
+
+    pub fn unwrap_f64(&self) -> f64 {
+        match self {
+            ParamValue::Float(f) => *f,
+            ParamValue::Int(i) => *i as f64,
+            _ => panic!(format!("Tried to read value {} as float.", self)),
+        }
     }
 }

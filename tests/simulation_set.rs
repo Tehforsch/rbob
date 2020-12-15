@@ -11,43 +11,27 @@ fn check_simulation_set() {
         &[
             NormalArg("show"),
             RelativePath("in"),
-            NormalArg("a"),
-            NormalArg("b"),
-            NormalArg("c"),
+            NormalArg("MultipleDomains"),
+            NormalArg("SX_SWEEP"),
+            NormalArg("SX_NUM_ROT"),
         ],
     );
     assert!(out.success);
     compare_output_lines(
         out.output,
         &[
-            "0:", "\ta: 1", "\tb: 4", "\tc: 0", "1:", "\ta: 2", "\tb: 5", "\tc: 0", "2:", "\ta: 3",
-            "\tb: 6", "\tc: 0",
+            "0:",
+            "\tMultipleDomains: 1",
+            "\tSX_SWEEP: true",
+            "\tSX_NUM_ROT: 8",
+            "1:",
+            "\tMultipleDomains: 2",
+            "\tSX_SWEEP: false",
+            "\tSX_NUM_ROT: 8",
+            "2:",
+            "\tMultipleDomains: 3",
+            "\tSX_SWEEP: false",
+            "\tSX_NUM_ROT: 8",
         ],
-    );
-}
-
-#[test]
-fn check_simulation_set_wrong_list_lengths() {
-    let out = run_bob_on_setup(
-        "simulationSetWrongListLengths",
-        &[NormalArg("show"), RelativePath("in"), NormalArg("SX_SWEEP")],
-    );
-    assert!(!out.success);
-    compare_output_lines(
-        out.stderr,
-        &["Error: Found different lengths of parameter lists!"],
-    );
-}
-
-#[test]
-fn check_simulation_set_wrong_list_lengths_cartesian() {
-    let out = run_bob_on_setup(
-        "simulationSetWrongListLengthsCartesian",
-        &[NormalArg("show"), RelativePath("in"), NormalArg("SX_SWEEP")],
-    );
-    assert!(!out.success);
-    compare_output_lines(
-        out.stderr,
-        &["Error: Found different lengths of parameter lists!"],
     );
 }
