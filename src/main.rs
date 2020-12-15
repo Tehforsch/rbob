@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
-    let print_param = |sim: &SimParams, param: &str| println!("\t{}: {}", param, sim[param]);
+    let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
     for (i, sim) in sim_set.iter().enumerate() {
         println!("{}:", i);
         if param_names.is_empty() {

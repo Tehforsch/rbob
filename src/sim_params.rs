@@ -121,7 +121,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
 fn read_param_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
         read_contents(path).context(format!("While reading parameter file {:?}", path))?;
-    let re = Regex::new("(.*?) +(.*)").unwrap();
+    let re = Regex::new("^([^ ]*?) +([^ ]*)[ %]*$").unwrap();
     let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
     key_value_strings
         .into_iter()
@@ -142,7 +142,11 @@ fn get_nonempty_noncomment_lines<'a, 'b>(
             .lines()
             .map(|line| line.trim())
             .filter(|line| line != &"")
-            .filter(move |line| !line.starts_with(comment_string)),
+            .filter(move |line| !line.starts_with(comment_string))
+            .map(move |line| match line.find(comment_string) {
+                None => line,
+                Some(index) => &line[..index],
+            }),
     )
 }
 
@@ -154,22 +158,20 @@ fn read_parameter_lines(
     get_nonempty_noncomment_lines(contents, comment_string)
         .map(|line| {
             let mut captures = pattern.captures_iter(line);
-            match captures.next() {
-                Some(cap) => {
-                    if cap.len() == 3 {
-                        Ok((cap[1].to_string(), cap[2].to_string()))
-                    } else {
-                        Err(anyhow!(format!(
-                            "Invalid line in parameter file:\n{}",
-                            line,
-                        )))
-                    }
-                }
-                None => Err(anyhow!(format!(
-                    "Invalid line in parameter file:\n{}",
-                    line,
-                ))),
+            dbg!(&line);
+            for cap in captures {
+                dbg!(&cap);
             }
+            let mut captures = pattern.captures_iter(line);
+            captures.next().filter(|cap| cap.len() == 3).map_or_else(
+                || {
+                    Err(anyhow!(format!(
+                        "Invalid line in parameter file:\n{}",
+                        line,
+                    )))
+                },
+                |cap| Ok((cap[1].to_string(), cap[2].to_string())),
+            )
         })
         .collect()
 }

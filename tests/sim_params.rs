@@ -33,3 +33,11 @@ fn check_different_param_files() -> Result<()> {
     }
     Ok(())
 }
+
+#[test]
+fn check_wrong_param_files() -> Result<()> {
+    let out = run_bob_on_setup("wrongParamFiles", &[NormalArg("show"), RelativePath("in")]);
+    assert!(!out.success);
+    assert!(out.stderr.contains(&"Invalid line in parameter file"));
+    Ok(())
+}

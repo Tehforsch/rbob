@@ -2,4 +2,4 @@ cartesian_type: NoCartesian
 substitutions:
     MultipleDomains: [1, 2, 3]
     SX_SWEEP: [true, false, false]
-    SX_NUM_ROT: "8"
+    SX_NUM_ROT: 8
