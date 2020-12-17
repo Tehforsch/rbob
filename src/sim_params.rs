@@ -1,14 +1,13 @@
+use crate::config;
 use anyhow::{anyhow, Context, Result};
+use itertools::Itertools;
 use std::{
     collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, ops::Index,
 };
 use std::{fs, path::Path};
 
-use crate::config::{
-    AVAILABLE_CONFIG_PARAMS, DEFAULT_CONFIG_FILE_NAME, DEFAULT_JOB_FILE_NAME,
-    DEFAULT_PARAM_FILE_NAME,
-};
 use crate::param_value::ParamValue;
+use crate::util::{read_file_contents, write_file};
 
 use uom::si::f64::*;
 // use uom::si::length::kilometer;
@@ -24,9 +23,9 @@ pub struct SimParams {
 impl SimParams {
     pub fn from_folder<U: AsRef<Path>>(folder: U) -> Result<SimParams> {
         let mut params = HashMap::new();
-        let param_file_path = folder.as_ref().join(DEFAULT_PARAM_FILE_NAME);
-        let config_file_path = folder.as_ref().join(DEFAULT_CONFIG_FILE_NAME);
-        let job_file_path = folder.as_ref().join(DEFAULT_JOB_FILE_NAME);
+        let param_file_path = folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME);
+        let config_file_path = folder.as_ref().join(config::DEFAULT_CONFIG_FILE_NAME);
+        let job_file_path = folder.as_ref().join(config::DEFAULT_JOB_FILE_NAME);
         update_from(
             &mut params,
             read_param_file(&param_file_path).with_context(|| {
@@ -64,7 +63,48 @@ impl SimParams {
     pub fn contains_key(&self, key: &str) -> bool {
         self.params.contains_key(key)
     }
+
+    pub fn write_param_file(&self, path: &Path) -> Result<()> {
+        let contents = self.get_param_file_contents();
+        write_file(path, &contents)?;
+        Ok(())
+    }
+
+    fn get_param_file_contents(&self) -> String {
+        let mut sorted_keys: Vec<&String> = self.keys().collect();
+        sorted_keys.sort();
+        sorted_keys
+            .iter()
+            .filter(|key| config::PARAM_FILE_PARAMS.contains(&key.as_str()))
+            .map(|key| format!("{}    {}", key, self[key]))
+            .join("\n")
+    }
+
+    pub fn write_config_file(&self, path: &Path) -> Result<()> {
+        let contents = self.get_config_file_contents();
+        write_file(path, &contents)?;
+        Ok(())
+    }
+
+    fn get_config_file_contents(&self) -> String {
+        let mut sorted_keys: Vec<&String> = self.keys().collect();
+        sorted_keys.sort();
+        sorted_keys
+            .iter()
+            .filter(|key| config::CONFIG_FILE_PARAMS.contains(&key.as_str()))
+            .map(|key| match &self[key] {
+                ParamValue::Bool(value) => match value {
+                    true => format!("{}", key),
+                    false => format!("#{}", key),
+                },
+                ParamValue::Int(value) => format!("{}={}", key, value),
+                ParamValue::Float(_, s) => format!("{}={}", key, s),
+                _ => panic!("Wrong param value: {}", key),
+            })
+            .join("\n")
+    }
 }
+
 pub fn try_get<'a>(map: &'a HashMap<String, ParamValue>, key: &str) -> Result<&'a ParamValue> {
     map.get(key)
         .ok_or_else(|| anyhow!("Key not found: {}", key))
@@ -87,13 +127,14 @@ fn update_from(
 }
 
 fn read_config_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
-    let contents = read_contents(path).context(format!("While reading config file {:?}", path))?;
+    let contents =
+        read_file_contents(path).context(format!("While reading config file {:?}", path))?;
     read_config_lines(&contents, "#")
 }
 
 fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<String, ParamValue>> {
     let mut params = HashMap::new();
-    for param in AVAILABLE_CONFIG_PARAMS {
+    for param in config::CONFIG_FILE_PARAMS {
         params.insert(param.to_string(), ParamValue::Bool(false));
     }
     for line in get_nonempty_noncomment_lines(content, comment_string) {
@@ -120,17 +161,13 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
 
 fn read_param_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
-        read_contents(path).context(format!("While reading parameter file {:?}", path))?;
+        read_file_contents(path).context(format!("While reading parameter file {:?}", path))?;
     let re = Regex::new("^([^ ]*?) +([^ ]*)[ %]*$").unwrap();
     let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
     key_value_strings
         .into_iter()
         .map(|(k, v)| ParamValue::from_str(&v).map(|x| (k, x)))
         .collect()
-}
-
-pub fn read_contents(path: &Path) -> Result<String> {
-    fs::read_to_string(path).context("While reading file")
 }
 
 fn get_nonempty_noncomment_lines<'a, 'b>(
@@ -157,11 +194,6 @@ fn read_parameter_lines(
 ) -> Result<HashMap<String, String>> {
     get_nonempty_noncomment_lines(contents, comment_string)
         .map(|line| {
-            let mut captures = pattern.captures_iter(line);
-            dbg!(&line);
-            for cap in captures {
-                dbg!(&cap);
-            }
             let mut captures = pattern.captures_iter(line);
             captures.next().filter(|cap| cap.len() == 3).map_or_else(
                 || {

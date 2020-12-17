@@ -1,3 +1,5 @@
+pub mod dir_diff;
+
 use std::process::{Command, Stdio};
 use std::str;
 use std::{env, fmt::Display};
@@ -6,9 +8,12 @@ use std::{
     fmt::Debug,
     path::{Path, PathBuf},
 };
-use tempdir::TempDir;
 
 use anyhow::{Context, Result};
+use tempdir::TempDir;
+
+use bob::util::copy_recursive;
+use dir_diff::get_first_difference;
 
 pub static TEST_STAGE_PATH: &str = "bobTest";
 pub static TEST_SETUPS_PATH: &str = "testSetups";
@@ -61,7 +66,7 @@ pub fn setup_test(executable_name: String, setups_folder: &Path, test_name: &str
         dir: TempDir::new(TEST_STAGE_PATH).expect("Setup test directory"),
     };
     let source = setups_folder.join(test_name);
-    copy(source, &env.dir).expect("Copying test files");
+    copy_recursive(source, &env.dir).expect("Copying test files");
     env
 }
 
@@ -130,6 +135,16 @@ pub fn run_bob_on_setup(setup_name: &str, args: &[TestArg]) -> TestOutput {
     out
 }
 
+pub fn different_output_folders(env: &TestEnv, produced: &str, desired: &str) -> bool {
+    let first_diff =
+        get_first_difference(env.dir.path().join(produced), env.dir.path().join(desired)).unwrap();
+    match first_diff {
+        Some(ref diff) => println!("{}", diff),
+        None => {}
+    };
+    !first_diff.as_ref().is_none()
+}
+
 pub fn compare_output_lines(out: String, lines_desired: &[&str]) {
     let mut lines_out = out.lines();
     println!("Comparing lines in output:");
@@ -139,59 +154,6 @@ pub fn compare_output_lines(out: String, lines_desired: &[&str]) {
         assert_eq!(line_desired, &line_out.unwrap());
     }
     assert_eq!(lines_out.next(), None);
-}
-
-// Taken from 'Doug' from
-// https://stackoverflow.com/questions/26958489/how-to-copy-a-folder-recursively-in-rust
-pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<()> {
-    let mut stack = Vec::new();
-    stack.push(PathBuf::from(from.as_ref()));
-
-    let output_root = PathBuf::from(to.as_ref());
-    let input_root = PathBuf::from(from.as_ref()).components().count();
-
-    while let Some(working_path) = stack.pop() {
-        // Generate a relative path
-        let src: PathBuf = working_path.components().skip(input_root).collect();
-        // Create a destination if missing
-        let dest = if src.components().count() == 0 {
-            output_root.clone()
-        } else {
-            output_root.join(&src)
-        };
-        if fs::metadata(&dest).is_err() {
-            fs::create_dir_all(&dest)
-                .context(format!("Creating directory {}", dest.to_str().unwrap()))?;
-        }
-
-        for entry in fs::read_dir(&working_path).context(format!(
-            "Reading directory {}",
-            &working_path.to_str().unwrap()
-        ))? {
-            let entry = entry.context(format!(
-                "Reading entry in directory {}",
-                &working_path.to_str().unwrap()
-            ))?;
-            let path = entry.path();
-            if path.is_dir() {
-                stack.push(path);
-            } else {
-                match path.file_name() {
-                    Some(filename) => {
-                        let dest_path = dest.join(filename);
-                        fs::copy(&path, &dest_path).context(format!(
-                            "Error copying {} to {}",
-                            &path.to_str().unwrap(),
-                            &dest_path.to_str().unwrap()
-                        ))?;
-                    }
-                    None => {}
-                }
-            }
-        }
-    }
-
-    Ok(())
 }
 
 pub fn show_output(out: &TestOutput) {

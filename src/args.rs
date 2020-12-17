@@ -15,7 +15,7 @@ pub struct Opts {
 #[derive(Clap, Debug)]
 pub enum SubCommand {
     Show(ShowSimulationInfo),
-    // Run(RunSimulation),
+    Copy(CopySimulation),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -25,8 +25,9 @@ pub struct ShowSimulationInfo {
     pub param_names: Vec<String>,
 }
 
-// /// Read the input directory and copy/rewrite the simulation files, compile arepo and
-// #[derive(Clap, Debug)]
-// pub struct RunSimulation {
-//     pub folder: PathBuf,
-// }
+/// Read the input directory and copy/rewrite the simulation files
+#[derive(Clap, Debug)]
+pub struct CopySimulation {
+    pub input_folder: PathBuf,
+    pub run_folder: PathBuf,
+}

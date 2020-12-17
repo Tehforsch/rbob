@@ -1,9 +1,11 @@
 pub mod args;
 pub mod config;
+pub mod copy;
 pub mod param_file;
 pub mod param_value;
 pub mod sim_params;
 pub mod simulation_set;
+pub mod util;
 
 use crate::args::Opts;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
@@ -21,6 +23,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set(&l.folder)?;
             show_sim_set(sim_set, &l.param_names).expect("When showing parameters")
+        }
+        SubCommand::Copy(l) => {
+            let sim_set = get_sim_set(&l.input_folder)?;
+            copy::copy_sim_set(sim_set, l.input_folder, l.run_folder)
+                .expect("When running simulation");
         }
     }
     Ok(())

@@ -5,7 +5,7 @@ use serde_yaml::Value;
 pub enum ParamValue {
     Str(String),
     Int(i64),
-    Float(f64),
+    Float(f64, String), // Keep the original string representation to make sure we dont change anything
     Bool(bool),
 }
 
@@ -14,7 +14,7 @@ impl std::fmt::Display for ParamValue {
         match self {
             ParamValue::Str(x) => write!(f, "{}", x),
             ParamValue::Int(x) => write!(f, "{}", x),
-            ParamValue::Float(x) => write!(f, "{}", x),
+            ParamValue::Float(x, s) => write!(f, "{}", s),
             ParamValue::Bool(x) => write!(f, "{}", x),
         }
     }
@@ -31,7 +31,10 @@ impl ParamValue {
                 if x.is_i64() {
                     Ok(ParamValue::Int(x.as_i64().unwrap()))
                 } else if x.is_f64() {
-                    Ok(ParamValue::Float(x.as_f64().unwrap()))
+                    Ok(ParamValue::Float(
+                        x.as_f64().unwrap(),
+                        v.as_str().unwrap().to_owned(),
+                    ))
                 } else {
                     Err(anyhow!("Found invalid number type: {}", &x))
                 }
@@ -45,14 +48,14 @@ impl ParamValue {
     pub fn from_str(s: &str) -> Result<ParamValue> {
         s.parse::<i64>()
             .map(|x| ParamValue::Int(x))
-            .or(s.parse::<f64>().map(|x| ParamValue::Float(x)))
+            .or(s.parse::<f64>().map(|x| ParamValue::Float(x, s.to_owned())))
             .or(s.parse::<bool>().map(|x| ParamValue::Bool(x)))
             .or(Ok(ParamValue::Str(s.to_string())))
     }
 
     pub fn unwrap_f64(&self) -> f64 {
         match self {
-            ParamValue::Float(f) => *f,
+            ParamValue::Float(f, s) => *f,
             ParamValue::Int(i) => *i as f64,
             _ => panic!(format!("Tried to read value {} as float.", self)),
         }
