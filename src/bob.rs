@@ -1,19 +1,21 @@
 pub mod args;
+pub mod build;
 pub mod config;
 pub mod copy;
 pub mod param_value;
 pub mod sim_params;
-pub mod simulation_set;
+pub mod sim_set;
 pub mod util;
 
 use crate::args::Opts;
+use crate::build::build_sim_set;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;
 use clap::Clap;
 use sim_params::SimParams;
-use simulation_set::SimSet;
+use sim_set::SimSet;
 use std::{error::Error, path::Path};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -34,6 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            build_sim_set(sim_set);
         }
     }
     Ok(())
@@ -41,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
     let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
-    for (i, sim) in sim_set.iter() {
+    for (i, sim) in sim_set.enumerate() {
         println!("{}:", i);
         if param_names.is_empty() {
             for param in sim.keys() {

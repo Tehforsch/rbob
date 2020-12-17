@@ -73,7 +73,11 @@ impl SimSet {
             .collect()
     }
 
-    pub fn iter(&self) -> Iter<(usize, SimParams)> {
+    pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = &'a SimParams> + 'a> {
+        Box::new(self.simulations.iter().map(|(_, s)| s))
+    }
+
+    pub fn enumerate(&self) -> Iter<(usize, SimParams)> {
         self.simulations.iter()
     }
 }

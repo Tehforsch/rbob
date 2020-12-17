@@ -5,9 +5,9 @@ use setup::TestArg;
 use setup::TestArg::{AbsolutePath, NormalArg, RelativePath};
 
 #[test]
-fn check_simulation_set() {
+fn check_sim_set() {
     let out = run_bob_on_setup(
-        "simulationSet",
+        "simSet",
         &[
             NormalArg("show"),
             RelativePath("in"),
