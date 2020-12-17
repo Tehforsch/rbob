@@ -1,10 +1,10 @@
 use crate::config;
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
+use std::path::{Path, PathBuf};
 use std::{
     collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, ops::Index,
 };
-use std::{fs, path::Path};
 
 use crate::param_value::ParamValue;
 use crate::util::{read_file_contents, write_file};
@@ -23,9 +23,8 @@ pub struct SimParams {
 impl SimParams {
     pub fn from_folder<U: AsRef<Path>>(folder: U) -> Result<SimParams> {
         let mut params = HashMap::new();
-        let param_file_path = folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME);
-        let config_file_path = folder.as_ref().join(config::DEFAULT_CONFIG_FILE_NAME);
-        let job_file_path = folder.as_ref().join(config::DEFAULT_JOB_FILE_NAME);
+        let param_file_path = get_param_file_path(&folder);
+        let config_file_path = get_config_file_path(&folder);
         update_from(
             &mut params,
             read_param_file(&param_file_path).with_context(|| {
@@ -37,7 +36,7 @@ impl SimParams {
             read_config_file(&config_file_path)
                 .with_context(|| format!("While reading config file at {:?}", config_file_path))?,
         )?;
-        // update_from(&mut params, read_job_file(&job_file_path)?)?;
+        update_from(&mut params, get_job_file_params())?;
         Ok(SimParams::new(params)?)
     }
 
@@ -105,6 +104,27 @@ impl SimParams {
     }
 }
 
+fn get_param_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+    folder
+        .as_ref()
+        .join(config::DEFAULT_PARAM_FILE_NAME)
+        .to_owned()
+}
+
+fn get_config_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+    folder
+        .as_ref()
+        .join(config::DEFAULT_CONFIG_FILE_NAME)
+        .to_owned()
+}
+
+fn get_job_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+    folder
+        .as_ref()
+        .join(config::DEFAULT_JOB_FILE_NAME)
+        .to_owned()
+}
+
 pub fn try_get<'a>(map: &'a HashMap<String, ParamValue>, key: &str) -> Result<&'a ParamValue> {
     map.get(key)
         .ok_or_else(|| anyhow!("Key not found: {}", key))
@@ -124,6 +144,10 @@ fn update_from(
         params.insert(key, value);
     }
     Ok(())
+}
+
+fn get_job_file_params() -> HashMap<String, ParamValue> {
+    HashMap::new()
 }
 
 fn read_config_file(path: &Path) -> Result<HashMap<String, ParamValue>> {

@@ -9,7 +9,7 @@ use crate::util::copy_recursive;
 
 pub fn copy_sim_set<U: AsRef<Path>>(sim_set: SimSet, input_folder: U, run_folder: U) -> Result<()> {
     fs::create_dir(run_folder.as_ref()).with_context(|| "When creating the run folder")?;
-    for (i, sim) in sim_set.iter().enumerate() {
+    for (i, sim) in sim_set.iter() {
         println!("Copying files for sim {}:", i);
         let sim_run_folder = run_folder.as_ref().join(String::from(i.to_string()));
         copy_sim(sim, &input_folder.as_ref(), &sim_run_folder)

@@ -14,7 +14,7 @@ impl std::fmt::Display for ParamValue {
         match self {
             ParamValue::Str(x) => write!(f, "{}", x),
             ParamValue::Int(x) => write!(f, "{}", x),
-            ParamValue::Float(x, s) => write!(f, "{}", s),
+            ParamValue::Float(_, s) => write!(f, "{}", s),
             ParamValue::Bool(x) => write!(f, "{}", x),
         }
     }
@@ -55,7 +55,7 @@ impl ParamValue {
 
     pub fn unwrap_f64(&self) -> f64 {
         match self {
-            ParamValue::Float(f, s) => *f,
+            ParamValue::Float(f, _) => *f,
             ParamValue::Int(i) => *i as f64,
             _ => panic!(format!("Tried to read value {} as float.", self)),
         }

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, path::Path, slice::Iter};
+use std::{collections::HashMap, fs, iter::FromIterator, path::Path, path::PathBuf, slice::Iter};
 
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
@@ -7,6 +7,7 @@ use serde_yaml::Value;
 
 use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
+use crate::util::get_folders;
 
 #[derive(Serialize, Deserialize)]
 enum CartesianType {
@@ -33,12 +34,23 @@ impl SimSetConfig {
 
 pub struct SimSet {
     // config: SimSetConfig,
-    simulations: Vec<SimParams>,
+    simulations: Vec<(usize, SimParams)>,
+}
+
+impl FromIterator<(usize, SimParams)> for SimSet {
+    fn from_iter<T: IntoIterator<Item = (usize, SimParams)>>(iter: T) -> Self {
+        SimSet {
+            simulations: iter.into_iter().collect(),
+        }
+    }
 }
 
 impl SimSet {
-    pub fn from_file<U: AsRef<Path>, V: AsRef<Path>>(path: U, folder: V) -> Result<SimSet> {
-        let config = SimSetConfig::from_file(path)?;
+    pub fn from_bob_file_and_input_folder<U: AsRef<Path>, V: AsRef<Path>>(
+        config_file_path: U,
+        folder: V,
+    ) -> Result<SimSet> {
+        let config = SimSetConfig::from_file(config_file_path)?;
         let simulations = get_sim_params(&config, SimParams::from_folder(folder.as_ref())?)?;
         Ok(SimSet {
             // config,
@@ -46,12 +58,30 @@ impl SimSet {
         })
     }
 
-    pub fn iter(&self) -> Iter<SimParams> {
+    pub fn from_output_folder<U: AsRef<Path>>(folder: U) -> Result<SimSet> {
+        let all_folders = get_folders(folder.as_ref())?;
+        let mut sim_folders: Vec<(usize, &PathBuf)> = all_folders
+            .iter()
+            .map(|f| (f.file_name().unwrap().to_str().unwrap().parse::<usize>(), f))
+            .filter(|(maybe_num, _)| maybe_num.is_ok())
+            .map(|(num, f)| (num.unwrap(), f))
+            .collect();
+        sim_folders.sort();
+        sim_folders
+            .into_iter()
+            .map(|(num, f)| -> Result<(usize, SimParams)> { Ok((num, SimParams::from_folder(f)?)) })
+            .collect()
+    }
+
+    pub fn iter(&self) -> Iter<(usize, SimParams)> {
         self.simulations.iter()
     }
 }
 
-fn get_sim_params(config: &SimSetConfig, base_sim_params: SimParams) -> Result<Vec<SimParams>> {
+fn get_sim_params(
+    config: &SimSetConfig,
+    base_sim_params: SimParams,
+) -> Result<Vec<(usize, SimParams)>> {
     let substitutions = match &config.cartesian_type {
         CartesianType::NoCartesian => get_substitutions_normal(&config.substitutions),
         CartesianType::All => get_substitutions_cartesian(&config.substitutions, None),
@@ -65,10 +95,11 @@ fn get_sim_params(config: &SimSetConfig, base_sim_params: SimParams) -> Result<V
 fn get_sim_params_from_substitutions(
     base: SimParams,
     substitutions: Vec<HashMap<String, ParamValue>>,
-) -> Result<Vec<SimParams>> {
+) -> Result<Vec<(usize, SimParams)>> {
     substitutions
         .iter()
-        .map(|substitution_map| {
+        .enumerate()
+        .map(|(i, substitution_map)| {
             let mut new_sim = base.clone();
             for (k, v) in substitution_map.iter() {
                 match new_sim.insert(k, v) {
@@ -76,7 +107,7 @@ fn get_sim_params_from_substitutions(
                     _ => {}
                 }
             }
-            Ok(new_sim)
+            Ok((i as usize, new_sim))
         })
         .collect()
 }

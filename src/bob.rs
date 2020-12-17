@@ -1,7 +1,6 @@
 pub mod args;
 pub mod config;
 pub mod copy;
-pub mod param_file;
 pub mod param_value;
 pub mod sim_params;
 pub mod simulation_set;
@@ -21,13 +20,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
     match a.subcmd {
         SubCommand::Show(l) => {
-            let sim_set = get_sim_set(&l.folder)?;
+            let sim_set = get_sim_set_from_input(&l.folder)?;
+            show_sim_set(sim_set, &l.param_names).expect("When showing parameters")
+        }
+        SubCommand::ShowOutput(l) => {
+            let sim_set = get_sim_set_from_output(&l.output_folder)?;
             show_sim_set(sim_set, &l.param_names).expect("When showing parameters")
         }
         SubCommand::Copy(l) => {
-            let sim_set = get_sim_set(&l.input_folder)?;
-            copy::copy_sim_set(sim_set, l.input_folder, l.run_folder)
+            let sim_set = get_sim_set_from_input(&l.input_folder)?;
+            copy::copy_sim_set(sim_set, l.input_folder, l.output_folder)
                 .expect("When running simulation");
+        }
+        SubCommand::Build(l) => {
+            let sim_set = get_sim_set_from_output(&l.output_folder)?;
         }
     }
     Ok(())
@@ -35,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
     let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
-    for (i, sim) in sim_set.iter().enumerate() {
+    for (i, sim) in sim_set.iter() {
         println!("{}:", i);
         if param_names.is_empty() {
             for param in sim.keys() {
@@ -53,7 +59,11 @@ fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
     Ok(())
 }
 
-fn get_sim_set(folder: &Path) -> Result<SimSet> {
+fn get_sim_set_from_input(folder: &Path) -> Result<SimSet> {
     let config_file_path = folder.join(DEFAULT_BOB_CONFIG_NAME);
-    SimSet::from_file(&config_file_path, folder)
+    SimSet::from_bob_file_and_input_folder(&config_file_path, folder)
+}
+
+fn get_sim_set_from_output(folder: &Path) -> Result<SimSet> {
+    SimSet::from_output_folder(folder)
 }
