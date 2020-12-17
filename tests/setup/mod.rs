@@ -1,6 +1,5 @@
 pub mod dir_diff;
 
-use std::process::{Command, Stdio};
 use std::str;
 use std::{env, fmt::Display};
 use std::{ffi::OsStr, fs};
@@ -12,7 +11,7 @@ use std::{
 use anyhow::{Context, Result};
 use tempdir::TempDir;
 
-use bob::util::copy_recursive;
+use bob::util::{copy_recursive, get_shell_command_output, ShellCommandOutput};
 use dir_diff::get_first_difference;
 
 pub static TEST_STAGE_PATH: &str = "bobTest";
@@ -70,40 +69,11 @@ pub fn setup_test(executable_name: String, setups_folder: &Path, test_name: &str
     env
 }
 
-pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
-    command: &str,
-    args: &[T],
-) -> (bool, String, String) {
-    print!("Running {}", command);
-    for arg in args.iter() {
-        print!(" {}", arg);
-    }
-    println!("");
-    let child = Command::new(command)
-        .args(args)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect(&format!("Failed to run command: {}", command));
-
-    let output = child.wait_with_output().expect("Failed to read stdout");
-    let exit_code = output.status;
-    (
-        exit_code.success(),
-        str::from_utf8(&output.stdout)
-            .expect("Failed to decode stdout as utf8")
-            .to_owned(),
-        str::from_utf8(&output.stderr)
-            .expect("Failed to decode stderr as utf8")
-            .to_owned(),
-    )
-}
-
-pub fn run_bob(env: &TestEnv, args: &[TestArg]) -> Result<(bool, String, String)> {
+pub fn run_bob(env: &TestEnv, args: &[TestArg]) -> Result<ShellCommandOutput> {
     Ok(get_shell_command_output(
         env.executable.to_str().unwrap(),
         &convert_args(&args, &env.dir.path())?,
+        None,
     ))
 }
 
@@ -117,9 +87,9 @@ pub fn run_bob_on_setup_with_args(
     let output = run_bob(&env, args)?;
     Ok(TestOutput {
         env,
-        success: output.0,
-        output: output.1,
-        stderr: output.2,
+        success: output.success,
+        output: output.stdout,
+        stderr: output.stderr,
     })
 }
 

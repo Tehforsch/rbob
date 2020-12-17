@@ -16,6 +16,7 @@ use uom::si::time::second;
 
 #[derive(Debug, Clone)]
 pub struct SimParams {
+    pub folder: PathBuf,
     params: HashMap<String, ParamValue>,
     pub time_limit_cpu: Time,
 }
@@ -37,7 +38,7 @@ impl SimParams {
                 .with_context(|| format!("While reading config file at {:?}", config_file_path))?,
         )?;
         update_from(&mut params, get_job_file_params())?;
-        Ok(SimParams::new(params)?)
+        Ok(SimParams::new(folder.as_ref(), params)?)
     }
 
     pub fn insert(&mut self, key: &str, value: &ParamValue) -> Option<ParamValue> {
@@ -52,8 +53,9 @@ impl SimParams {
         self.params.keys()
     }
 
-    pub fn new(params: HashMap<String, ParamValue>) -> Result<SimParams> {
+    pub fn new(folder: &Path, params: HashMap<String, ParamValue>) -> Result<SimParams> {
         Ok(SimParams {
+            folder: folder.to_owned(),
             time_limit_cpu: Time::new::<second>(try_get(&params, "TimeLimitCPU")?.unwrap_f64()),
             params,
         })
@@ -104,21 +106,21 @@ impl SimParams {
     }
 }
 
-fn get_param_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_param_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_PARAM_FILE_NAME)
         .to_owned()
 }
 
-fn get_config_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_config_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_CONFIG_FILE_NAME)
         .to_owned()
 }
 
-fn get_job_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_job_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_JOB_FILE_NAME)

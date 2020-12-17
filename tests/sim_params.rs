@@ -24,12 +24,9 @@ fn check_different_param_files() -> Result<()> {
             &env,
             &[NormalArg("show"), RelativePath(&dir_path.to_str().unwrap())],
         )?;
-        let success = output.0;
-        let stdout = output.1;
-        let stderr = output.2;
-        println!("{}", stdout);
-        println!("{}", stderr);
-        assert!(success);
+        println!("{}", output.stdout);
+        println!("{}", output.stderr);
+        assert!(output.success);
     }
     Ok(())
 }

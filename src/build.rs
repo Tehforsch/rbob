@@ -1,7 +1,11 @@
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
+use std::{fs, path::Path};
 
+use crate::config;
+use crate::sim_params::get_config_file_path;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
+use crate::util::{copy_file, get_shell_command_output};
 
 pub fn build_sim_set(sim_set: SimSet) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
@@ -12,5 +16,35 @@ pub fn build_sim_set(sim_set: SimSet) -> Result<()> {
 }
 
 fn build_sim(sim: &SimParams) -> Result<()> {
-    todo!()
+    copy_config_file(sim)?;
+    build_arepo(sim)?;
+    copy_arepo_file(sim)?;
+    copy_arepoconfig()?;
+    copy_source_code_to_output()?;
+    Ok(())
+}
+
+fn build_arepo(sim: &SimParams) -> Result<()> {
+    let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
+    let out = get_shell_command_output("make", &[&"build"], Some(arepo_path));
+    if !out.success {
+        println!("{}", out.stdout);
+        println!("{}", out.stderr);
+        return Err(anyhow!("Arepo compilation failed!"));
+    }
+    Ok(())
+}
+
+fn copy_config_file(sim: &SimParams) -> Result<()> {
+    let source = get_config_file_path(&sim.folder);
+    let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
+    let target = arepo_path.join(config::DEFAULT_CONFIG_FILE_NAME);
+    copy_file(source, target)
+}
+
+fn copy_arepo_file(sim: &SimParams) -> Result<()> {
+    let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
+    let source = arepo_path.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
+    let target = sim.folder.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
+    copy_file(source, target)
 }

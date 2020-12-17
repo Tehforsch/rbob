@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(sim_set);
+            build_sim_set(sim_set)?;
         }
     }
     Ok(())

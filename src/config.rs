@@ -2,6 +2,8 @@ pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
 pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
 pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
+pub static DEFAULT_AREPO_FOLDER: &str = "/home/toni/projects/phd/arepo";
+pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "Arepo";
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "SX_SWEEP",
