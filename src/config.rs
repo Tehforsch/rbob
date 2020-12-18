@@ -34,6 +34,9 @@ startexe=\"mpirun {runCommand}\"
 exec $startexe";
 
 #[cfg(feature = "bwfor")]
+pub static RUN_COMMAND: &str = "sbatch";
+
+#[cfg(feature = "bwfor")]
 pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
     max_num_cores: 1024,
     max_num_cores_per_node: 16,
@@ -42,6 +45,9 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
 mpirun -n {numCores} {runCommand} > {logFile}";
+
+#[cfg(not(feature = "bwfor"))]
+pub static RUN_COMMAND: &str = "bash";
 
 #[cfg(not(feature = "bwfor"))]
 pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {

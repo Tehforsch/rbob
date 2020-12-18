@@ -218,7 +218,7 @@ mod tests {
     use super::*;
     use serde_yaml::to_value;
     #[test]
-    fn test_normal_sim_set() -> Result<()> {
+    fn normal_sim_set() -> Result<()> {
         let mut substitutions = HashMap::new();
         substitutions.insert("a".to_owned(), to_value([1, 2, 3])?);
         substitutions.insert("b".to_owned(), to_value([4, 5, 6])?);
@@ -234,7 +234,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cartesian_sim_set_config() -> Result<()> {
+    fn cartesian_sim_set_config() -> Result<()> {
         let mut substitutions = HashMap::new();
         substitutions.insert("a".to_owned(), to_value([1, 2])?);
         substitutions.insert("b".to_owned(), to_value([3, 4])?);
@@ -255,7 +255,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cartesian_sim_set_config_parameter_groups() -> Result<()> {
+    fn cartesian_sim_set_config_parameter_groups() -> Result<()> {
         let mut substitutions = HashMap::new();
         substitutions.insert("a".to_owned(), to_value([1, 2])?);
         substitutions.insert("b".to_owned(), to_value([3, 4])?);
@@ -287,7 +287,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cartesian_sim_set_config_parameter_groups_wrong_lengths() -> Result<()> {
+    fn cartesian_sim_set_config_parameter_groups_wrong_lengths() -> Result<()> {
         let mut substitutions = HashMap::new();
         substitutions.insert("a".to_owned(), to_value([1, 2])?);
         substitutions.insert("b".to_owned(), to_value([3, 4])?);
