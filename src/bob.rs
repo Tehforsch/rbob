@@ -3,6 +3,7 @@ pub mod build;
 pub mod config;
 pub mod copy;
 pub mod param_value;
+pub mod run;
 pub mod sim_params;
 pub mod sim_set;
 pub mod util;
@@ -10,6 +11,7 @@ pub mod util;
 use crate::args::Opts;
 use crate::build::build_sim_set;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
+use crate::run::run_sim_set;
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;
@@ -32,11 +34,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             copy::copy_sim_set(sim_set, l.input_folder, l.output_folder)
-                .expect("When running simulation");
+                .expect("When copying simulation");
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
             build_sim_set(sim_set)?;
+        }
+        SubCommand::Run(l) => {
+            let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            run_sim_set(sim_set)?;
         }
     }
     Ok(())

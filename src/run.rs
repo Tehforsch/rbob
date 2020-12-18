@@ -1,19 +1,16 @@
-fn run_sim_set<U: AsRef<Path>>(sim_set: SimSet, run_folder: U) -> Result<()> {
-    let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
+use crate::sim_set::SimSet;
+use anyhow::Result;
+use std::path::Path;
+
+pub fn run_sim_set(sim_set: SimSet) -> Result<()> {
     for (i, sim) in sim_set.iter().enumerate() {
-        println!("{}:", i);
-        if param_names.is_empty() {
-            for param in sim.keys() {
-                print_param(sim, param)
-            }
-        } else {
-            for param in param_names.iter() {
-                if !sim.contains_key(param) {
-                    return Err(anyhow!("Parameter {} not present in parameter files!"));
-                }
-                print_param(sim, param)
-            }
-        }
+        println!("Running sim {}", i);
+        run_sim(sim)?;
     }
+    Ok(())
+}
+
+fn run_sim(sim: &crate::sim_params::SimParams) -> Result<()> {
+    println!("heyo");
     Ok(())
 }
