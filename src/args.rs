@@ -19,6 +19,7 @@ pub enum SubCommand {
     Copy(CopySimulation),
     Build(BuildSimulation),
     Run(RunSimulation),
+    Start(StartSimulation),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -51,5 +52,12 @@ pub struct BuildSimulation {
 /// Run each of the simulations in the output directory
 #[derive(Clap, Debug)]
 pub struct RunSimulation {
+    pub output_folder: PathBuf,
+}
+
+/// Copy, Build and Run in one command
+#[derive(Clap, Debug)]
+pub struct StartSimulation {
+    pub input_folder: PathBuf,
     pub output_folder: PathBuf,
 }

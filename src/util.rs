@@ -126,10 +126,6 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
     args: &[T],
     working_dir: Option<&Path>,
 ) -> ShellCommandOutput {
-    for arg in args.iter() {
-        print!(" {}", arg);
-    }
-    println!("");
     let mut command = Command::new(command_str);
     command
         .args(args)

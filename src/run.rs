@@ -3,7 +3,7 @@ use crate::sim_set::SimSet;
 use crate::{config, util::get_shell_command_output};
 use anyhow::{anyhow, Result};
 
-pub fn run_sim_set(sim_set: SimSet) -> Result<()> {
+pub fn run_sim_set(sim_set: &SimSet) -> Result<()> {
     for (i, sim) in sim_set.iter().enumerate() {
         println!("Running sim {}", i);
         run_sim(sim)?;

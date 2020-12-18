@@ -12,6 +12,7 @@ pub mod util;
 use crate::args::Opts;
 use crate::build::build_sim_set;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
+use crate::copy::copy_sim_set;
 use crate::run::run_sim_set;
 
 use anyhow::{anyhow, Result};
@@ -34,19 +35,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            copy::copy_sim_set(sim_set, l.input_folder, l.output_folder)
+            copy_sim_set(&sim_set, l.input_folder, l.output_folder)
                 .expect("When copying simulation");
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(sim_set)?;
+            build_sim_set(&sim_set)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            run_sim_set(sim_set)?;
+            run_sim_set(&sim_set)?;
+        }
+        SubCommand::Start(l) => {
+            let sim_set = get_sim_set_from_input(&l.input_folder)?;
+            start_sim_set(sim_set, &l.input_folder, &l.output_folder)?;
         }
     }
     Ok(())
+}
+
+fn start_sim_set(sim_set: SimSet, input_folder: &Path, output_folder: &Path) -> Result<()> {
+    let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder)?;
+    build_sim_set(&output_sim_set)?;
+    run_sim_set(&output_sim_set)
 }
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {

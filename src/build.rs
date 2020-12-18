@@ -10,7 +10,7 @@ use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
 
-pub fn build_sim_set(sim_set: SimSet) -> Result<()> {
+pub fn build_sim_set(sim_set: &SimSet) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
         build_sim(sim)?;
