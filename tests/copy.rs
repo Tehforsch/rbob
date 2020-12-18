@@ -3,7 +3,7 @@ use setup::TestArg::{NormalArg, RelativePath};
 pub use setup::*;
 
 #[test]
-fn check_copy() {
+fn copy() {
     let out = run_bob_on_setup(
         "copy",
         &[

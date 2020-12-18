@@ -3,7 +3,7 @@ use setup::TestArg::{NormalArg, RelativePath};
 pub use setup::*;
 
 #[test]
-fn check_sim_set() {
+fn sim_set() {
     let out = run_bob_on_setup(
         "simSet",
         &[

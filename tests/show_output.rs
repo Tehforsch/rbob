@@ -4,7 +4,7 @@ use setup::TestArg::{NormalArg, RelativePath};
 pub use setup::*;
 
 #[test]
-fn check_show_output() {
+fn show_output() {
     let out = run_bob_on_setup(
         "showOutput",
         &[
