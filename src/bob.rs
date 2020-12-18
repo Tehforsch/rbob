@@ -2,6 +2,7 @@ pub mod args;
 pub mod build;
 pub mod config;
 pub mod copy;
+pub mod job_params;
 pub mod param_value;
 pub mod run;
 pub mod sim_params;

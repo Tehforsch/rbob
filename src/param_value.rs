@@ -60,4 +60,18 @@ impl ParamValue {
             _ => panic!(format!("Tried to read value {} as float.", self)),
         }
     }
+
+    pub fn unwrap_i64(&self) -> i64 {
+        match self {
+            ParamValue::Int(i) => *i,
+            _ => panic!(format!("Tried to read value {} as int.", self)),
+        }
+    }
+
+    pub fn unwrap_string(&self) -> &str {
+        match self {
+            ParamValue::Str(s) => s,
+            _ => panic!(format!("Tried to read value {} as string.", self)),
+        }
+    }
 }

@@ -7,6 +7,7 @@ use std::{
 };
 use strfmt::{strfmt, FmtError};
 
+use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
 use crate::util::{read_file_contents, write_file};
 
@@ -52,6 +53,22 @@ impl SimParams {
 
     pub fn keys(&self) -> Keys<String, ParamValue> {
         self.params.keys()
+    }
+
+    pub fn get(&self, key: &str) -> Option<&ParamValue> {
+        self.params.get(key)
+    }
+
+    pub fn get_default_string(&self, key: &str, default: &str) -> String {
+        self.get(key)
+            .map(|s| s.unwrap_string().to_owned())
+            .unwrap_or(default.to_owned())
+    }
+
+    pub fn get_default_i64(&self, key: &str, default: &i64) -> i64 {
+        self.get(key)
+            .map(|s| s.unwrap_i64())
+            .unwrap_or(default.to_owned())
     }
 
     pub fn new(folder: &Path, params: HashMap<String, ParamValue>) -> Result<SimParams> {
@@ -113,15 +130,21 @@ impl SimParams {
     }
 
     fn get_job_file_contents(&self) -> Result<String> {
-        let replacements: HashMap<String, String> = self
-            .iter()
-            .map(|(s, v)| (s.to_owned(), v.to_string()))
-            .collect();
-        strfmt(&config::JOB_FILE_TEMPLATE, &replacements).map_err(|e| match e {
+        let job_params = self.get_job_params()?;
+        let replacements = job_params.to_hashmap();
+        strfmt(
+            &config::JOB_FILE_TEMPLATE,
+            &replacements.into_iter().map(|(s1, s2)| (s1, s2)).collect(),
+        )
+        .map_err(|e| match e {
             FmtError::Invalid(s) => anyhow!("Invalid format string: {}", s),
             FmtError::KeyError(s) => anyhow!("Required key not in parameter list: {}", s),
             FmtError::TypeError(s) => anyhow!("Wrong type in parameter for template: {}", s),
         })
+    }
+
+    fn get_job_params(&self) -> Result<JobParams> {
+        JobParams::new(self)
     }
 }
 

@@ -1,3 +1,5 @@
+use crate::job_params::SystemConfiguration;
+
 pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
 pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
 pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
@@ -17,12 +19,11 @@ pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
 #SBATCH --partition={partition}
 #SBATCH --nodes={numNodes}
-#SBATCH --ntasks-per-node={coresPerNode}
+#SBATCH --ntasks-per-node={numCoresPerNode}
 #SBATCH --time={wallTime}
 #SBATCH --mem=50gb
 #SBATCH --output={logFile}
 #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
-{jobLines}
 module load compiler/intel/16.0
 module load mpi/impi/5.1.3-intel-16.0
 module load numlib/gsl/2.2.1-intel-16.0
@@ -32,10 +33,28 @@ module load devel/python_intel/3.6
 startexe=\"mpirun {runCommand}\"
 exec $startexe";
 
+#[cfg(feature = "bwfor")]
+pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
+    max_num_cores: 1024,
+    max_num_cores_per_node: 16,
+};
+
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-{jobLines}
 mpirun -n {numCores} {runCommand} > {logFile}";
+
+#[cfg(not(feature = "bwfor"))]
+pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
+    max_num_cores: 1024,
+    max_num_cores_per_node: 16,
+};
+
+pub static DEFAULT_LOG_FILE: &str = "stdout.log";
+pub static DEFAULT_JOB_NAME: &str = "arepoTest";
+pub static DEFAULT_WALL_TIME: &str = "3:00:00";
+pub static DEFAULT_PARTITION: &str = "single";
+pub static DEFAULT_NUM_CORES: &i64 = &1;
+pub static DEFAULT_RUN_COMMAND: &str = &"./Arepo param.txt 0";
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "SX_SWEEP",
