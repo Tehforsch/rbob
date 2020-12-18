@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use std::{
     collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, ops::Index,
 };
+use strfmt::{strfmt, FmtError};
 
 use crate::param_value::ParamValue;
 use crate::util::{read_file_contents, write_file};
@@ -103,6 +104,24 @@ impl SimParams {
                 _ => panic!("Wrong param value: {}", key),
             })
             .join("\n")
+    }
+
+    pub fn write_job_file(&self, path: &Path) -> Result<()> {
+        let contents = self.get_job_file_contents()?;
+        write_file(path, &contents)?;
+        Ok(())
+    }
+
+    fn get_job_file_contents(&self) -> Result<String> {
+        let replacements: HashMap<String, String> = self
+            .iter()
+            .map(|(s, v)| (s.to_owned(), v.to_string()))
+            .collect();
+        strfmt(&config::JOB_FILE_TEMPLATE, &replacements).map_err(|e| match e {
+            FmtError::Invalid(s) => anyhow!("Invalid format string: {}", s),
+            FmtError::KeyError(s) => anyhow!("Required key not in parameter list: {}", s),
+            FmtError::TypeError(s) => anyhow!("Wrong type in parameter for template: {}", s),
+        })
     }
 }
 

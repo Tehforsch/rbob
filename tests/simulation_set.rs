@@ -1,8 +1,6 @@
 mod setup;
-use setup::compare_output_lines;
-use setup::run_bob_on_setup;
-use setup::TestArg;
-use setup::TestArg::{AbsolutePath, NormalArg, RelativePath};
+use setup::TestArg::{NormalArg, RelativePath};
+pub use setup::*;
 
 #[test]
 fn check_sim_set() {

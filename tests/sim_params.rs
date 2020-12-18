@@ -1,11 +1,8 @@
 mod setup;
+use setup::TestArg::{NormalArg, RelativePath};
+pub use setup::*;
 
 use anyhow::Result;
-use setup::compare_output_lines;
-use setup::TestArg;
-use setup::TestArg::{AbsolutePath, NormalArg, RelativePath};
-use setup::TEST_SETUPS_PATH;
-use setup::{get_bob_executable, run_bob, run_bob_on_setup, setup_test, TestOutput};
 use std::{fs, path::Path};
 
 #[test]

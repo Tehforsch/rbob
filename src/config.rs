@@ -3,11 +3,39 @@ pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
 pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 
+#[cfg(feature = "bwfor")]
+pub static DEFAULT_AREPO_FOLDER: &str = "/beegfs/home/hd/hd_hd/hd_hp240/projects/phd/arepo";
+#[cfg(not(feature = "bwfor"))]
 pub static DEFAULT_AREPO_FOLDER: &str = "/home/toni/projects/phd/arepo";
+
 pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "Arepo";
 pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
 pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";
 pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
+
+#[cfg(feature = "bwfor")]
+pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
+#SBATCH --partition={partition}
+#SBATCH --nodes={numNodes}
+#SBATCH --ntasks-per-node={coresPerNode}
+#SBATCH --time={wallTime}
+#SBATCH --mem=50gb
+#SBATCH --output={logFile}
+#SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
+{jobLines}
+module load compiler/intel/16.0
+module load mpi/impi/5.1.3-intel-16.0
+module load numlib/gsl/2.2.1-intel-16.0
+module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
+module load lib/hdf5/1.8-intel-16.0
+module load devel/python_intel/3.6
+startexe=\"mpirun {runCommand}\"
+exec $startexe";
+
+#[cfg(not(feature = "bwfor"))]
+pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
+{jobLines}
+mpirun -n {numCores} {runCommand} > {logFile}";
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "SX_SWEEP",

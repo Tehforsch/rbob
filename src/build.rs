@@ -20,7 +20,7 @@ pub fn build_sim_set(sim_set: SimSet) -> Result<()> {
 
 fn build_sim(sim: &SimParams) -> Result<()> {
     copy_config_file(sim)?;
-    build_arepo(sim)?;
+    build_arepo()?;
     copy_arepo_file(sim)?;
     copy_source_code_to_output(sim)?;
     Ok(())
@@ -33,7 +33,7 @@ fn copy_source_code_to_output(sim: &SimParams) -> Result<()> {
     )
 }
 
-fn build_arepo(sim: &SimParams) -> Result<()> {
+fn build_arepo() -> Result<()> {
     let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
     delete_arepoconfig_header_file_if_present()?;
     let out = get_shell_command_output("make", &[&"build"], Some(arepo_path));
@@ -42,8 +42,7 @@ fn build_arepo(sim: &SimParams) -> Result<()> {
         println!("{}", out.stderr);
         return Err(anyhow!("Arepo compilation failed!"));
     }
-    copy_arepoconfig_header_file(); // For clang to make sense of the situation
-    Ok(())
+    copy_arepoconfig_header_file() // For clang to make sense of the situation
 }
 
 fn delete_arepoconfig_header_file_if_present() -> Result<()> {

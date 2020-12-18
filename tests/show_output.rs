@@ -1,8 +1,7 @@
 mod setup;
 use setup::run_bob_on_setup;
-use setup::TestArg;
-use setup::TestArg::{AbsolutePath, NormalArg, RelativePath};
-use setup::{compare_output_lines, different_output_folders};
+use setup::TestArg::{NormalArg, RelativePath};
+pub use setup::*;
 
 #[test]
 fn check_show_output() {
