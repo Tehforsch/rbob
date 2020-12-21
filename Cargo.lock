@@ -54,6 +54,7 @@ dependencies = [
  "hdf5",
  "itertools",
  "ndarray",
+ "num-traits",
  "regex",
  "serde",
  "serde_derive",

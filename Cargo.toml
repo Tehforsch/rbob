@@ -30,6 +30,7 @@ uom = "0.30.0"
 strfmt = "0.1.6"
 hdf5 = "0.7.0"
 ndarray = "0.13"
+num-traits = "0.2"
 
 [dev-dependencies]
 tempdir = "0.3.7"
