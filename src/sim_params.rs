@@ -79,6 +79,12 @@ impl SimParams {
         })
     }
 
+    pub fn output_folder(&self) -> PathBuf {
+        self.folder
+            .join(Path::new(self.params["OutputDir"].unwrap_string()))
+            .to_owned()
+    }
+
     pub fn contains_key(&self, key: &str) -> bool {
         self.params.contains_key(key)
     }
@@ -212,7 +218,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
                 match split.len() {
                     2 => Ok((split[0].to_string(), ParamValue::from_str(split[1])?)),
                     _ => Err(anyhow!(format!(
-                        "Invalid line in parameter file:\n{}",
+                        "Invalid line in config file:\n\"{}\"",
                         line,
                     ))),
                 }
@@ -230,7 +236,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
 fn read_param_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
         read_file_contents(path).context(format!("While reading parameter file {:?}", path))?;
-    let re = Regex::new("^([^ ]*?) +([^ ]*)[ %]*$").unwrap();
+    let re = Regex::new("^([^ ]*?)\\s+([^ ]*)[ %]*$").unwrap();
     let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
     key_value_strings
         .into_iter()
