@@ -28,6 +28,8 @@ serde_yaml = {version = "0.8"}
 itertools = "0.9.0"
 uom = "0.30.0"
 strfmt = "0.1.6"
+hdf5 = "0.7.0"
+ndarray = "0.13"
 
 [dev-dependencies]
 tempdir = "0.3.7"

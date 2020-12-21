@@ -4,6 +4,7 @@ pub mod config;
 pub mod copy;
 pub mod job_params;
 pub mod param_value;
+pub mod postprocess;
 pub mod run;
 pub mod sim_params;
 pub mod sim_set;
@@ -13,6 +14,7 @@ use crate::args::Opts;
 use crate::build::build_sim_set;
 use crate::config::DEFAULT_BOB_CONFIG_NAME;
 use crate::copy::copy_sim_set;
+use crate::postprocess::postprocess_sim_set;
 use crate::run::run_sim_set;
 
 use anyhow::{anyhow, Result};
@@ -49,6 +51,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             start_sim_set(sim_set, &l.input_folder, &l.output_folder)?;
+        }
+        SubCommand::Post(l) => {
+            let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            postprocess_sim_set(&sim_set, l.function)?;
         }
     }
     Ok(())
