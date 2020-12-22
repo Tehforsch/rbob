@@ -1,4 +1,4 @@
-use crate::config;
+use crate::{config, sim_units::SimUnits};
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
@@ -11,16 +11,21 @@ use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
 use crate::util::{read_file_contents, write_file};
 
-use uom::si::f64::*;
-// use uom::si::length::kilometer;
 use regex::Regex;
-use uom::si::time::second;
+use uom::si::{
+    f64::{Length, Mass, Time, Velocity},
+    length::centimeter,
+    mass::gram,
+    time::second,
+    velocity::centimeter_per_second,
+};
 
 #[derive(Debug, Clone)]
 pub struct SimParams {
     pub folder: PathBuf,
     params: HashMap<String, ParamValue>,
     pub time_limit_cpu: Time,
+    pub units: SimUnits,
 }
 
 impl SimParams {
@@ -72,9 +77,16 @@ impl SimParams {
     }
 
     pub fn new(folder: &Path, params: HashMap<String, ParamValue>) -> Result<SimParams> {
+        let get_f64 = |k| try_get_f64(&params, k);
+        let units = SimUnits::new(
+            Length::new::<centimeter>(get_f64("UnitLength_in_cm")?),
+            Velocity::new::<centimeter_per_second>(get_f64("UnitVelocity_in_cm_per_s")?),
+            Mass::new::<gram>(get_f64("UnitMass_in_g")?),
+        );
         Ok(SimParams {
             folder: folder.to_owned(),
-            time_limit_cpu: Time::new::<second>(try_get(&params, "TimeLimitCPU")?.unwrap_f64()),
+            time_limit_cpu: Time::new::<second>(get_f64("TimeLimitCPU")?),
+            units,
             params,
         })
     }
@@ -173,6 +185,12 @@ pub fn get_job_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
         .as_ref()
         .join(config::DEFAULT_JOB_FILE_NAME)
         .to_owned()
+}
+
+pub fn try_get_f64<'a>(map: &'a HashMap<String, ParamValue>, key: &str) -> Result<f64> {
+    map.get(key)
+        .map(|v| v.unwrap_f64())
+        .ok_or_else(|| anyhow!("Key not found: {}", key))
 }
 
 pub fn try_get<'a>(map: &'a HashMap<String, ParamValue>, key: &str) -> Result<&'a ParamValue> {

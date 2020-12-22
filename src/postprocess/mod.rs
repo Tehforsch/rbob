@@ -22,10 +22,12 @@ pub fn postprocess_sim_set(sim_set: &SimSet, function: PostFn) -> Result<()> {
     Ok(())
 }
 
-pub fn get_snapshots(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Result<Snapshot>>>> {
-    Ok(Box::new(
-        get_snapshot_files(sim)?.map(|snap_file| Snapshot::from_file(&snap_file)),
-    ))
+pub fn get_snapshots<'a>(
+    sim: &'a SimParams,
+) -> Result<Box<dyn Iterator<Item = Result<Snapshot<'a>>> + 'a>> {
+    Ok(Box::new(get_snapshot_files(sim)?.map(move |snap_file| {
+        Snapshot::from_file(sim, &snap_file)
+    })))
 }
 
 pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = PathBuf>>> {

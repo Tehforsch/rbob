@@ -8,6 +8,7 @@ pub mod postprocess;
 pub mod run;
 pub mod sim_params;
 pub mod sim_set;
+pub mod sim_units;
 pub mod unit_array;
 pub mod util;
 

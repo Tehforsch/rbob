@@ -10,10 +10,12 @@ use uom::si::{f64::Length, length::meter};
 // }
 
 pub fn post(sim: &SimParams) -> Result<()> {
-    for snap in get_snapshots(sim)? {
-        let coords = snap?.coordinates();
-        let unit: Length = Length::new::<meter>(109000.0);
-        println!("Some multiple: {}", coords? * unit);
+    for mb_snap in get_snapshots(sim)? {
+        let snap = mb_snap?;
+        let coords = snap.coordinates()?;
+        let dens = snap.density()?;
+        let abundance = snap.chemical_abundances()?;
+        println!("{}\n{}\n{}", coords, dens, abundance);
     }
     Ok(())
 }
