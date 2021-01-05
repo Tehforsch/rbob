@@ -1,17 +1,18 @@
 use crate::sim_params::SimParams;
-use crate::unit_array::{UArray, UArray1, UArray2, UArray3};
+use crate::unit_array::{UArray1, UArray2};
 use anyhow::Result;
 use ndarray::s;
 use std::path::Path;
 use uom::si::ratio::ratio;
-use uom::si::{f64::Length, f64::MassDensity, f64::Ratio};
+use uom::si::{f64::Length, f64::MassDensity, f64::Ratio, f64::Time};
 
-use super::read_hdf5::{read_1d_unit_array, read_2d_unit_array};
+use super::read_hdf5::{get_attribute, read_1d_unit_array, read_2d_unit_array};
 
 #[derive(Debug)]
 pub struct Snapshot<'a> {
     file: hdf5::File,
     sim: &'a SimParams,
+    pub time: Time,
 }
 
 impl<'a> Snapshot<'a> {
@@ -23,10 +24,9 @@ impl<'a> Snapshot<'a> {
         self.read_1d_dataset("Density", self.sim.units.mass_density)
     }
 
-    pub fn H_plus_abundance(&self) -> Result<UArray1<Ratio>> {
+    pub fn h_plus_abundance(&self) -> Result<UArray1<Ratio>> {
         let full_data = self.read_2d_dataset("ChemicalAbundances", Ratio::new::<ratio>(1.0))?;
-        full_data.slice(s![1, ..]);
-        todo!()
+        Ok(full_data.slice(s![1, ..]).to_owned())
     }
 
     pub fn chemical_abundances(&self) -> Result<UArray2<Ratio>> {
@@ -35,17 +35,24 @@ impl<'a> Snapshot<'a> {
         Ok(arr)
     }
 
-    pub fn read_2d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray2<Q>> {
+    pub fn read_2d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray2<Q>>
+    where
+        Q: Clone,
+    {
         read_2d_unit_array(&self.file, &("PartType0/".to_owned() + dataset), unit)
     }
 
-    pub fn read_1d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray1<Q>> {
+    pub fn read_1d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray1<Q>>
+    where
+        Q: Clone,
+    {
         read_1d_unit_array(&self.file, &("PartType0/".to_owned() + dataset), unit)
     }
 
     pub fn from_file(sim: &'a SimParams, file: &Path) -> Result<Snapshot<'a>> {
         Ok(Snapshot {
             file: hdf5::File::open(file)?,
+            time: get_attribute(file, "Header/Time", sim.units.time)?,
             sim,
         })
     }

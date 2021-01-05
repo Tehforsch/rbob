@@ -62,6 +62,8 @@ pub static DEFAULT_PARTITION: &str = "single";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_COMMAND: &str = &"./Arepo param.txt 0";
 
+pub static PIC_FILE_ENDING: &str = "png";
+
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "SX_SWEEP",
     "CHEM_IMAGE",
