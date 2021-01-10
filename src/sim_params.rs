@@ -97,6 +97,13 @@ impl SimParams {
             .to_owned()
     }
 
+    pub fn get_pic_folder(&self) -> PathBuf {
+        self.folder.join(
+            std::path::Path::new("../pics")
+                .join(self.folder.file_name().unwrap().to_str().unwrap()),
+        )
+    }
+
     pub fn contains_key(&self, key: &str) -> bool {
         self.params.contains_key(key)
     }

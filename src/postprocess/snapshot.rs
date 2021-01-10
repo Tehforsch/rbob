@@ -1,7 +1,7 @@
 use crate::sim_params::SimParams;
 use crate::unit_array::{UArray1, UArray2};
 use anyhow::Result;
-use ndarray::s;
+use ndarray::{array, s, Array1};
 use std::path::Path;
 use uom::si::ratio::ratio;
 use uom::si::{f64::Length, f64::MassDensity, f64::Ratio, f64::Time};
@@ -15,7 +15,25 @@ pub struct Snapshot<'a> {
     pub time: Time,
 }
 
+impl<'a> std::fmt::Display for Snapshot<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.file.filename())
+    }
+}
+
 impl<'a> Snapshot<'a> {
+    pub fn min_extent(&self) -> UArray1<Length> {
+        UArray1::new(array![0., 0.], self.sim.units.length)
+    }
+
+    pub fn max_extent(&self) -> UArray1<Length> {
+        UArray1::new(array![1., 1.], self.sim.units.length)
+    }
+
+    pub fn center(&self) -> UArray1<Length> {
+        (self.min_extent() + self.max_extent()) / 2
+    }
+
     pub fn coordinates(&self) -> Result<UArray2<Length>> {
         self.read_2d_dataset("Coordinates", self.sim.units.length)
     }

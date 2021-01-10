@@ -1,44 +1,42 @@
-use super::get_snapshots;
-use super::SimPostFn;
+use super::SnapPostFn;
 use crate::sim_params::SimParams;
 
-use crate::unit_array::UArray1;
+use super::axis::Axis;
+use super::snapshot::Snapshot;
+use crate::array_utils::meshgrid2;
 use anyhow::Result;
 use clap::Clap;
+use ndarray::{array, s};
 use plotters::chart::ChartBuilder;
 use plotters::prelude::*;
 use plotters_bitmap::bitmap_pixel::RGBPixel;
-use uom::si::{
-    f64::{Ratio, Time},
-    ratio::ratio,
-};
+
+pub struct SliceResult {}
 
 #[derive(Clap, Debug)]
-pub struct ExpansionFn {}
-
-pub struct ExpansionResult {
-    times: UArray1<Time>,
-    mean_abundance: UArray1<Ratio>,
+pub struct SliceFn {
+    axis: Axis,
 }
 
-impl SimPostFn for &ExpansionFn {
-    type Output = ExpansionResult;
+impl SnapPostFn for &SliceFn {
+    type Output = SliceResult;
 
-    fn post(&self, sim: &SimParams) -> Result<Self::Output> {
-        let mut times: Vec<f64> = vec![];
-        let mut mean_abundance: Vec<f64> = vec![];
-        for mb_snap in get_snapshots(sim)? {
-            let snap = mb_snap?;
-            let coords = snap.coordinates()?;
-            let dens = snap.density()?;
-            let h_plus_abundance = snap.h_plus_abundance()?;
-            times.push((snap.time / sim.units.time).value);
-            mean_abundance.push(h_plus_abundance.mean().unwrap().value);
+    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Self::Output> {
+        let coords = snap.coordinates()?;
+        let dens = snap.density()?;
+        let h_plus_abundance = snap.h_plus_abundance()?;
+        let n0 = 8;
+        let n1 = 6;
+        let grid = meshgrid2(snap.min_extent(), snap.max_extent(), n0, n1);
+        let axis = self.axis.get_axis_vector();
+        let (orth1, orth2) = self.axis.get_orthogonal_vectors();
+        let center = snap.center();
+        for i0 in 0..n0 {
+            for i1 in 0..n1 {
+                let pos2d = grid.slice(s![i0, i1, ..]);
+            }
         }
-        Ok(ExpansionResult {
-            times: UArray1::from_vec(times, sim.units.time),
-            mean_abundance: UArray1::from_vec(mean_abundance, Ratio::new::<ratio>(1.0)),
-        })
+        todo!()
     }
 
     fn plot(
@@ -50,8 +48,6 @@ impl SimPostFn for &ExpansionFn {
             // .top_x_label_area_size(40)
             // .y_label_area_size(40)
             .build_cartesian_2d(0i32..15i32, 15i32..0i32)?;
-        println!("{}", &result.times);
-        println!("{}", &result.mean_abundance);
 
         chart
             .configure_mesh()

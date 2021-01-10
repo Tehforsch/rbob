@@ -10,7 +10,7 @@ use std::{
 use anyhow::Result;
 use tempdir::TempDir;
 
-use boblib::util::{copy_recursive, get_shell_command_output, ShellCommandOutput};
+use crate::util::{copy_recursive, get_shell_command_output, ShellCommandOutput};
 use dir_diff::get_first_difference;
 
 pub static TEST_STAGE_PATH: &str = "bobTest";

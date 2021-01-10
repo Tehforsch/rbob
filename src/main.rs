@@ -1,23 +1,9 @@
-pub mod args;
-pub mod build;
-pub mod config;
-pub mod copy;
-pub mod job_params;
-pub mod param_value;
-pub mod postprocess;
-pub mod run;
-pub mod sim_params;
-pub mod sim_set;
-pub mod sim_units;
-pub mod unit_array;
-pub mod util;
-
-use crate::args::Opts;
-use crate::build::build_sim_set;
-use crate::config::DEFAULT_BOB_CONFIG_NAME;
-use crate::copy::copy_sim_set;
-use crate::postprocess::postprocess_sim_set;
-use crate::run::run_sim_set;
+use self::args::Opts;
+use bob::build::build_sim_set;
+use bob::config::DEFAULT_BOB_CONFIG_NAME;
+use bob::copy::copy_sim_set;
+use bob::postprocess::postprocess_sim_set;
+use bob::run::run_sim_set;
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;
@@ -25,6 +11,8 @@ use clap::Clap;
 use sim_params::SimParams;
 use sim_set::SimSet;
 use std::{error::Error, path::Path};
+
+pub mod args;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();

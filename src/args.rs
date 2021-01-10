@@ -1,7 +1,7 @@
 use clap::Clap;
 use std::path::PathBuf;
 
-use crate::postprocess::post_expansion::ExpansionFn;
+use crate::postprocess::PostFnName;
 
 /// BoB. The Builder.
 #[derive(Clap)]
@@ -71,12 +71,6 @@ pub struct PostprocessSimulation {
     pub output_folder: PathBuf,
     #[clap(subcommand)]
     pub function: PostFnName,
-}
-
-#[derive(Clap, Debug)]
-pub enum PostFnName {
-    Expansion(ExpansionFn),
-    // Shadowing(ShadowingType),
 }
 
 #[derive(Clap, Debug)]
