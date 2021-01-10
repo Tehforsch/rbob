@@ -1,5 +1,9 @@
 use super::SnapPostFn;
-use crate::sim_params::SimParams;
+use crate::{
+    array_utils::{FArray1, FArray2},
+    config::{NX_SLICE, NY_SLICE},
+    sim_params::SimParams,
+};
 
 use super::axis::Axis;
 use super::snapshot::Snapshot;
@@ -7,11 +11,11 @@ use crate::array_utils::meshgrid2;
 use anyhow::Result;
 use clap::Clap;
 use ndarray::{array, s};
-use plotters::chart::ChartBuilder;
-use plotters::prelude::*;
-use plotters_bitmap::bitmap_pixel::RGBPixel;
+use ordered_float::OrderedFloat;
 
-pub struct SliceResult {}
+pub struct SliceResult {
+    data: FArray2,
+}
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
@@ -23,68 +27,97 @@ impl SnapPostFn for &SliceFn {
 
     fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Self::Output> {
         let coords = snap.coordinates()?;
-        let dens = snap.density()?;
+        // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;
-        let n0 = 8;
-        let n1 = 6;
-        let grid = meshgrid2(snap.min_extent(), snap.max_extent(), n0, n1);
-        let axis = self.axis.get_axis_vector();
-        let (orth1, orth2) = self.axis.get_orthogonal_vectors();
+        let min_extent = snap.min_extent();
+        let max_extent = snap.max_extent();
         let center = snap.center();
-        for i0 in 0..n0 {
-            for i1 in 0..n1 {
-                let pos2d = grid.slice(s![i0, i1, ..]);
-            }
+        let mut data = FArray2::zeros((NX_SLICE, NY_SLICE));
+        for (i0, i1, pos) in self.get_slice_grid(center, min_extent, max_extent, NX_SLICE, NY_SLICE)
+        {
+            let (index, _) = coords
+                .outer_iter()
+                .enumerate()
+                .min_by_key(|(_, coord)| {
+                    let dist = coord - &pos;
+                    OrderedFloat(dist.dot(&dist))
+                })
+                .unwrap();
+            data[[i0, i1]] = h_plus_abundance[index];
         }
-        todo!()
+        Ok(SliceResult { data })
     }
 
-    fn plot(
+    fn plot(&self, result: &Self::Output) -> Result<()> {
+        Ok(())
+    }
+
+    fn run_on_sim_snap(&self, sim: &SimParams, snap: &Snapshot) -> Result<()> {
+        let res = self.post(sim, snap)?;
+        self.plot(&res)
+    }
+}
+
+impl SliceFn {
+    fn get_slice_grid(
         &self,
-        chartbuilder: &mut ChartBuilder<BitMapBackend<RGBPixel>>,
-        result: &Self::Output,
-    ) -> Result<()> {
-        let mut chart = chartbuilder
-            // .top_x_label_area_size(40)
-            // .y_label_area_size(40)
-            .build_cartesian_2d(0i32..15i32, 15i32..0i32)?;
+        center: FArray1,
+        min_extent: FArray1,
+        max_extent: FArray1,
+        n0: usize,
+        n1: usize,
+    ) -> Box<dyn Iterator<Item = (usize, usize, FArray1)>> {
+        let (orth1, orth2) = self.axis.get_orthogonal_vectors();
+        let min_extent_2d = array![orth1.dot(&min_extent), orth2.dot(&min_extent)];
+        let max_extent_2d = array![orth1.dot(&max_extent), orth2.dot(&max_extent)];
+        let grid = meshgrid2(&min_extent_2d, &max_extent_2d, n0, n1);
+        let axis = self.axis.get_axis_vector();
+        let center_along_axis = (center.dot(&axis)) * axis;
+        Box::new(Self::get_usize_grid(n0, n1).map(move |(i0, i1)| {
+            let pos2d = grid.slice(s![i0, i1, ..]);
+            (
+                i0,
+                i1,
+                pos2d[0] * &orth1 + pos2d[1] * &orth2 + &center_along_axis,
+            )
+        }))
+    }
 
-        chart
-            .configure_mesh()
-            .x_labels(15)
-            .y_labels(15)
-            .x_label_offset(35)
-            .y_label_offset(25)
-            .disable_x_mesh()
-            .disable_y_mesh()
-            .label_style(("sans-serif", 20))
-            .draw()?;
+    fn get_usize_grid(n0: usize, n1: usize) -> Box<dyn Iterator<Item = (usize, usize)>> {
+        Box::new(
+            (0..n0)
+                .into_iter()
+                .flat_map(move |i0| (0..n1).into_iter().map(move |i1| (i0, i1))),
+        )
+    }
+}
 
-        let mut matrix = [[0; 15]; 15];
-
-        for i in 0..15 {
-            matrix[i][i] = i + 4;
-        }
-
-        chart.draw_series(
-            matrix
-                .iter()
-                .zip(0..)
-                .map(|(l, y)| l.iter().zip(0..).map(move |(v, x)| (x as i32, y as i32, v)))
-                .flatten()
-                .map(|(x, y, v)| {
-                    Rectangle::new(
-                        [(x, y), (x + 1, y + 1)],
-                        HSLColor(
-                            240.0 / 360.0 - 240.0 / 360.0 * (*v as f64 / 20.0),
-                            0.7,
-                            0.1 + 0.4 * *v as f64 / 20.0,
-                        )
-                        .filled(),
-                    )
-                }),
-        )?;
-
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_slice_grid() -> Result<()> {
+        let center = array![2., 2., 2.];
+        let min_extent = array![1., 1., 1.];
+        let max_extent = array![3., 3., 3.];
+        let slice_fn = SliceFn { axis: Axis::X };
+        let grid: Vec<(usize, usize, FArray1)> = slice_fn
+            .get_slice_grid(center, min_extent, max_extent, 3, 3)
+            .collect();
+        assert_eq!(
+            grid,
+            vec![
+                (0, 0, array![2., 1., 1.]),
+                (0, 1, array![2., 1., 2.]),
+                (0, 2, array![2., 1., 3.]),
+                (1, 0, array![2., 2., 1.]),
+                (1, 1, array![2., 2., 2.]),
+                (1, 2, array![2., 2., 3.]),
+                (2, 0, array![2., 3., 1.]),
+                (2, 1, array![2., 3., 2.]),
+                (2, 2, array![2., 3., 3.]),
+            ]
+        );
         Ok(())
     }
 }

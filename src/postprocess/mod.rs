@@ -1,5 +1,4 @@
 use anyhow::Result;
-use plotters_bitmap::bitmap_pixel::RGBPixel;
 
 use self::post_expansion::ExpansionFn;
 use self::post_slice::SliceFn;
@@ -11,14 +10,13 @@ use snapshot::Snapshot;
 use std::{fs, path::PathBuf};
 
 pub mod axis;
+pub mod plot;
 pub mod post_expansion;
 pub mod post_slice;
 pub mod read_hdf5;
 pub mod snapshot;
 
 use clap::Clap;
-use plotters::prelude::*;
-use plotters::{chart::ChartBuilder, coord::Shift};
 
 #[derive(Clap, Debug)]
 pub enum PostFnName {
@@ -40,39 +38,22 @@ impl std::fmt::Display for PostFnName {
 pub trait SnapPostFn {
     type Output;
     fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Self::Output>;
-    fn plot(
-        &self,
-        chartbuilder: &mut ChartBuilder<BitMapBackend<RGBPixel>>,
-        result: &Self::Output,
-    ) -> Result<()>;
+    fn plot(&self, result: &Self::Output) -> Result<()>;
 
-    fn run_on_sim_snap(
-        &self,
-        sim: &SimParams,
-        snap: &Snapshot,
-        mut chartbuilder: &mut ChartBuilder<BitMapBackend<RGBPixel>>,
-    ) -> Result<()> {
+    fn run_on_sim_snap(&self, sim: &SimParams, snap: &Snapshot) -> Result<()> {
         let res = self.post(sim, snap)?;
-        self.plot(&mut chartbuilder, &res)
+        self.plot(&res)
     }
 }
 
 pub trait SimPostFn {
     type Output;
     fn post(&self, sim: &SimParams) -> Result<Self::Output>;
-    fn plot(
-        &self,
-        chartbuilder: &mut ChartBuilder<BitMapBackend<RGBPixel>>,
-        result: &Self::Output,
-    ) -> Result<()>;
+    fn plot(&self, result: &Self::Output) -> Result<()>;
 
-    fn run_on_sim(
-        &self,
-        sim: &SimParams,
-        mut chartbuilder: &mut ChartBuilder<BitMapBackend<RGBPixel>>,
-    ) -> Result<()> {
+    fn run_on_sim(&self, sim: &SimParams) -> Result<()> {
         let res = self.post(sim)?;
-        self.plot(&mut chartbuilder, &res)
+        self.plot(&res)
     }
 }
 
@@ -80,9 +61,8 @@ pub fn postprocess_sim_set(sim_set: &SimSet, function: PostFnName) -> Result<()>
     for sim in sim_set.iter() {
         let pic_folder = create_pic_folder_if_nonexistent(sim)?;
         let image_name = get_image_name(&pic_folder, &function.to_string());
-        let root = get_drawing_area(&image_name)?;
         match function {
-            PostFnName::Expansion(ref l) => l.run_on_sim(sim, &mut ChartBuilder::on(&root))?,
+            PostFnName::Expansion(ref l) => l.run_on_sim(sim)?,
             _ => {}
         };
     }
@@ -94,24 +74,13 @@ pub fn postprocess_sim_set(sim_set: &SimSet, function: PostFnName) -> Result<()>
                 &pic_folder,
                 &format!("{}_{}", snap.to_string(), function.to_string()),
             );
-            let root = get_drawing_area(&image_name)?;
             match function {
-                PostFnName::Slice(ref l) => {
-                    l.run_on_sim_snap(sim, &snap, &mut ChartBuilder::on(&root))?
-                }
+                PostFnName::Slice(ref l) => l.run_on_sim_snap(sim, &snap)?,
                 _ => {}
             }
         }
     }
     Ok(())
-}
-
-fn get_drawing_area(
-    image_name: &std::path::Path,
-) -> Result<DrawingArea<BitMapBackend<RGBPixel>, Shift>> {
-    let root = BitMapBackend::new(image_name, (1024, 768)).into_drawing_area();
-    root.fill(&WHITE)?;
-    Ok(root)
 }
 
 fn create_pic_folder_if_nonexistent(sim: &SimParams) -> Result<PathBuf> {

@@ -7,9 +7,9 @@ use bob::run::run_sim_set;
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;
+use bob::sim_params::SimParams;
+use bob::sim_set::SimSet;
 use clap::Clap;
-use sim_params::SimParams;
-use sim_set::SimSet;
 use std::{error::Error, path::Path};
 
 pub mod args;

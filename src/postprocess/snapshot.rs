@@ -1,12 +1,11 @@
+use crate::array_utils::{FArray1, FArray2};
 use crate::sim_params::SimParams;
-use crate::unit_array::{UArray1, UArray2};
 use anyhow::Result;
 use ndarray::{array, s, Array1};
 use std::path::Path;
-use uom::si::ratio::ratio;
 use uom::si::{f64::Length, f64::MassDensity, f64::Ratio, f64::Time};
 
-use super::read_hdf5::{get_attribute, read_1d_unit_array, read_2d_unit_array};
+use super::read_hdf5::get_attribute;
 
 #[derive(Debug)]
 pub struct Snapshot<'a> {
@@ -22,49 +21,43 @@ impl<'a> std::fmt::Display for Snapshot<'a> {
 }
 
 impl<'a> Snapshot<'a> {
-    pub fn min_extent(&self) -> UArray1<Length> {
-        UArray1::new(array![0., 0.], self.sim.units.length)
+    pub fn min_extent(&self) -> FArray1 {
+        array![0., 0., 0.]
     }
 
-    pub fn max_extent(&self) -> UArray1<Length> {
-        UArray1::new(array![1., 1.], self.sim.units.length)
+    pub fn max_extent(&self) -> FArray1 {
+        array![1., 1., 1.]
     }
 
-    pub fn center(&self) -> UArray1<Length> {
-        (self.min_extent() + self.max_extent()) / 2
+    pub fn center(&self) -> FArray1 {
+        (self.min_extent() + self.max_extent()) * 0.5
     }
 
-    pub fn coordinates(&self) -> Result<UArray2<Length>> {
-        self.read_2d_dataset("Coordinates", self.sim.units.length)
+    pub fn coordinates(&self) -> Result<FArray2> {
+        self.read_2d_dataset("PartType0/Coordinates")
     }
 
-    pub fn density(&self) -> Result<UArray1<MassDensity>> {
-        self.read_1d_dataset("Density", self.sim.units.mass_density)
+    pub fn density(&self) -> Result<FArray1> {
+        self.read_1d_dataset("PartType0/Density")
     }
 
-    pub fn h_plus_abundance(&self) -> Result<UArray1<Ratio>> {
-        let full_data = self.read_2d_dataset("ChemicalAbundances", Ratio::new::<ratio>(1.0))?;
-        Ok(full_data.slice(s![1, ..]).to_owned())
+    pub fn h_plus_abundance(&self) -> Result<FArray1> {
+        let full_data = self.read_2d_dataset("PartType0/ChemicalAbundances")?;
+        Ok(full_data.slice(s![.., 1]).to_owned())
     }
 
-    pub fn chemical_abundances(&self) -> Result<UArray2<Ratio>> {
-        let arr = self.read_2d_dataset("ChemicalAbundances", Ratio::new::<ratio>(1.0))?;
+    pub fn chemical_abundances(&self) -> Result<FArray2> {
+        let arr = self.read_2d_dataset("PartType0/ChemicalAbundances")?;
         assert_eq!(arr.shape()[1], 6);
         Ok(arr)
     }
 
-    pub fn read_2d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray2<Q>>
-    where
-        Q: Clone,
-    {
-        read_2d_unit_array(&self.file, &("PartType0/".to_owned() + dataset), unit)
+    pub fn read_2d_dataset(&self, dataset: &str) -> Result<FArray2> {
+        Ok(self.file.dataset(dataset)?.read()?)
     }
 
-    pub fn read_1d_dataset<Q>(&self, dataset: &str, unit: Q) -> Result<UArray1<Q>>
-    where
-        Q: Clone,
-    {
-        read_1d_unit_array(&self.file, &("PartType0/".to_owned() + dataset), unit)
+    pub fn read_1d_dataset(&self, dataset: &str) -> Result<FArray1> {
+        Ok(self.file.dataset(dataset)?.read()?)
     }
 
     pub fn from_file(sim: &'a SimParams, file: &Path) -> Result<Snapshot<'a>> {
