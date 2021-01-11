@@ -1,4 +1,4 @@
-use super::SnapPostFn;
+use super::{plot::PlotInfo, SnapPostFn};
 use crate::{
     array_utils::{FArray1, FArray2},
     config::{NX_SLICE, NY_SLICE},
@@ -12,20 +12,22 @@ use anyhow::Result;
 use clap::Clap;
 use ndarray::{array, s};
 use ordered_float::OrderedFloat;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct SliceResult {
     data: FArray2,
 }
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
-    axis: Axis,
+    pub axis: Axis,
 }
 
 impl SnapPostFn for &SliceFn {
     type Output = SliceResult;
 
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Self::Output> {
+    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Self::Output>> {
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;
@@ -45,16 +47,11 @@ impl SnapPostFn for &SliceFn {
                 .unwrap();
             data[[i0, i1]] = h_plus_abundance[index];
         }
-        Ok(SliceResult { data })
+        Ok(vec![SliceResult { data }])
     }
 
-    fn plot(&self, result: &Self::Output) -> Result<()> {
+    fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
         Ok(())
-    }
-
-    fn run_on_sim_snap(&self, sim: &SimParams, snap: &Snapshot) -> Result<()> {
-        let res = self.post(sim, snap)?;
-        self.plot(&res)
     }
 }
 

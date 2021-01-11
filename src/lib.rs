@@ -1,5 +1,3 @@
-pub mod sim_units;
-
 pub mod array_utils;
 pub mod build;
 pub mod config;
@@ -10,4 +8,5 @@ pub mod postprocess;
 pub mod run;
 pub mod sim_params;
 pub mod sim_set;
+pub mod sim_units;
 pub mod util;

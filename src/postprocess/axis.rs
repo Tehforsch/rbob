@@ -41,3 +41,13 @@ impl FromStr for Axis {
         }
     }
 }
+
+impl std::fmt::Display for Axis {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::X => write!(f, "x"),
+            Self::Y => write!(f, "y"),
+            Self::Z => write!(f, "z"),
+        }
+    }
+}

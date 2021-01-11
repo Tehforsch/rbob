@@ -52,10 +52,7 @@ impl SimSet {
     ) -> Result<SimSet> {
         let config = SimSetConfig::from_file(config_file_path)?;
         let simulations = get_sim_params(&config, SimParams::from_folder(folder.as_ref())?)?;
-        Ok(SimSet {
-            // config,
-            simulations,
-        })
+        Ok(SimSet { simulations })
     }
 
     pub fn from_output_folder<U: AsRef<Path>>(folder: U) -> Result<SimSet> {
@@ -79,6 +76,13 @@ impl SimSet {
 
     pub fn enumerate(&self) -> Iter<(usize, SimParams)> {
         self.simulations.iter()
+    }
+
+    pub fn get_folder(&self) -> Result<PathBuf> {
+        self.simulations
+            .get(0)
+            .ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
+            .map(|(_, sim)| sim.folder.parent().unwrap().to_owned())
     }
 }
 

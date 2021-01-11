@@ -1,7 +1,7 @@
 use clap::Clap;
 use std::path::PathBuf;
 
-use bob::postprocess::PostFnName;
+use bob::postprocess::post_fn_name::PostFnName;
 
 /// BoB. The Builder.
 #[derive(Clap)]

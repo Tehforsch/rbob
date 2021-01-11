@@ -1,100 +1,91 @@
 use anyhow::Result;
+use io::BufWriter;
 
-use self::post_expansion::ExpansionFn;
-use self::post_slice::SliceFn;
 use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::get_files;
+use post_fn_name::PostFnName;
 use snapshot::Snapshot;
-use std::{fs, path::PathBuf};
+use std::{
+    fs::{self, File},
+    io,
+    path::{Path, PathBuf},
+};
+
+use serde::{de::DeserializeOwned, Serialize};
+
+use self::plot::PlotInfo;
 
 pub mod axis;
 pub mod plot;
 pub mod post_expansion;
+pub mod post_fn_name;
 pub mod post_slice;
 pub mod read_hdf5;
 pub mod snapshot;
 
-use clap::Clap;
-
-#[derive(Clap, Debug)]
-pub enum PostFnName {
-    Expansion(ExpansionFn),
-    Slice(SliceFn),
-    // Shadowing(ShadowingType),
-}
-
-impl std::fmt::Display for PostFnName {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = match self {
-            Self::Expansion(_) => "expansion",
-            Self::Slice(_) => "slice",
-        };
-        write!(f, "{}", name)
-    }
-}
-
 pub trait SnapPostFn {
-    type Output;
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Self::Output>;
-    fn plot(&self, result: &Self::Output) -> Result<()>;
+    type Output: DeserializeOwned + Serialize;
+    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Self::Output>>;
+    fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()>;
 
-    fn run_on_sim_snap(&self, sim: &SimParams, snap: &Snapshot) -> Result<()> {
+    fn run_on_sim_snap(
+        &self,
+        sim: &SimParams,
+        snap: &Snapshot,
+        plot_info: &PlotInfo,
+    ) -> Result<()> {
         let res = self.post(sim, snap)?;
-        self.plot(&res)
+        write_results(&plot_info.data_folder, &res)?;
+        self.plot(&res, plot_info)
     }
 }
 
-pub trait SimPostFn {
-    type Output;
-    fn post(&self, sim: &SimParams) -> Result<Self::Output>;
-    fn plot(&self, result: &Self::Output) -> Result<()>;
+// pub trait SimPostFn {
+//     type Output: DeserializeOwned + Serialize;
+//     fn post(&self, sim: &SimParams) -> Result<Vec<Self::Output>>;
+//     fn plot(&self, result: &Self::Output, plot_info: &PlotInfo) -> Result<()>;
 
-    fn run_on_sim(&self, sim: &SimParams) -> Result<()> {
-        let res = self.post(sim)?;
-        self.plot(&res)
+//     fn run_on_sim(&self, sim: &SimParams, plot_info: &PlotInfo) -> Result<()> {
+//         let res = self.post(sim)?;
+//         write_results(&plot_info.data_folder, res);
+//         self.plot(&res, plot_info)
+//     }
+// }
+
+pub fn write_results(data_folder: &Path, results: &Vec<impl Serialize>) -> Result<()> {
+    for (i, res) in results.iter().enumerate() {
+        let file = data_folder.join(i.to_string());
+        let mut wtr = csv::Writer::from_writer(BufWriter::new(File::create(file)?));
+        wtr.serialize(res)?;
+        wtr.flush()?;
     }
+    Ok(())
 }
 
 pub fn postprocess_sim_set(sim_set: &SimSet, function: PostFnName) -> Result<()> {
+    let sim_set_folder = sim_set.get_folder()?;
+    // for sim in sim_set.iter() {
+    //     let plot_info = PlotInfo::new(&sim_set_folder, sim, function, None);
+    //     create_folder_if_nonexistent(&plot_info.plot_folder)?;
+    //     match function {
+    //         PostFnName::Expansion(ref l) => l.run_on_sim(sim, &plot_info)?,
+    //         _ => {}
+    //     };
+    // }
     for sim in sim_set.iter() {
-        let pic_folder = create_pic_folder_if_nonexistent(sim)?;
-        let image_name = get_image_name(&pic_folder, &function.to_string());
-        match function {
-            PostFnName::Expansion(ref l) => l.run_on_sim(sim)?,
-            _ => {}
-        };
-    }
-    for sim in sim_set.iter() {
-        let pic_folder = create_pic_folder_if_nonexistent(sim)?;
         for mb_snap in get_snapshots(sim)? {
             let snap = mb_snap?;
-            let image_name = get_image_name(
-                &pic_folder,
-                &format!("{}_{}", snap.to_string(), function.to_string()),
-            );
+            let plot_info = PlotInfo::new(&sim_set_folder, sim, &function, Some(&snap));
+            plot_info.create_folders_if_nonexistent()?;
             match function {
-                PostFnName::Slice(ref l) => l.run_on_sim_snap(sim, &snap)?,
+                PostFnName::Slice(ref l) => l.run_on_sim_snap(sim, &snap, &plot_info)?,
                 _ => {}
             }
         }
     }
     Ok(())
-}
-
-fn create_pic_folder_if_nonexistent(sim: &SimParams) -> Result<PathBuf> {
-    let folder = sim.get_pic_folder();
-    if !folder.is_dir() {
-        fs::create_dir_all(&folder)?;
-    }
-    Ok(folder.to_owned())
-}
-
-fn get_image_name(pic_folder: &std::path::Path, post_fn_name: &str) -> PathBuf {
-    return pic_folder
-        .join(format!("{}.{}", post_fn_name, config::PIC_FILE_ENDING))
-        .to_owned();
 }
 
 pub fn get_snapshots<'a>(

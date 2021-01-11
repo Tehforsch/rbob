@@ -67,4 +67,15 @@ impl<'a> Snapshot<'a> {
             sim,
         })
     }
+
+    pub fn get_name(&self) -> String {
+        let snap_shot_base = self.sim["SnapshotFileBase"].unwrap_string();
+        Path::new(&self.file.filename())
+            .file_name()
+            .and_then(|x| x.to_str())
+            .and_then(|x| x.strip_suffix(".hdf5"))
+            .and_then(|x| x.strip_prefix(&snap_shot_base))
+            .unwrap()
+            .to_owned()
+    }
 }
