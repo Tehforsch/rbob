@@ -2,6 +2,7 @@ pub mod array_utils;
 pub mod build;
 pub mod config;
 pub mod copy;
+pub mod diff;
 pub mod job_params;
 pub mod param_value;
 pub mod postprocess;

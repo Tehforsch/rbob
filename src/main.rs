@@ -2,6 +2,7 @@ use self::args::Opts;
 use bob::build::build_sim_set;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::copy::copy_sim_set;
+use bob::diff;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 
@@ -19,16 +20,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     match a.subcmd {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set_from_input(&l.folder)?;
-            show_sim_set(sim_set, &l.param_names).expect("When showing parameters")
+            show_sim_set(sim_set, &l.param_names)?;
+        }
+        SubCommand::Diff(l) => {
+            diff::show_sim_diff(&l.folder1, &l.folder2)?;
         }
         SubCommand::ShowOutput(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            show_sim_set(sim_set, &l.param_names).expect("When showing parameters")
+            show_sim_set(sim_set, &l.param_names)?;
         }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            copy_sim_set(&sim_set, l.input_folder, l.output_folder)
-                .expect("When copying simulation");
+            copy_sim_set(&sim_set, l.input_folder, l.output_folder)?;
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;

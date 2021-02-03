@@ -118,7 +118,7 @@ pub fn get_first_difference<A: AsRef<Path>, B: AsRef<Path>>(
 
 #[allow(dead_code)]
 pub fn is_different<A: AsRef<Path>, B: AsRef<Path>>(a_base: A, b_base: B) -> Result<bool, Error> {
-    get_first_difference(a_base, b_base).map(|difference| difference.is_none())
+    get_first_difference(a_base, b_base).map(|difference| !difference.is_none())
 }
 
 fn walk_dir<P: AsRef<Path>>(path: P) -> Result<walkdir::IntoIter, std::io::Error> {

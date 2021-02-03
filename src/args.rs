@@ -17,6 +17,7 @@ pub struct Opts {
 #[derive(Clap, Debug)]
 pub enum SubCommand {
     Show(ShowSimulationInfo),
+    Diff(ShowSimulationDiff),
     ShowOutput(ShowSimulationInfoOutput),
     Copy(CopySimulation),
     Build(BuildSimulation),
@@ -30,6 +31,15 @@ pub enum SubCommand {
 pub struct ShowSimulationInfo {
     pub folder: PathBuf,
     pub param_names: Vec<String>,
+}
+
+/// Show the difference in the parameters between two simulation directories
+#[derive(Clap, Debug)]
+pub struct ShowSimulationDiff {
+    /// Path to the first simulation dir
+    pub folder1: PathBuf,
+    /// Path to the second simulation dir
+    pub folder2: PathBuf,
 }
 
 /// Read the output directory and show info about the resulting simulations.
