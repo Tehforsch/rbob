@@ -138,13 +138,14 @@ impl SimParams {
             .filter(|key| config::CONFIG_FILE_PARAMS.contains(&key.as_str()))
             .map(|key| match &self[key] {
                 ParamValue::Bool(value) => match value {
-                    true => format!("{}", key),
-                    false => format!("#{}", key),
+                    true => Some(format!("{}", key)),
+                    false => None,
                 },
-                ParamValue::Int(value) => format!("{}={}", key, value),
-                ParamValue::Float(_, s) => format!("{}={}", key, s),
+                ParamValue::Int(value) => Some(format!("{}={}", key, value)),
+                ParamValue::Float(_, s) => Some(format!("{}={}", key, s)),
                 _ => panic!("Wrong param value: {}", key),
             })
+            .filter_map(|x| x)
             .join("\n")
     }
 
@@ -237,7 +238,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
         params.insert(param.to_string(), ParamValue::Bool(false));
     }
     for line in get_nonempty_noncomment_lines(content, comment_string) {
-        let (key, value) = match line.contains(&"=") {
+        let (mut key, value) = match line.contains(&"=") {
             true => {
                 let split: Vec<&str> = line.split("=").collect();
                 match split.len() {
@@ -250,6 +251,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
             }
             false => Ok((line.to_string(), ParamValue::Bool(true))),
         }?;
+        key = key.trim_start().trim_end().to_string();
         match params.insert(key, value) {
             None => return Err(anyhow!("Found invalid config parameter: {}", line)),
             _ => {}

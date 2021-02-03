@@ -38,3 +38,12 @@ fn tabs_and_spaces() -> Result<()> {
     assert!(!out.stderr.contains(&"Invalid line in parameter file"));
     Ok(())
 }
+
+#[test]
+fn new_config_params() {
+    let out = run_bob_on_setup(
+        "newConfigParams",
+        &[NormalArg("show-output"), RelativePath(".")],
+    );
+    assert!(out.success);
+}
