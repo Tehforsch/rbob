@@ -1,9 +1,9 @@
 use crate::array_utils::{FArray1, FArray2};
 use crate::sim_params::SimParams;
 use anyhow::Result;
-use ndarray::{array, s, Array1};
+use ndarray::{array, s};
 use std::path::Path;
-use uom::si::{f64::Length, f64::MassDensity, f64::Ratio, f64::Time};
+use uom::si::f64::Time;
 
 use super::read_hdf5::get_attribute;
 

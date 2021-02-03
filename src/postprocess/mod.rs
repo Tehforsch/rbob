@@ -1,14 +1,13 @@
 use anyhow::Result;
 use io::BufWriter;
 
-use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::get_files;
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
 use std::{
-    fs::{self, File},
+    fs::File,
     io,
     path::{Path, PathBuf},
 };
