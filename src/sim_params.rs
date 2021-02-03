@@ -261,7 +261,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
 fn read_param_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
         read_file_contents(path).context(format!("While reading parameter file {:?}", path))?;
-    let re = Regex::new("^([^ ]*?)\\s+([^ ]*)[ %]*$").unwrap();
+    let re = Regex::new("^([^ ]*?)\\s+([^ ]*)\\s*[;%]*.*$").unwrap();
     let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
     key_value_strings
         .into_iter()
@@ -293,6 +293,11 @@ fn read_parameter_lines(
 ) -> Result<HashMap<String, String>> {
     get_nonempty_noncomment_lines(contents, comment_string)
         .map(|line| {
+            // let mut captures = pattern.captures_iter(line);
+            // for cap in captures {
+            //     dbg!("???{:?}???", &cap);
+            // }
+            // dbg!(&line);
             let mut captures = pattern.captures_iter(line);
             captures.next().filter(|cap| cap.len() == 3).map_or_else(
                 || {

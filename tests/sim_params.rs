@@ -29,9 +29,12 @@ fn different_param_files() -> Result<()> {
 }
 
 #[test]
-fn wrong_param_files() -> Result<()> {
-    let out = run_bob_on_setup("wrongParamFiles", &[NormalArg("show"), RelativePath("in")]);
-    assert!(!out.success);
-    assert!(out.stderr.contains(&"Invalid line in parameter file"));
+fn tabs_and_spaces() -> Result<()> {
+    let out = run_bob_on_setup(
+        "tabsAndSpaces",
+        &[NormalArg("show-output"), RelativePath(".")],
+    );
+    assert!(out.success);
+    assert!(!out.stderr.contains(&"Invalid line in parameter file"));
     Ok(())
 }
