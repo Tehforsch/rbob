@@ -1,4 +1,4 @@
-use crate::{config, sim_units::SimUnits};
+use crate::{arepo_log_file::ArepoLogFile, config, sim_units::SimUnits};
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
@@ -20,16 +20,23 @@ use uom::si::{
     velocity::centimeter_per_second,
 };
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum SimParamsKind {
+    Input,
+    Output,
+}
+
 #[derive(Debug, Clone)]
 pub struct SimParams {
     pub folder: PathBuf,
     params: HashMap<String, ParamValue>,
     pub time_limit_cpu: Time,
     pub units: SimUnits,
+    pub kind: SimParamsKind,
 }
 
 impl SimParams {
-    pub fn from_folder<U: AsRef<Path>>(folder: U) -> Result<SimParams> {
+    pub fn from_folder<U: AsRef<Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let mut params = HashMap::new();
         let param_file_path = get_param_file_path(&folder);
         let config_file_path = get_config_file_path(&folder);
@@ -45,7 +52,7 @@ impl SimParams {
                 .with_context(|| format!("While reading config file at {:?}", config_file_path))?,
         )?;
         update_from(&mut params, get_job_file_params())?;
-        Ok(SimParams::new(folder.as_ref(), params)?)
+        Ok(SimParams::new(folder.as_ref(), params, kind)?)
     }
 
     pub fn insert(&mut self, key: &str, value: &ParamValue) -> Option<ParamValue> {
@@ -76,7 +83,11 @@ impl SimParams {
             .unwrap_or(default.to_owned())
     }
 
-    pub fn new(folder: &Path, params: HashMap<String, ParamValue>) -> Result<SimParams> {
+    pub fn new(
+        folder: &Path,
+        params: HashMap<String, ParamValue>,
+        kind: SimParamsKind,
+    ) -> Result<SimParams> {
         let get_f64 = |k| try_get_f64(&params, k);
         let units = SimUnits::new(
             Length::new::<centimeter>(get_f64("UnitLength_in_cm")?),
@@ -88,6 +99,7 @@ impl SimParams {
             time_limit_cpu: Time::new::<second>(get_f64("TimeLimitCPU")?),
             units,
             params,
+            kind,
         })
     }
 
@@ -171,6 +183,25 @@ impl SimParams {
 
     fn get_job_params(&self) -> Result<JobParams> {
         JobParams::new(self)
+    }
+
+    fn get_log_file(&self) -> ArepoLogFile {
+        ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
+    }
+
+    pub fn get_num_cores(&self) -> Result<i64> {
+        // For input params, the number of cores should be readable directly from the params
+        // For output params, we will read the arepo log file and check for the corresponding line
+        // because that is the most accurate way to determine the number of cores.
+        match self.kind {
+            SimParamsKind::Input => Ok(self.params["numCores"].unwrap_i64()),
+            SimParamsKind::Output => self.get_log_file().get_num_cores(),
+        }
+    }
+
+    pub fn get_run_time(&self) -> Result<f64> {
+        assert_eq!(self.kind, SimParamsKind::Output);
+        self.get_log_file().get_run_time()
     }
 }
 

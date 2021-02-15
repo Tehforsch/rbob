@@ -1,11 +1,11 @@
-use super::{post_expansion::ExpansionFn, post_slice::SliceFn};
+use super::{post_expansion::ExpansionFn, post_scaling::ScalingFn, post_slice::SliceFn};
 use clap::Clap;
 
 #[derive(Clap, Debug)]
 pub enum PostFnName {
     Expansion(ExpansionFn),
     Slice(SliceFn),
-    // Shadowing(ShadowingType),
+    Scaling(ScalingFn),
 }
 
 impl std::fmt::Display for PostFnName {
@@ -13,6 +13,7 @@ impl std::fmt::Display for PostFnName {
         let name = match self {
             Self::Expansion(_) => "expansion".to_owned(),
             Self::Slice(s) => format!("slice_{}", s.axis),
+            Self::Scaling(_) => "scaling".to_owned(),
         };
         write!(f, "{}", name)
     }

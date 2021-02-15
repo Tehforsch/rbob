@@ -1,3 +1,4 @@
+pub mod arepo_log_file;
 pub mod array_utils;
 pub mod build;
 pub mod config;

@@ -5,9 +5,9 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
-use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
 use crate::util::get_folders;
+use crate::{param_value::ParamValue, sim_params::SimParamsKind};
 
 #[derive(Serialize, Deserialize)]
 enum CartesianType {
@@ -51,7 +51,10 @@ impl SimSet {
         folder: V,
     ) -> Result<SimSet> {
         let config = SimSetConfig::from_file(config_file_path)?;
-        let simulations = get_sim_params(&config, SimParams::from_folder(folder.as_ref())?)?;
+        let simulations = get_sim_params(
+            &config,
+            SimParams::from_folder(folder.as_ref(), SimParamsKind::Input)?,
+        )?;
         Ok(SimSet { simulations })
     }
 
@@ -66,7 +69,9 @@ impl SimSet {
         sim_folders.sort();
         sim_folders
             .into_iter()
-            .map(|(num, f)| -> Result<(usize, SimParams)> { Ok((num, SimParams::from_folder(f)?)) })
+            .map(|(num, f)| -> Result<(usize, SimParams)> {
+                Ok((num, SimParams::from_folder(f, SimParamsKind::Output)?))
+            })
             .collect()
     }
 

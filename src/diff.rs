@@ -1,7 +1,10 @@
 use anyhow::Result;
 use std::path::Path;
 
-use crate::{param_value::ParamValue, sim_params::SimParams};
+use crate::{
+    param_value::ParamValue,
+    sim_params::{SimParams, SimParamsKind},
+};
 
 enum ParamDiff {
     Same,
@@ -18,8 +21,8 @@ impl ParamDiff {
 }
 
 pub fn show_sim_diff(folder1: &Path, folder2: &Path) -> Result<()> {
-    let sim1 = SimParams::from_folder(folder1)?;
-    let sim2 = SimParams::from_folder(folder2)?;
+    let sim1 = SimParams::from_folder(folder1, SimParamsKind::Input)?;
+    let sim2 = SimParams::from_folder(folder2, SimParamsKind::Input)?;
     let mut diffs: Vec<ParamDiff> = get_param_diffs(&sim1, &sim2).collect();
     diffs.sort_by_key(|diff| match diff {
         ParamDiff::Diff(name, _, _) => name.clone(),
