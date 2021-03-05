@@ -24,6 +24,8 @@ hdf5-sys = {version = "0.7.1", features=["static"]}
 num-traits = "0.2"
 ordered-float = "2.0"
 csv = "1.1"
+xdg = "2.2"
+shellexpand = "2.1"
 
 [dev-dependencies]
 tempdir = "0.3.7"

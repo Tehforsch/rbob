@@ -1,1 +1,0 @@
-runrust build --bin bob

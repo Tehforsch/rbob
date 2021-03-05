@@ -4,12 +4,12 @@ use anyhow::Result;
 use clap::Clap;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ScalingResult {
     data: Vec<ScalingDataPoint>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ScalingDataPoint {
     num_cores: i64,
     run_time: f64,
@@ -40,9 +40,9 @@ impl SetPostFn for &ScalingFn {
         Ok(vec![res])
     }
 
-    fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
-        Ok(())
-    }
+    // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
+    //     run_plot(
+    // }
 }
 
 impl ScalingFn {}

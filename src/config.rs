@@ -15,6 +15,8 @@ pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
 pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";
 pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
 
+pub static CONFIG_FILE_NAME: &str = "config.yaml";
+
 #[cfg(feature = "bwfor")]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
 #SBATCH --partition={partition}
@@ -65,6 +67,9 @@ pub static DEFAULT_RUN_COMMAND: &str = &"./Arepo param.txt 0";
 pub static NX_SLICE: usize = 1;
 pub static NY_SLICE: usize = 1;
 pub static PIC_FILE_ENDING: &str = "png";
+
+pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
+pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "NTYPES",

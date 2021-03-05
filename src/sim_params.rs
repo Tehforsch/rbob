@@ -1,4 +1,6 @@
-use crate::{arepo_log_file::ArepoLogFile, config, sim_units::SimUnits};
+use crate::{
+    arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow,
+};
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
@@ -170,15 +172,7 @@ impl SimParams {
     fn get_job_file_contents(&self) -> Result<String> {
         let job_params = self.get_job_params()?;
         let replacements = job_params.to_hashmap();
-        strfmt(
-            &config::JOB_FILE_TEMPLATE,
-            &replacements.into_iter().map(|(s1, s2)| (s1, s2)).collect(),
-        )
-        .map_err(|e| match e {
-            FmtError::Invalid(s) => anyhow!("Invalid format string: {}", s),
-            FmtError::KeyError(s) => anyhow!("Required key not in parameter list: {}", s),
-            FmtError::TypeError(s) => anyhow!("Wrong type in parameter for template: {}", s),
-        })
+        strfmt_anyhow(&config::JOB_FILE_TEMPLATE, replacements)
     }
 
     fn get_job_params(&self) -> Result<JobParams> {

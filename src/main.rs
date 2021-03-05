@@ -1,8 +1,8 @@
 use self::args::Opts;
-use bob::build::build_sim_set;
-use bob::config::DEFAULT_BOB_CONFIG_NAME;
+use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
 use bob::copy::copy_sim_set;
 use bob::diff;
+use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 
@@ -11,12 +11,13 @@ use args::SubCommand;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use clap::Clap;
-use std::{error::Error, path::Path};
+use std::{env, error::Error, path::Path};
 
 pub mod args;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
+    let config_file = ConfigFile::read()?;
     match a.subcmd {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set_from_input(&l.folder)?;
@@ -47,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            postprocess_sim_set(&sim_set, l.function)?;
+            postprocess_sim_set(&config_file, &sim_set, l.function)?;
         }
     }
     Ok(())

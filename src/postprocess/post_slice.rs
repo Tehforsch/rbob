@@ -50,9 +50,9 @@ impl SnapPostFn for &SliceFn {
         Ok(vec![SliceResult { data }])
     }
 
-    fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
-        Ok(())
-    }
+    // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
+    //     Ok(())
+    // }
 }
 
 impl SliceFn {

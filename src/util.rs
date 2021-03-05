@@ -8,7 +8,7 @@ use std::process::{Command, Stdio};
 use std::str;
 
 pub fn read_file_contents(path: &Path) -> Result<String> {
-    fs::read_to_string(path).with_context(|| "While reading file")
+    fs::read_to_string(path).with_context(|| format!("While reading file {:?}", path))
 }
 
 pub fn write_file(path: &Path, contents: &str) -> Result<()> {
@@ -115,6 +115,7 @@ pub fn get_folders(folder: &Path) -> Result<Vec<PathBuf>> {
     Ok(iter_folders(folder)?.collect())
 }
 
+#[derive(Debug)]
 pub struct ShellCommandOutput {
     pub success: bool,
     pub stdout: String,
@@ -165,4 +166,9 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
             )
         })
         .map(|_| ())
+}
+
+pub fn expanduser(path: &Path) -> PathBuf {
+    let expanded = shellexpand::tilde(path.to_str().unwrap());
+    Path::new::<String>(&expanded.into()).to_path_buf()
 }

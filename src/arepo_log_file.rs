@@ -16,7 +16,7 @@ impl ArepoLogFile {
     }
 
     pub fn get_contents(&self) -> Result<String> {
-        read_file_contents(&self.file)
+        read_file_contents(&self.file).context("While reading log file")
     }
 
     pub fn get_num_cores(&self) -> Result<i64> {
