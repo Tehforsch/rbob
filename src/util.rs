@@ -1,4 +1,5 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+use pathdiff::diff_paths;
 use std::ffi::OsStr;
 use std::fmt::Display;
 use std::fs;
@@ -171,4 +172,13 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
 pub fn expanduser(path: &Path) -> PathBuf {
     let expanded = shellexpand::tilde(path.to_str().unwrap());
     Path::new::<String>(&expanded.into()).to_path_buf()
+}
+
+pub fn get_relative_path(folder: &Path, base_folder: &Path) -> Result<PathBuf> {
+    diff_paths(folder, base_folder).ok_or_else(|| {
+        anyhow!(format!(
+            "Failed to construct relative link from {:?} to {:?}",
+            folder, base_folder
+        ))
+    })
 }

@@ -27,10 +27,10 @@ impl PlotTemplate {
         })
     }
 
-    pub fn write_to(&self, target: &Path, replacements: HashMap<String, String>) -> Result<()> {
+    pub fn write_to(&self, target: &Path) -> Result<()> {
+        // Rewrite this to just copy (this used to contain replacements but now it doesnt make sense anymore)
         let contents = read_file_contents(&self.path)
             .context(format!("While reading plot template file {:?}", self.path))?;
-        let result = strfmt_anyhow(&contents, replacements)?;
-        write_file(target, &result)
+        write_file(target, &contents)
     }
 }

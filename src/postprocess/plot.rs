@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use itertools::Itertools;
 use std::{
     collections::HashMap,
     fs,
@@ -8,7 +9,10 @@ use std::{
 use super::plot_template::PlotTemplate;
 use super::{post_fn_name::PostFnName, snapshot::Snapshot};
 use crate::{
-    config, config_file::ConfigFile, sim_params::SimParams, util::get_shell_command_output,
+    config,
+    config_file::ConfigFile,
+    sim_params::SimParams,
+    util::{get_relative_path, get_shell_command_output, write_file},
 };
 
 pub struct PlotInfo {
@@ -71,9 +75,67 @@ pub fn run_plot(
     filenames: &Vec<PathBuf>,
     replacements: HashMap<String, String>,
 ) -> Result<()> {
-    let plot_file = copy_plot_template(config_file, info, replacements)?;
-    run_gnuplot_command(info, &plot_file)?;
+    let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
+    let plot_template = copy_plot_template(config_file, info)?;
+    let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
+    run_gnuplot_command(info, &main_plot_file)?;
     Ok(())
+}
+
+fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<PathBuf> {
+    let plot_template = info.get_plot_template(config_file)?;
+    let plot_file = info.plot_folder.join(format!(
+        "{}.{}",
+        &info.function_name,
+        config::DEFAULT_PLOT_EXTENSION
+    ));
+    plot_template.write_to(&plot_file)?;
+    Ok(plot_file.to_owned())
+}
+
+fn write_main_plot_file(info: &PlotInfo, files_to_load: Vec<&Path>) -> Result<PathBuf> {
+    let path = info.plot_folder.join(config::DEFAULT_PLOT_FILE_NAME);
+    let contents = files_to_load
+        .iter()
+        .map(|file| format!("load \"{}\"", file.file_name().unwrap().to_str().unwrap()))
+        .join("\n");
+    write_file(&path, &contents)?;
+    Ok(path)
+}
+
+fn write_plot_param_file(
+    info: &PlotInfo,
+    filenames: &Vec<PathBuf>,
+    replacements: &HashMap<String, String>,
+) -> Result<PathBuf> {
+    let path = info.plot_folder.join("params.gp");
+    let contents = get_plot_param_file_contents(info, filenames, replacements)?;
+    write_file(&path, &contents)?;
+    Ok(path)
+}
+
+fn get_plot_param_file_contents(
+    info: &PlotInfo,
+    filenames: &Vec<PathBuf>,
+    replacements: &HashMap<String, String>,
+) -> Result<String> {
+    let contents = replacements
+        .iter()
+        .map(|(key, value)| format!("{} = {}", key, value))
+        .join("\n");
+    let joined_files = get_joined_filenames(info, filenames)?;
+    Ok(contents + &format!("files = \"{}\"", &joined_files))
+}
+
+fn get_joined_filenames(info: &PlotInfo, filenames: &Vec<PathBuf>) -> Result<String> {
+    Ok(filenames
+        .iter()
+        .map(|filename| {
+            get_relative_path(filename, &info.plot_folder)
+                .map(|rel_path| rel_path.to_str().unwrap().to_owned())
+        })
+        .collect::<Result<Vec<String>>>()?
+        .join(" "))
 }
 
 fn run_gnuplot_command(info: &PlotInfo, plot_file: &Path) -> Result<()> {
@@ -86,15 +148,4 @@ fn run_gnuplot_command(info: &PlotInfo, plot_file: &Path) -> Result<()> {
         false => Err(anyhow!("Error in gnuplot command: {}", out.stderr)),
         true => Ok(()),
     }
-}
-
-fn copy_plot_template(
-    config_file: &ConfigFile,
-    info: &PlotInfo,
-    replacements: HashMap<String, String>,
-) -> Result<PathBuf> {
-    let plot_template = info.get_plot_template(config_file)?;
-    let plot_file = info.plot_folder.join(config::DEFAULT_PLOT_FILE_NAME);
-    plot_template.write_to(&plot_file, replacements)?;
-    Ok(plot_file.to_owned())
 }
