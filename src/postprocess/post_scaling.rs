@@ -4,13 +4,10 @@ use anyhow::Result;
 use clap::Clap;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ScalingResult {
-    data: Vec<ScalingDataPoint>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
 
 #[derive(Serialize, Deserialize, Debug)]
-struct ScalingDataPoint {
+pub struct ScalingDataPoint {
     num_cores: i64,
     run_time: f64,
 }
@@ -28,15 +25,13 @@ impl ScalingDataPoint {
 pub struct ScalingFn {}
 
 impl SetPostFn for &ScalingFn {
-    type Output = ScalingResult;
+    type Output = ScalingDataPoint;
 
-    fn post(&self, sim_set: &SimSet) -> Result<Vec<Self::Output>> {
-        let res = ScalingResult {
-            data: sim_set
-                .iter()
-                .map(|sim| ScalingDataPoint::from_sim(sim))
-                .collect::<Result<Vec<ScalingDataPoint>>>()?,
-        };
+    fn post(&self, sim_set: &SimSet) -> Result<Vec<Vec<Self::Output>>> {
+        let res = sim_set
+            .iter()
+            .map(|sim| ScalingDataPoint::from_sim(sim))
+            .collect::<Result<Vec<ScalingDataPoint>>>()?;
         Ok(vec![res])
     }
 

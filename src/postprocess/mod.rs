@@ -1,22 +1,23 @@
 use anyhow::{Context, Result};
 use csv::WriterBuilder;
 use io::BufWriter;
+use std::io::Read;
 
-use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::sim_set::SimSet;
 use crate::util::get_files;
+use crate::{config_file::ConfigFile, sim_params::SimParams};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
 use std::{
     collections::HashMap,
     fs::File,
-    io,
+    io::{self, BufReader},
     path::{Path, PathBuf},
 };
 
 use serde::{de::DeserializeOwned, Serialize};
 
-use self::plot::PlotInfo;
+use self::{plot::PlotInfo, post_scaling::ScalingDataPoint};
 
 pub mod axis;
 pub mod plot;
@@ -29,8 +30,8 @@ pub mod read_hdf5;
 pub mod snapshot;
 
 pub trait SnapPostFn {
-    type Output: DeserializeOwned + Serialize;
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Self::Output>>;
+    type Output: DeserializeOwned + Serialize + core::fmt::Debug;
+    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Vec<Self::Output>>>;
     // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()>;
 
     fn run_on_sim_snap(
@@ -42,42 +43,57 @@ pub trait SnapPostFn {
     ) -> Result<()> {
         let res = self.post(sim, snap)?;
         let filenames = write_results(&plot_info.data_folder, &res)?;
-        plot::run_plot(config_file, &plot_info, &filenames, HashMap::new())
+        plot::run_plot(config_file, &plot_info, &filenames)
     }
 }
 
 pub trait SetPostFn {
-    type Output: DeserializeOwned + Serialize;
-    fn post(&self, sim: &SimSet) -> Result<Vec<Self::Output>>;
+    type Output: DeserializeOwned + Serialize + core::fmt::Debug;
+    fn post(&self, sim: &SimSet) -> Result<Vec<Vec<Self::Output>>>;
     // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()>;
 
-    fn run_on_sim(&self,
+    fn run_on_sim(
+        &self,
         config_file: &ConfigFile,
-                  sim_set: &SimSet, plot_info: &PlotInfo) -> Result<()> {
+        sim_set: &SimSet,
+        plot_info: &PlotInfo,
+    ) -> Result<()> {
         let res = self.post(sim_set)?;
         let filenames = write_results(&plot_info.data_folder, &res)?;
-        plot::run_plot(config_file, &plot_info, &filenames, HashMap::new())
+        plot::run_plot(config_file, &plot_info, &filenames)
     }
 }
 
-pub fn write_results(data_folder: &Path, results: &Vec<impl Serialize>) -> Result<Vec<PathBuf>> {
+pub fn write_results(
+    data_folder: &Path,
+    results: &Vec<Vec<impl Serialize>>,
+) -> Result<Vec<PathBuf>> {
     results
         .iter()
         .enumerate()
         .map(|(i, res)| {
             let file = data_folder.join(i.to_string());
-            let file_writer = BufWriter::new(File::create(&file)?);
             let mut wtr = WriterBuilder::new()
                 .has_headers(false)
-                .from_writer(file_writer);
-            wtr.serialize(res)?;
+                .delimiter(b' ')
+                .terminator(csv::Terminator::CRLF)
+                .from_path(&file)?;
+            for line in results.iter() {
+                for record in line.iter() {
+                    wtr.serialize(record)?;
+                }
+            }
             wtr.flush()?;
             Ok(file.to_owned())
         })
         .collect()
 }
 
-pub fn postprocess_sim_set(config_file: &ConfigFile, sim_set: &SimSet, function: PostFnName) -> Result<()> {
+pub fn postprocess_sim_set(
+    config_file: &ConfigFile,
+    sim_set: &SimSet,
+    function: PostFnName,
+) -> Result<()> {
     let sim_set_folder = sim_set.get_folder()?;
     for sim in sim_set.iter() {
         for mb_snap in get_snapshots(sim)? {
@@ -85,7 +101,9 @@ pub fn postprocess_sim_set(config_file: &ConfigFile, sim_set: &SimSet, function:
             let plot_info = PlotInfo::new(&sim_set_folder, Some(sim), &function, Some(&snap));
             plot_info.create_folders_if_nonexistent()?;
             match function {
-                PostFnName::Slice(ref l) => l.run_on_sim_snap(config_file, sim, &snap, &plot_info)?,
+                PostFnName::Slice(ref l) => {
+                    l.run_on_sim_snap(config_file, sim, &snap, &plot_info)?
+                }
                 _ => {}
             }
         }

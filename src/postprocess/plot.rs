@@ -69,17 +69,26 @@ fn create_folder_if_nonexistent(folder: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn run_plot(
-    config_file: &ConfigFile,
-    info: &PlotInfo,
-    filenames: &Vec<PathBuf>,
-    replacements: HashMap<String, String>,
-) -> Result<()> {
+pub fn run_plot(config_file: &ConfigFile, info: &PlotInfo, filenames: &Vec<PathBuf>) -> Result<()> {
+    let replacements = get_default_replacements(info, filenames)?;
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
     let plot_template = copy_plot_template(config_file, info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
     run_gnuplot_command(info, &main_plot_file)?;
     Ok(())
+}
+
+fn get_default_replacements(
+    info: &PlotInfo,
+    filenames: &Vec<PathBuf>,
+) -> Result<HashMap<String, String>> {
+    let mut result = HashMap::new();
+    result.insert("numFiles".into(), filenames.len().to_string());
+    result.insert(
+        "files".into(),
+        format!("\"{}\"", get_joined_filenames(info, filenames)?),
+    );
+    Ok(result)
 }
 
 fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<PathBuf> {
@@ -123,8 +132,7 @@ fn get_plot_param_file_contents(
         .iter()
         .map(|(key, value)| format!("{} = {}", key, value))
         .join("\n");
-    let joined_files = get_joined_filenames(info, filenames)?;
-    Ok(contents + &format!("files = \"{}\"", &joined_files))
+    Ok(contents)
 }
 
 fn get_joined_filenames(info: &PlotInfo, filenames: &Vec<PathBuf>) -> Result<String> {
@@ -145,7 +153,7 @@ fn run_gnuplot_command(info: &PlotInfo, plot_file: &Path) -> Result<()> {
         Some(&info.plot_folder),
     );
     match out.success {
-        false => Err(anyhow!("Error in gnuplot command: {}", out.stderr)),
+        false => Err(anyhow!("Error in gnuplot command:\n{}", out.stderr)),
         true => Ok(()),
     }
 }

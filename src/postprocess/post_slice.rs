@@ -14,20 +14,15 @@ use ndarray::{array, s};
 use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct SliceResult {
-    data: FArray2,
-}
-
 #[derive(Clap, Debug)]
 pub struct SliceFn {
     pub axis: Axis,
 }
 
 impl SnapPostFn for &SliceFn {
-    type Output = SliceResult;
+    type Output = FArray2;
 
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Self::Output>> {
+    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Vec<Self::Output>>> {
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;
@@ -47,7 +42,8 @@ impl SnapPostFn for &SliceFn {
                 .unwrap();
             data[[i0, i1]] = h_plus_abundance[index];
         }
-        Ok(vec![SliceResult { data }])
+        todo!()
+        // Ok(vec![data])
     }
 
     // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
