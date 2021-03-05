@@ -1,10 +1,10 @@
 use self::args::Opts;
-use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
 use bob::copy::copy_sim_set;
 use bob::diff;
 use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
+use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;

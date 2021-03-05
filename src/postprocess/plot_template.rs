@@ -1,7 +1,6 @@
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
 
-
 use crate::{
     config,
     config_file::ConfigFile,

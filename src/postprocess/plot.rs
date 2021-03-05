@@ -25,21 +25,21 @@ pub struct PlotInfo {
 impl PlotInfo {
     pub fn new(
         sim_set_folder: &Path,
+        function_name: &str,
         mb_sim: Option<&SimParams>,
-        function: &PostFnName,
         mb_snap: Option<&Snapshot>,
     ) -> PlotInfo {
         let plot_name = match mb_sim {
             Some(sim) => {
                 let sim_name = sim.folder.file_name().unwrap().to_str().unwrap();
                 match mb_snap {
-                    None => format!("{}_{}", function.to_string(), sim_name),
+                    None => format!("{}_{}", function_name, sim_name),
                     Some(snap) => {
-                        format!("{}_{}_{}", function.to_string(), sim_name, snap.get_name())
+                        format!("{}_{}_{}", function_name, sim_name, snap.get_name())
                     }
                 }
             }
-            None => function.to_string(),
+            None => function_name.into(),
         }
         .to_owned();
         let plot_folder = sim_set_folder.join("pics").join(&plot_name);
@@ -48,7 +48,7 @@ impl PlotInfo {
             plot_folder,
             data_folder,
             plot_name,
-            function_name: function.to_string(),
+            function_name: function_name.into(),
         }
     }
 

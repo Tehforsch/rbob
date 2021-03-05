@@ -1,117 +1,62 @@
 use anyhow::{Context, Result};
 use csv::WriterBuilder;
-
-
+use ndarray_csv::{Array2Reader, Array2Writer};
 
 use crate::sim_set::SimSet;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
-use std::{
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use serde::{de::DeserializeOwned, Serialize};
 
-use self::{plot::PlotInfo};
+use self::{data_plot_info::DataPlotInfo, plot::PlotInfo, post_fn::PostFn};
 
 pub mod axis;
+pub mod data_plot_info;
 pub mod plot;
 pub mod plot_template;
 pub mod post_expansion;
+pub mod post_fn;
 pub mod post_fn_name;
 pub mod post_scaling;
 pub mod post_slice;
 pub mod read_hdf5;
 pub mod snapshot;
 
-pub trait SnapPostFn {
-    type Output: DeserializeOwned + Serialize + core::fmt::Debug;
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Vec<Self::Output>>>;
-    // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()>;
-
-    fn run_on_sim_snap(
-        &self,
-        config_file: &ConfigFile,
-        sim: &SimParams,
-        snap: &Snapshot,
-        plot_info: &PlotInfo,
-    ) -> Result<()> {
-        let res = self.post(sim, snap)?;
-        let filenames = write_results(&plot_info.data_folder, &res)?;
-        plot::run_plot(config_file, &plot_info, &filenames)
+pub fn postprocess_sim_set(
+    config_file: &ConfigFile,
+    sim_set: &SimSet,
+    function_name: PostFnName,
+) -> Result<()> {
+    let data_plot_info_list = function_name
+        .get_function()
+        .run_post(config_file, sim_set)?;
+    for data_plot_info in data_plot_info_list.iter() {
+        let filenames = write_results(&data_plot_info)?;
+        plot::run_plot(config_file, &data_plot_info.info, &filenames)?;
     }
+    Ok(())
 }
 
-pub trait SetPostFn {
-    type Output: DeserializeOwned + Serialize + core::fmt::Debug;
-    fn post(&self, sim: &SimSet) -> Result<Vec<Vec<Self::Output>>>;
-    // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()>;
-
-    fn run_on_sim(
-        &self,
-        config_file: &ConfigFile,
-        sim_set: &SimSet,
-        plot_info: &PlotInfo,
-    ) -> Result<()> {
-        let res = self.post(sim_set)?;
-        let filenames = write_results(&plot_info.data_folder, &res)?;
-        plot::run_plot(config_file, &plot_info, &filenames)
-    }
-}
-
-pub fn write_results(
-    data_folder: &Path,
-    results: &Vec<Vec<impl Serialize>>,
-) -> Result<Vec<PathBuf>> {
-    results
+pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<PathBuf>> {
+    let data_folder = &data_plot_info.info.data_folder;
+    data_plot_info
+        .data
         .iter()
         .enumerate()
-        .map(|(i, _res)| {
+        .map(|(i, res)| {
             let file = data_folder.join(i.to_string());
             let mut wtr = WriterBuilder::new()
                 .has_headers(false)
                 .delimiter(b' ')
-                .terminator(csv::Terminator::CRLF)
                 .from_path(&file)?;
-            for line in results.iter() {
-                for record in line.iter() {
-                    wtr.serialize(record)?;
-                }
-            }
+            wtr.serialize_array2(res)?;
             wtr.flush()?;
             Ok(file.to_owned())
         })
         .collect()
-}
-
-pub fn postprocess_sim_set(
-    config_file: &ConfigFile,
-    sim_set: &SimSet,
-    function: PostFnName,
-) -> Result<()> {
-    let sim_set_folder = sim_set.get_folder()?;
-    for sim in sim_set.iter() {
-        for mb_snap in get_snapshots(sim)? {
-            let snap = mb_snap?;
-            let plot_info = PlotInfo::new(&sim_set_folder, Some(sim), &function, Some(&snap));
-            plot_info.create_folders_if_nonexistent()?;
-            match function {
-                PostFnName::Slice(ref l) => {
-                    l.run_on_sim_snap(config_file, sim, &snap, &plot_info)?
-                }
-                _ => {}
-            }
-        }
-    }
-    let plot_info = PlotInfo::new(&sim_set_folder, None, &function, None);
-    plot_info.create_folders_if_nonexistent()?;
-    match function {
-        PostFnName::Scaling(ref l) => l.run_on_sim(config_file, sim_set, &plot_info)?,
-        _ => {}
-    }
-    Ok(())
 }
 
 pub fn get_snapshots<'a>(

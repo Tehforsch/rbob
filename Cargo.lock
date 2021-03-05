@@ -56,6 +56,7 @@ dependencies = [
  "hdf5-sys",
  "itertools",
  "ndarray",
+ "ndarray-csv",
  "num-traits",
  "ordered-float",
  "pathdiff",
@@ -405,6 +406,18 @@ dependencies = [
  "num-integer",
  "num-traits",
  "rawpointer",
+ "serde",
+]
+
+[[package]]
+name = "ndarray-csv"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fdc609393d495aac8dc052ed90cf0285f2c6c05546a403db6e54f9f2772549a"
+dependencies = [
+ "csv",
+ "either",
+ "ndarray",
  "serde",
 ]
 

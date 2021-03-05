@@ -89,6 +89,10 @@ impl SimSet {
             .ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
             .map(|(_, sim)| sim.folder.parent().unwrap().to_owned())
     }
+
+    pub fn len(&self) -> usize {
+        self.simulations.len()
+    }
 }
 
 fn get_sim_params(
