@@ -1,16 +1,8 @@
-
-
-use super::{
-    data_plot_info::DataPlotInfo,
-    plot::{self, PlotInfo},
-    snapshot::Snapshot,
-    write_results,
-};
+use super::{data_plot_info::DataPlotInfo, plot::PlotInfo, snapshot::Snapshot};
 use crate::{
     array_utils::FArray2, config_file::ConfigFile, sim_params::SimParams, sim_set::SimSet,
 };
 use anyhow::Result;
-
 
 pub enum PostFnKind {
     Snap,
