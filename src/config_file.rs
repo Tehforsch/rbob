@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::config;
+use crate::{config, util::expanduser};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
@@ -33,5 +33,11 @@ impl ConfigFile {
         ConfigFile {
             plot_template_folder: "~/projects/bob/plotTemplates".into(),
         }
+    }
+
+    pub fn expanduser(&self) -> Result<ConfigFile> {
+        Ok(ConfigFile {
+            plot_template_folder: expanduser(&self.plot_template_folder)?,
+        })
     }
 }

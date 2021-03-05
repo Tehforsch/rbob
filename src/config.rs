@@ -70,6 +70,7 @@ pub static PIC_FILE_ENDING: &str = "png";
 
 pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
+pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "NTYPES",

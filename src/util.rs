@@ -169,9 +169,11 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
         .map(|_| ())
 }
 
-pub fn expanduser(path: &Path) -> PathBuf {
+pub fn expanduser(path: &Path) -> Result<PathBuf> {
     let expanded = shellexpand::tilde(path.to_str().unwrap());
-    Path::new::<String>(&expanded.into()).to_path_buf()
+    Ok(Path::new::<String>(&expanded.into())
+        .canonicalize()?
+        .to_path_buf())
 }
 
 pub fn get_relative_path(folder: &Path, base_folder: &Path) -> Result<PathBuf> {

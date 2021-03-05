@@ -17,7 +17,7 @@ pub mod args;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
-    let config_file = ConfigFile::read()?;
+    let config_file = ConfigFile::read()?.expanduser()?;
     match a.subcmd {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set_from_input(&l.folder)?;

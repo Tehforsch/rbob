@@ -1,2 +1,2 @@
 load "config/default.gp"
-plot for [file in files] file using 1:2 title ""
+plot for [file in files] file using 1:2 title "" w l ls 1

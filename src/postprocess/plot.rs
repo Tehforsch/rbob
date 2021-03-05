@@ -7,12 +7,12 @@ use std::{
 };
 
 use super::plot_template::PlotTemplate;
-use super::{snapshot::Snapshot};
+use super::snapshot::Snapshot;
 use crate::{
     config,
     config_file::ConfigFile,
     sim_params::SimParams,
-    util::{get_relative_path, get_shell_command_output, write_file},
+    util::{copy_recursive, get_relative_path, get_shell_command_output, write_file},
 };
 
 pub struct PlotInfo {
@@ -74,8 +74,19 @@ pub fn run_plot(config_file: &ConfigFile, info: &PlotInfo, filenames: &Vec<PathB
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
     let plot_template = copy_plot_template(config_file, info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
+    copy_plot_config_folder(config_file, info)?;
     run_gnuplot_command(info, &main_plot_file)?;
     Ok(())
+}
+
+fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<()> {
+    let source = config_file
+        .plot_template_folder
+        .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+    let target = info
+        .plot_folder
+        .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+    copy_recursive(source, target)
 }
 
 fn get_default_replacements(
@@ -84,6 +95,10 @@ fn get_default_replacements(
 ) -> Result<HashMap<String, String>> {
     let mut result = HashMap::new();
     result.insert("numFiles".into(), filenames.len().to_string());
+    result.insert(
+        "picFile".into(),
+        format!("\"{}.{}\"", info.plot_name, config::PIC_FILE_ENDING),
+    );
     result.insert(
         "files".into(),
         format!("\"{}\"", get_joined_filenames(info, filenames)?),

@@ -13,13 +13,11 @@ pub struct PlotTemplate {
 
 impl PlotTemplate {
     pub fn new(config_file: &ConfigFile, name: &str) -> Result<PlotTemplate> {
-        let path = expanduser(&config_file.plot_template_folder)
-            .canonicalize()
-            .context(format!(
-                "Unable to interpret {:?} as config file path",
-                config_file.plot_template_folder
-            ))?
-            .join(format!("{}.{}", name, config::DEFAULT_PLOT_EXTENSION));
+        let path = &config_file.plot_template_folder.join(format!(
+            "{}.{}",
+            name,
+            config::DEFAULT_PLOT_EXTENSION
+        ));
         Ok(PlotTemplate {
             path: path.to_owned(),
         })
