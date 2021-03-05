@@ -1,4 +1,4 @@
-use std::iter;
+
 
 use super::{
     data_plot_info::DataPlotInfo,
@@ -10,7 +10,7 @@ use crate::{
     array_utils::FArray2, config_file::ConfigFile, sim_params::SimParams, sim_set::SimSet,
 };
 use anyhow::Result;
-use serde::{de::DeserializeOwned, Serialize};
+
 
 pub enum PostFnKind {
     Snap,
@@ -44,7 +44,7 @@ pub trait PostFn {
         }
     }
 
-    fn run_on_sim_set(config_file: &ConfigFile, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+    fn run_on_sim_set(_config_file: &ConfigFile, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
         let post_result = Self::post(sim_set, None, None)?;
         let plot_info = PlotInfo::new(&sim_set.get_folder()?, Self::NAME, None, None);
         Ok(vec![DataPlotInfo {

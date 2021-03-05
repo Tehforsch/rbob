@@ -1,10 +1,9 @@
 use super::{
-    plot::PlotInfo,
     post_fn::{PostFn, PostFnKind},
     snapshot::Snapshot,
 };
 use crate::{
-    array_utils::FArray2, config_file::ConfigFile, sim_params::SimParams, sim_set::SimSet,
+    array_utils::FArray2, sim_params::SimParams, sim_set::SimSet,
 };
 use anyhow::Result;
 use clap::Clap;

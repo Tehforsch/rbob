@@ -1,17 +1,17 @@
 use anyhow::{Context, Result};
 use csv::WriterBuilder;
-use ndarray_csv::{Array2Reader, Array2Writer};
+use ndarray_csv::{Array2Writer};
 
 use crate::sim_set::SimSet;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 
-use serde::{de::DeserializeOwned, Serialize};
 
-use self::{data_plot_info::DataPlotInfo, plot::PlotInfo, post_fn::PostFn};
+
+use self::{data_plot_info::DataPlotInfo, post_fn::PostFn};
 
 pub mod axis;
 pub mod data_plot_info;

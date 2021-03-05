@@ -7,7 +7,7 @@ use std::{
 };
 
 use super::plot_template::PlotTemplate;
-use super::{post_fn_name::PostFnName, snapshot::Snapshot};
+use super::{snapshot::Snapshot};
 use crate::{
     config,
     config_file::ConfigFile,

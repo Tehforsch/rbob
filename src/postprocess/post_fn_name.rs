@@ -21,7 +21,7 @@ impl std::fmt::Display for PostFnName {
         let name = match self {
             // Self::Expansion(_) => "expansion".to_owned(),
             // Self::Slice(s) => format!("slice_{}", s.axis),
-            Self::Scaling(s) => "scaling".to_owned(),
+            Self::Scaling(_s) => "scaling".to_owned(),
         };
         write!(f, "{}", name)
     }
