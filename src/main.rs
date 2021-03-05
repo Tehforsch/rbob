@@ -11,7 +11,7 @@ use args::SubCommand;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use clap::Clap;
-use std::{env, error::Error, path::Path};
+use std::{error::Error, path::Path};
 
 pub mod args;
 

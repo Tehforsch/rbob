@@ -1,11 +1,10 @@
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
-use std::{collections::HashMap, env};
+
 
 use crate::{
     config,
     config_file::ConfigFile,
-    strfmt_utils::strfmt_anyhow,
     util::{expanduser, read_file_contents, write_file},
 };
 

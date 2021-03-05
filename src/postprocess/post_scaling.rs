@@ -1,4 +1,4 @@
-use super::{plot::PlotInfo, SetPostFn};
+use super::{SetPostFn};
 use crate::{sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 use clap::Clap;

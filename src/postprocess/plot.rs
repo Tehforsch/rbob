@@ -124,8 +124,8 @@ fn write_plot_param_file(
 }
 
 fn get_plot_param_file_contents(
-    info: &PlotInfo,
-    filenames: &Vec<PathBuf>,
+    _info: &PlotInfo,
+    _filenames: &Vec<PathBuf>,
     replacements: &HashMap<String, String>,
 ) -> Result<String> {
     let contents = replacements

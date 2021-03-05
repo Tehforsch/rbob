@@ -1,4 +1,4 @@
-use super::{plot::PlotInfo, SnapPostFn};
+use super::{SnapPostFn};
 use crate::{
     array_utils::{FArray1, FArray2},
     config::{NX_SLICE, NY_SLICE},
@@ -12,7 +12,7 @@ use anyhow::Result;
 use clap::Clap;
 use ndarray::{array, s};
 use ordered_float::OrderedFloat;
-use serde::{Deserialize, Serialize};
+
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
@@ -22,7 +22,7 @@ pub struct SliceFn {
 impl SnapPostFn for &SliceFn {
     type Output = FArray2;
 
-    fn post(&self, sim: &SimParams, snap: &Snapshot) -> Result<Vec<Vec<Self::Output>>> {
+    fn post(&self, _sim: &SimParams, snap: &Snapshot) -> Result<Vec<Vec<Self::Output>>> {
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;

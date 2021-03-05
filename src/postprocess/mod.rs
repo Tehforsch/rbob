@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use csv::WriterBuilder;
-use io::BufWriter;
-use std::io::Read;
+
+
 
 use crate::sim_set::SimSet;
 use crate::util::get_files;
@@ -17,7 +17,7 @@ use std::{
 
 use serde::{de::DeserializeOwned, Serialize};
 
-use self::{plot::PlotInfo, post_scaling::ScalingDataPoint};
+use self::{plot::PlotInfo};
 
 pub mod axis;
 pub mod plot;
@@ -71,7 +71,7 @@ pub fn write_results(
     results
         .iter()
         .enumerate()
-        .map(|(i, res)| {
+        .map(|(i, _res)| {
             let file = data_folder.join(i.to_string());
             let mut wtr = WriterBuilder::new()
                 .has_headers(false)
