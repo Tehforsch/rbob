@@ -9,9 +9,6 @@ use crate::{config_file::ConfigFile, sim_params::SimParams};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
 use std::{
-    collections::HashMap,
-    fs::File,
-    io::{self, BufReader},
     path::{Path, PathBuf},
 };
 
