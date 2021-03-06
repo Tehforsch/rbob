@@ -9,7 +9,7 @@ use crate::{sim_set::SimSet, util::get_shell_command_output};
 use snapshot::Snapshot;
 use std::path::PathBuf;
 
-use self::{data_plot_info::DataPlotInfo, post_fn::PostFn, postprocess_args::PostprocessArgs};
+use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
 
 pub mod axis;
 pub mod data_plot_info;

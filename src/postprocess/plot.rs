@@ -5,8 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-
-use super::{plot_info::PlotInfo};
+use super::plot_info::PlotInfo;
 use crate::{
     config,
     config_file::ConfigFile,
