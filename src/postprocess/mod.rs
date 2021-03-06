@@ -1,15 +1,13 @@
 use anyhow::{Context, Result};
 use csv::WriterBuilder;
-use ndarray_csv::{Array2Writer};
+use ndarray_csv::Array2Writer;
 
 use crate::sim_set::SimSet;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
-use std::path::{PathBuf};
-
-
+use std::path::PathBuf;
 
 use self::{data_plot_info::DataPlotInfo, post_fn::PostFn};
 
@@ -34,6 +32,7 @@ pub fn postprocess_sim_set(
         .get_function()
         .run_post(config_file, sim_set)?;
     for data_plot_info in data_plot_info_list.iter() {
+        data_plot_info.info.create_folders_if_nonexistent()?;
         let filenames = write_results(&data_plot_info)?;
         plot::run_plot(config_file, &data_plot_info.info, &filenames)?;
     }

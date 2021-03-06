@@ -2,9 +2,7 @@ use super::{
     post_fn::{PostFn, PostFnKind},
     snapshot::Snapshot,
 };
-use crate::{
-    array_utils::FArray2, sim_params::SimParams, sim_set::SimSet,
-};
+use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 use clap::Clap;
 use serde::{Deserialize, Serialize};

@@ -9,6 +9,6 @@ fn run_post_scaling() {
         "post_scaling",
         &[NormalArg("post"), RelativePath("."), NormalArg("scaling")],
     );
+    dbg!(out.stderr);
     assert!(out.success);
-    assert!(false);
 }

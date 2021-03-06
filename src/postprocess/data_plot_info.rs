@@ -1,5 +1,3 @@
-
-
 use crate::array_utils::FArray2;
 
 use super::plot::PlotInfo;
