@@ -1,4 +1,4 @@
-use super::{data_plot_info::DataPlotInfo, get_snapshots, plot::PlotInfo, snapshot::Snapshot};
+use super::{data_plot_info::DataPlotInfo, get_snapshots, plot_info::PlotInfo, snapshot::Snapshot};
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 
@@ -94,14 +94,3 @@ pub trait PostFn {
         ))
     }
 }
-
-// fn run_on_sim(
-//     &self,
-//     config_file: &ConfigFile,
-//     sim_set: &SimSet,
-//     plot_info: &PlotInfo,
-// ) -> Result<()> {
-//     let res = self.post(sim_set)?;
-//     let filenames = write_results(&plot_info.data_folder, &res)?;
-//     plot::run_plot(config_file, &plot_info, &filenames)
-// }

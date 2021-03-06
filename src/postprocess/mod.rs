@@ -7,13 +7,14 @@ use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
 
 use snapshot::Snapshot;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 use self::{data_plot_info::DataPlotInfo, post_fn::PostFn, postprocess_args::PostprocessArgs};
 
 pub mod axis;
 pub mod data_plot_info;
 pub mod plot;
+pub mod plot_info;
 pub mod plot_template;
 pub mod post_expansion;
 pub mod post_fn;
