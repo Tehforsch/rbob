@@ -14,8 +14,7 @@ pub struct ConfigFile {
 
 impl ConfigFile {
     pub fn read() -> Result<ConfigFile> {
-        let package_name = std::env::var("CARGO_PKG_NAME")?;
-        let xdg_dirs = xdg::BaseDirectories::with_prefix(package_name).unwrap();
+        let xdg_dirs = xdg::BaseDirectories::with_prefix("bob").unwrap();
         let config_path = xdg_dirs.find_config_file(config::CONFIG_FILE_NAME);
         match config_path {
             Some(path) => ConfigFile::from_file(&path),

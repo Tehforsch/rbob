@@ -53,7 +53,6 @@ dependencies = [
  "csv",
  "dissimilar",
  "hdf5",
- "hdf5-sys",
  "itertools",
  "ndarray",
  "ndarray-csv",
@@ -91,12 +90,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
 
 [[package]]
-name = "cc"
-version = "1.0.66"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c0496836a84f8d0495758516b8621a622beb77c0fed418570e50764093ced48"
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -132,15 +125,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "cmake"
-version = "0.1.45"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb6210b637171dfba4cda12e579ac6dc73f5165ad56133e5d72ef3131f320855"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -230,8 +214,6 @@ checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
 [[package]]
 name = "hdf5"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a863396b1828dcb188209e0d3e380433415cc4c253f80fa367b5154cc3073db0"
 dependencies = [
  "bitflags",
  "hdf5-derive",
@@ -248,8 +230,6 @@ dependencies = [
 [[package]]
 name = "hdf5-derive"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6eddba76f9d15423c8737a3f376128e3b556f01cd8927e44736ea8cc63bbcc02"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -257,21 +237,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "hdf5-src"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64a324a112cc0e45c565b34f6fbd3fcccc680c0b10d633b27ab2f4015a17599e"
-dependencies = [
- "cmake",
-]
-
-[[package]]
 name = "hdf5-sys"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15fa1f3c5b34a7dd3815fc68aa8d64f0682e500b393b77b88f8dac206d2b16a9"
 dependencies = [
- "hdf5-src",
  "libc",
  "libloading",
  "pkg-config",
@@ -284,10 +252,9 @@ dependencies = [
 [[package]]
 name = "hdf5-types"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4523a5d946b3ef2a0aa1d3643a844c581794dee09934c4a8e1ffb6dbb878872e"
 dependencies = [
  "ascii",
+ "hdf5-sys",
  "libc",
 ]
 
@@ -311,9 +278,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "1.6.1"
+version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb1fa934250de4de8aef298d81c729a7d33d8c239daa3a7575e6b92bfc7313b"
+checksum = "824845a0bf897a9042383849b02c1bc219c2383772efcd5c6f9766fa4b81aef3"
 dependencies = [
  "autocfg",
  "hashbrown",
@@ -351,9 +318,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.86"
+version = "0.2.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7282d924be3275cec7f6756ff4121987bc6481325397dde6ba3e7802b1a8b1c"
+checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
 
 [[package]]
 name = "libloading"
@@ -451,9 +418,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.5.2"
+version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0"
+checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
 
 [[package]]
 name = "ordered-float"
@@ -670,18 +637,18 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "serde"
-version = "1.0.123"
+version = "1.0.124"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92d5161132722baa40d802cc70b15262b98258453e85e5d1d365c757c73869ae"
+checksum = "bd761ff957cb2a45fbb9ab3da6512de9de55872866160b23c25f1a841e99d29f"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.123"
+version = "1.0.124"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9391c295d64fc0abb2c556bad848f33cb8296276b1ad2677d1ae1ace4f258f31"
+checksum = "1800f7693e94e186f5e25a28291ae1570da908aff7d97a095dec1e56ff99069b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -729,9 +696,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "syn"
-version = "1.0.60"
+version = "1.0.62"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c700597eca8a5a762beb35753ef6b94df201c81cca676604f547495a0d7f0081"
+checksum = "123a78a3596b24fee53a6464ce52d8ecbf62241e6294c7e7fe12086cd161f512"
 dependencies = [
  "proc-macro2",
  "quote",

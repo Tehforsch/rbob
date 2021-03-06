@@ -5,7 +5,7 @@ use ndarray::{array, s};
 use std::path::Path;
 use uom::si::f64::Time;
 
-use super::read_hdf5::get_attribute;
+use super::read_hdf5::get_header_attribute;
 
 #[derive(Debug)]
 pub struct Snapshot<'a> {
@@ -61,9 +61,11 @@ impl<'a> Snapshot<'a> {
     }
 
     pub fn from_file(sim: &'a SimParams, file: &Path) -> Result<Snapshot<'a>> {
+        let h5file = hdf5::File::open(file)?;
+        let time = get_header_attribute(&h5file, "Time", sim.units.time)?;
         Ok(Snapshot {
-            file: hdf5::File::open(file)?,
-            time: get_attribute(file, "Header/Time", sim.units.time)?,
+            file: h5file,
+            time,
             sim,
         })
     }

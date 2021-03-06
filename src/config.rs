@@ -64,8 +64,8 @@ pub static DEFAULT_PARTITION: &str = "single";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_COMMAND: &str = &"./Arepo param.txt 0";
 
-pub static NX_SLICE: usize = 10;
-pub static NY_SLICE: usize = 10;
+pub static NX_SLICE: usize = 100;
+pub static NY_SLICE: usize = 100;
 pub static PIC_FILE_ENDING: &str = "png";
 
 pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
