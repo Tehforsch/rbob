@@ -34,11 +34,10 @@ impl PostFn for &SliceFn {
     fn post(
         &self,
         _sim_set: &SimSet,
-        sim: Option<&SimParams>,
+        _sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
     ) -> Result<Vec<FArray2>> {
         let snap = snap.unwrap();
-        let _sim = sim.unwrap();
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;
@@ -58,8 +57,7 @@ impl PostFn for &SliceFn {
                 .unwrap();
             data[[i0, i1]] = h_plus_abundance[index];
         }
-        todo!()
-        // Ok(vec![data])
+        Ok(vec![data])
     }
 }
 

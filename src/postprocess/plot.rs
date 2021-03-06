@@ -19,13 +19,15 @@ pub struct PlotInfo {
     pub plot_folder: PathBuf,
     pub data_folder: PathBuf,
     pub plot_name: String,
-    pub function_name: String,
+    pub name: String,
+    pub qualified_name: String,
 }
 
 impl PlotInfo {
     pub fn new(
         sim_set_folder: &Path,
-        function_name: &str,
+        name: &str,
+        qualified_name: &str,
         mb_sim: Option<&SimParams>,
         mb_snap: Option<&Snapshot>,
     ) -> PlotInfo {
@@ -33,13 +35,13 @@ impl PlotInfo {
             Some(sim) => {
                 let sim_name = sim.folder.file_name().unwrap().to_str().unwrap();
                 match mb_snap {
-                    None => format!("{}_{}", function_name, sim_name),
+                    None => format!("{}_{}", qualified_name, sim_name),
                     Some(snap) => {
-                        format!("{}_{}_{}", function_name, sim_name, snap.get_name())
+                        format!("{}_{}_{}", qualified_name, sim_name, snap.get_name())
                     }
                 }
             }
-            None => function_name.into(),
+            None => qualified_name.into(),
         }
         .to_owned();
         let plot_folder = sim_set_folder.join("pics").join(&plot_name);
@@ -48,7 +50,8 @@ impl PlotInfo {
             plot_folder,
             data_folder,
             plot_name,
-            function_name: function_name.into(),
+            name: name.into(),
+            qualified_name: qualified_name.into(),
         }
     }
 
@@ -58,7 +61,7 @@ impl PlotInfo {
     }
 
     pub fn get_plot_template(&self, config_file: &ConfigFile) -> Result<PlotTemplate> {
-        PlotTemplate::new(config_file, &self.function_name)
+        PlotTemplate::new(config_file, &self.name)
     }
 }
 
@@ -108,11 +111,9 @@ fn get_default_replacements(
 
 fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<PathBuf> {
     let plot_template = info.get_plot_template(config_file)?;
-    let plot_file = info.plot_folder.join(format!(
-        "{}.{}",
-        &info.function_name,
-        config::DEFAULT_PLOT_EXTENSION
-    ));
+    let plot_file =
+        info.plot_folder
+            .join(format!("{}.{}", &info.name, config::DEFAULT_PLOT_EXTENSION));
     plot_template.write_to(&plot_file)?;
     Ok(plot_file.to_owned())
 }

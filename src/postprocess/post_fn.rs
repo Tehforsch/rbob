@@ -1,7 +1,5 @@
 use super::{data_plot_info::DataPlotInfo, get_snapshots, plot::PlotInfo, snapshot::Snapshot};
-use crate::{
-    array_utils::FArray2, sim_params::SimParams, sim_set::SimSet,
-};
+use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 
 pub enum PostFnKind {
@@ -32,9 +30,8 @@ pub trait PostFn {
 
     fn run_on_sim_set(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
         let post_result = self.post(sim_set, None, None)?;
-        let plot_info = PlotInfo::new(&sim_set.get_folder()?, &self.qualified_name(), None, None);
         Ok(vec![DataPlotInfo {
-            info: plot_info,
+            info: self.get_plot_info(sim_set, None, None)?,
             data: post_result,
         }])
     }
@@ -44,14 +41,8 @@ pub trait PostFn {
             .iter()
             .map(|sim| {
                 let post_result = self.post(sim_set, Some(sim), None)?;
-                let plot_info = PlotInfo::new(
-                    &sim_set.get_folder()?,
-                    &self.qualified_name(),
-                    Some(sim),
-                    None,
-                );
                 Ok(DataPlotInfo {
-                    info: plot_info,
+                    info: self.get_plot_info(sim_set, Some(sim), None)?,
                     data: post_result,
                 })
             })
@@ -82,17 +73,25 @@ pub trait PostFn {
         sim: &SimParams,
         snap: &Snapshot,
     ) -> Result<DataPlotInfo> {
-        let post_result = self.post(sim_set, Some(sim), Some(&snap))?;
-        let plot_info = PlotInfo::new(
-            &sim_set.get_folder()?,
-            &self.qualified_name(),
-            Some(sim),
-            Some(&snap),
-        );
         Ok(DataPlotInfo {
-            info: plot_info,
-            data: post_result,
+            info: self.get_plot_info(sim_set, Some(sim), Some(&snap))?,
+            data: self.post(sim_set, Some(sim), Some(&snap))?,
         })
+    }
+
+    fn get_plot_info(
+        &self,
+        sim_set: &SimSet,
+        sim: Option<&SimParams>,
+        snap: Option<&Snapshot>,
+    ) -> Result<PlotInfo> {
+        Ok(PlotInfo::new(
+            &sim_set.get_folder()?,
+            &self.name(),
+            &self.qualified_name(),
+            sim,
+            snap,
+        ))
     }
 }
 
