@@ -5,9 +5,9 @@ use ndarray_csv::Array2Writer;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
-use post_fn_name::PostFnName;
+
 use snapshot::Snapshot;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 
 use self::{data_plot_info::DataPlotInfo, post_fn::PostFn, postprocess_args::PostprocessArgs};
 
