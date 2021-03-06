@@ -33,12 +33,12 @@ impl PostFn for &SliceFn {
 
     fn post(
         &self,
-        sim_set: &SimSet,
+        _sim_set: &SimSet,
         sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
     ) -> Result<Vec<FArray2>> {
         let snap = snap.unwrap();
-        let sim = sim.unwrap();
+        let _sim = sim.unwrap();
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
         let h_plus_abundance = snap.h_plus_abundance()?;

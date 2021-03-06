@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::{
     config,
     config_file::ConfigFile,
-    util::{expanduser, read_file_contents, write_file},
+    util::{read_file_contents, write_file},
 };
 
 pub struct PlotTemplate {
