@@ -63,6 +63,11 @@ impl PlotInfo {
     pub fn get_plot_template(&self, config_file: &ConfigFile) -> Result<PlotTemplate> {
         PlotTemplate::new(config_file, &self.name)
     }
+
+    pub fn get_pic_file(&self) -> PathBuf {
+        let filename = format!("{}.{}", self.plot_name, config::PIC_FILE_ENDING);
+        self.plot_folder.join(filename).to_path_buf()
+    }
 }
 
 fn create_folder_if_nonexistent(folder: &Path) -> Result<()> {
@@ -72,14 +77,18 @@ fn create_folder_if_nonexistent(folder: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn run_plot(config_file: &ConfigFile, info: &PlotInfo, filenames: &Vec<PathBuf>) -> Result<()> {
+pub fn run_plot(
+    config_file: &ConfigFile,
+    info: &PlotInfo,
+    filenames: &Vec<PathBuf>,
+) -> Result<String> {
     let replacements = get_default_replacements(info, filenames)?;
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
     let plot_template = copy_plot_template(config_file, info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
     copy_plot_config_folder(config_file, info)?;
     run_gnuplot_command(info, &main_plot_file)?;
-    Ok(())
+    Ok(info.get_pic_file().to_str().unwrap().into())
 }
 
 fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<()> {
@@ -100,13 +109,22 @@ fn get_default_replacements(
     result.insert("numFiles".into(), filenames.len().to_string());
     result.insert(
         "picFile".into(),
-        format!("\"{}.{}\"", info.plot_name, config::PIC_FILE_ENDING),
+        in_quotes(
+            &get_relative_path(&info.get_pic_file(), &info.plot_folder)?
+                .to_str()
+                .unwrap()
+                .to_string(),
+        ),
     );
     result.insert(
         "files".into(),
-        format!("\"{}\"", get_joined_filenames(info, filenames)?),
+        in_quotes(&get_joined_filenames(info, filenames)?),
     );
     Ok(result)
+}
+
+fn in_quotes(s: &str) -> String {
+    format!("\"{}\"", s)
 }
 
 fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<PathBuf> {

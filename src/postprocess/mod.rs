@@ -2,14 +2,14 @@ use anyhow::{Context, Result};
 use csv::WriterBuilder;
 use ndarray_csv::Array2Writer;
 
-use crate::sim_set::SimSet;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
+use crate::{sim_set::SimSet, util::get_shell_command_output};
 use post_fn_name::PostFnName;
 use snapshot::Snapshot;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use self::{data_plot_info::DataPlotInfo, post_fn::PostFn};
+use self::{data_plot_info::DataPlotInfo, post_fn::PostFn, postprocess_args::PostprocessArgs};
 
 pub mod axis;
 pub mod data_plot_info;
@@ -20,20 +20,24 @@ pub mod post_fn;
 pub mod post_fn_name;
 pub mod post_scaling;
 pub mod post_slice;
+pub mod postprocess_args;
 pub mod read_hdf5;
 pub mod snapshot;
 
 pub fn postprocess_sim_set(
     config_file: &ConfigFile,
     sim_set: &SimSet,
-    function_name: PostFnName,
+    args: &PostprocessArgs,
 ) -> Result<()> {
-    let function = function_name.get_function();
+    let function = args.function.get_function();
     let data_plot_info_list = function.run_post(sim_set)?;
     for data_plot_info in data_plot_info_list.iter() {
         data_plot_info.info.create_folders_if_nonexistent()?;
         let filenames = write_results(&data_plot_info)?;
-        plot::run_plot(config_file, &data_plot_info.info, &filenames)?;
+        let image_file = plot::run_plot(config_file, &data_plot_info.info, &filenames)?;
+        if args.show {
+            show_image(&image_file);
+        }
     }
     Ok(())
 }
@@ -80,4 +84,8 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Pat
                     .unwrap_or(false)
             }),
     ))
+}
+
+pub fn show_image(path: &str) {
+    get_shell_command_output("viewnior", &[path], None);
 }

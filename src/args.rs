@@ -1,7 +1,6 @@
+use bob::postprocess::postprocess_args::PostprocessArgs;
 use clap::Clap;
 use std::path::PathBuf;
-
-use bob::postprocess::post_fn_name::PostFnName;
 
 /// BoB. The Builder.
 #[derive(Clap)]
@@ -23,7 +22,7 @@ pub enum SubCommand {
     Build(BuildSimulation),
     Run(RunSimulation),
     Start(StartSimulation),
-    Post(PostprocessSimulation),
+    Post(PostprocessArgs),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -73,14 +72,6 @@ pub struct RunSimulation {
 pub struct StartSimulation {
     pub input_folder: PathBuf,
     pub output_folder: PathBuf,
-}
-
-/// Run the postprocessing scripts
-#[derive(Clap, Debug)]
-pub struct PostprocessSimulation {
-    pub output_folder: PathBuf,
-    #[clap(subcommand)]
-    pub function: PostFnName,
 }
 
 #[derive(Clap, Debug)]

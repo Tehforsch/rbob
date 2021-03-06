@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            postprocess_sim_set(&config_file, &sim_set, l.function)?;
+            postprocess_sim_set(&config_file, &sim_set, &l)?;
         }
     }
     Ok(())
