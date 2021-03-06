@@ -2,16 +2,14 @@ use anyhow::{anyhow, Result};
 use itertools::Itertools;
 use std::{
     collections::HashMap,
-    fs,
     path::{Path, PathBuf},
 };
 
-use super::snapshot::Snapshot;
-use super::{plot_info::PlotInfo, plot_template::PlotTemplate};
+
+use super::{plot_info::PlotInfo};
 use crate::{
     config,
     config_file::ConfigFile,
-    sim_params::SimParams,
     util::{copy_recursive, get_relative_path, get_shell_command_output, write_file},
 };
 
