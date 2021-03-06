@@ -28,9 +28,8 @@ pub fn postprocess_sim_set(
     sim_set: &SimSet,
     function_name: PostFnName,
 ) -> Result<()> {
-    let data_plot_info_list = function_name
-        .get_function()
-        .run_post(config_file, sim_set)?;
+    let function = function_name.get_function();
+    let data_plot_info_list = function.run_post(sim_set)?;
     for data_plot_info in data_plot_info_list.iter() {
         data_plot_info.info.create_folders_if_nonexistent()?;
         let filenames = write_results(&data_plot_info)?;

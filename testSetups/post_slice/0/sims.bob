@@ -1,0 +1,4 @@
+cartesian_type: NoCartesian
+substitutions:
+    MultipleDomains: [1, 2]
+    SX_SWEEP: [true, false]

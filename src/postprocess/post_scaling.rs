@@ -28,10 +28,20 @@ impl ScalingDataPoint {
 pub struct ScalingFn {}
 
 impl PostFn for &ScalingFn {
-    const KIND: PostFnKind = PostFnKind::Set;
-    const NAME: &'static str = "scaling";
+    fn kind(&self) -> PostFnKind {
+        PostFnKind::Set
+    }
+
+    fn name(&self) -> &'static str {
+        "scaling"
+    }
+
+    fn qualified_name(&self) -> String {
+        format!("{}", self.name())
+    }
 
     fn post(
+        &self,
         sim_set: &SimSet,
         _sim: Option<&SimParams>,
         _snap: Option<&Snapshot>,
