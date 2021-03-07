@@ -1,16 +1,13 @@
 use anyhow::{Context, Result};
-use camino::Utf8Path;
+use camino::{Utf8Path, Utf8PathBuf};
 use serde::{Deserialize, Serialize};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 use crate::{config, util::expanduser};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
-    pub plot_template_folder: PathBuf,
+    pub plot_template_folder: Utf8PathBuf,
 }
 
 impl ConfigFile {
@@ -31,14 +28,14 @@ impl ConfigFile {
 
     fn default() -> ConfigFile {
         ConfigFile {
-            plot_template_folder: Path::new("~/projects/bob/plotTemplates").into(),
+            plot_template_folder: Utf8Path::new("~/projects/bob/plotTemplates").into(),
         }
     }
 
     pub fn expanduser(&self) -> Result<ConfigFile> {
-        let expanded = expanduser(Utf8Path::new(&self.plot_template_folder.to_str().unwrap()))?;
+        let expanded = expanduser(&self.plot_template_folder)?;
         Ok(ConfigFile {
-            plot_template_folder: Path::new(&expanded).to_owned(),
+            plot_template_folder: Utf8Path::new(&expanded).to_owned(),
         })
     }
 }

@@ -19,7 +19,7 @@ impl PlotTemplate {
             config::DEFAULT_PLOT_EXTENSION
         ));
         Ok(PlotTemplate {
-            path: Utf8Path::from_path(path).unwrap().to_owned(),
+            path: path.to_owned(),
         })
     }
 
