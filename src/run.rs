@@ -18,8 +18,8 @@ fn run_sim(sim: &SimParams) -> Result<()> {
     Ok(())
 }
 
-fn run_job_file(sim: &SimParams, job_file_name: &std::path::PathBuf) -> Result<()> {
-    let args: &[&str] = &[job_file_name.file_name().unwrap().to_str().unwrap()];
+fn run_job_file(sim: &SimParams, job_file_name: &camino::Utf8PathBuf) -> Result<()> {
+    let args: &[&str] = &[job_file_name.file_name().unwrap()];
     let out = get_shell_command_output(config::RUN_COMMAND, args, Some(&sim.folder));
     match out.success {
         false => {

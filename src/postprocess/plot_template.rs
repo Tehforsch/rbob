@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use std::path::{Path, PathBuf};
+use camino::{Utf8Path, Utf8PathBuf};
 
 use crate::{
     config,
@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub struct PlotTemplate {
-    path: PathBuf,
+    path: Utf8PathBuf,
 }
 
 impl PlotTemplate {
@@ -19,11 +19,11 @@ impl PlotTemplate {
             config::DEFAULT_PLOT_EXTENSION
         ));
         Ok(PlotTemplate {
-            path: path.to_owned(),
+            path: Utf8Path::from_path(path).unwrap().to_owned(),
         })
     }
 
-    pub fn write_to(&self, target: &Path) -> Result<()> {
+    pub fn write_to(&self, target: &Utf8Path) -> Result<()> {
         // Rewrite this to just copy (this used to contain replacements but now it doesnt make sense anymore)
         let contents = read_file_contents(&self.path)
             .context(format!("While reading plot template file {:?}", self.path))?;

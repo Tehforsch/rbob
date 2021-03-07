@@ -6,8 +6,8 @@ use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
 
+use camino::Utf8PathBuf;
 use snapshot::Snapshot;
-use std::path::PathBuf;
 
 use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
 
@@ -43,7 +43,7 @@ pub fn postprocess_sim_set(
     Ok(())
 }
 
-pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<PathBuf>> {
+pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> {
     let data_folder = &data_plot_info.info.data_folder;
     data_plot_info
         .data
@@ -70,7 +70,7 @@ pub fn get_snapshots<'a>(
     })))
 }
 
-pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = PathBuf>>> {
+pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
     Ok(Box::new(
         get_files(&sim.output_folder())
             .context(format!(
@@ -79,11 +79,7 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Pat
                 sim.output_folder(),
             ))?
             .into_iter()
-            .filter(|f| {
-                f.extension()
-                    .map(|ext| ext.to_str().unwrap() == "hdf5")
-                    .unwrap_or(false)
-            }),
+            .filter(|f| f.extension().map(|ext| ext == "hdf5").unwrap_or(false)),
     ))
 }
 

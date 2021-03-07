@@ -1,6 +1,6 @@
 use bob::postprocess::postprocess_args::PostprocessArgs;
+use camino::Utf8PathBuf;
 use clap::Clap;
-use std::path::PathBuf;
 
 /// BoB. The Builder.
 #[derive(Clap)]
@@ -28,50 +28,50 @@ pub enum SubCommand {
 /// Read the input directory and show info about the resulting simulations.
 #[derive(Clap, Debug)]
 pub struct ShowSimulationInfo {
-    pub folder: PathBuf,
+    pub folder: Utf8PathBuf,
     pub param_names: Vec<String>,
 }
 
 /// Show the difference in the parameters between two simulation directories
 #[derive(Clap, Debug)]
 pub struct ShowSimulationDiff {
-    /// Path to the first simulation dir
-    pub folder1: PathBuf,
-    /// Path to the second simulation dir
-    pub folder2: PathBuf,
+    /// Utf8Path to the first simulation dir
+    pub folder1: Utf8PathBuf,
+    /// Utf8Path to the second simulation dir
+    pub folder2: Utf8PathBuf,
 }
 
 /// Read the output directory and show info about the resulting simulations.
 #[derive(Clap, Debug)]
 pub struct ShowSimulationInfoOutput {
-    pub output_folder: PathBuf,
+    pub output_folder: Utf8PathBuf,
     pub param_names: Vec<String>,
 }
 
 /// Read the input directory and copy/rewrite the simulation files
 #[derive(Clap, Debug)]
 pub struct CopySimulation {
-    pub input_folder: PathBuf,
-    pub output_folder: PathBuf,
+    pub input_folder: Utf8PathBuf,
+    pub output_folder: Utf8PathBuf,
 }
 
 /// Build arepo for each of the configuration files in the output directory
 #[derive(Clap, Debug)]
 pub struct BuildSimulation {
-    pub output_folder: PathBuf,
+    pub output_folder: Utf8PathBuf,
 }
 
 /// Run each of the simulations in the output directory
 #[derive(Clap, Debug)]
 pub struct RunSimulation {
-    pub output_folder: PathBuf,
+    pub output_folder: Utf8PathBuf,
 }
 
 /// Copy, Build and Run in one command
 #[derive(Clap, Debug)]
 pub struct StartSimulation {
-    pub input_folder: PathBuf,
-    pub output_folder: PathBuf,
+    pub input_folder: Utf8PathBuf,
+    pub output_folder: Utf8PathBuf,
 }
 
 #[derive(Clap, Debug)]

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::path::Path;
+use camino::Utf8Path;
 
 use crate::{
     param_value::ParamValue,
@@ -20,7 +20,7 @@ impl ParamDiff {
     }
 }
 
-pub fn show_sim_diff(folder1: &Path, folder2: &Path) -> Result<()> {
+pub fn show_sim_diff(folder1: &Utf8Path, folder2: &Utf8Path) -> Result<()> {
     let sim1 = SimParams::from_folder(folder1, SimParamsKind::Input)?;
     let sim2 = SimParams::from_folder(folder2, SimParamsKind::Input)?;
     let mut diffs: Vec<ParamDiff> = get_param_diffs(&sim1, &sim2).collect();

@@ -1,18 +1,18 @@
 use anyhow::{anyhow, Context, Result};
+use camino::{Utf8Path, Utf8PathBuf};
 use pathdiff::diff_paths;
-use std::ffi::OsStr;
-use std::fmt::Display;
 use std::fs;
 use std::fs::DirEntry;
-use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::str;
+use std::{ffi::OsStr, path::Path};
+use std::{fmt::Display, path::PathBuf};
 
-pub fn read_file_contents(path: &Path) -> Result<String> {
+pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
     fs::read_to_string(path).with_context(|| format!("While reading file {:?}", path))
 }
 
-pub fn write_file(path: &Path, contents: &str) -> Result<()> {
+pub fn write_file(path: &Utf8Path, contents: &str) -> Result<()> {
     fs::write(path, contents).with_context(|| "While writing file")
 }
 
@@ -69,11 +69,11 @@ pub fn copy_recursive<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<
     Ok(())
 }
 
-fn traverse_folder_files(folder: &Path) -> Result<Box<dyn Iterator<Item = PathBuf>>> {
+fn traverse_folder_files(folder: &Utf8Path) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
     let folder_files = Box::new(iter_files(folder)?);
     let sub_folders = iter_folders(folder)?;
     let sub_folder_results = sub_folders.map(|f| traverse_folder_files(&f));
-    let sub_folder_files_iterators_result: Result<Vec<Box<dyn Iterator<Item = PathBuf>>>> =
+    let sub_folder_files_iterators_result: Result<Vec<Box<dyn Iterator<Item = Utf8PathBuf>>>> =
         sub_folder_results.collect();
     let sub_folder_files_iterator = (sub_folder_files_iterators_result?)
         .into_iter()
@@ -81,18 +81,18 @@ fn traverse_folder_files(folder: &Path) -> Result<Box<dyn Iterator<Item = PathBu
     Ok(Box::new(folder_files.chain(sub_folder_files_iterator)))
 }
 
-fn iter_files(folder: &Path) -> Result<impl Iterator<Item = PathBuf>> {
+fn iter_files(folder: &Utf8Path) -> Result<impl Iterator<Item = Utf8PathBuf>> {
     get_entries_with_predicate(folder, Path::is_file)
 }
 
-fn iter_folders(folder: &Path) -> Result<impl Iterator<Item = PathBuf>> {
+fn iter_folders(folder: &Utf8Path) -> Result<impl Iterator<Item = Utf8PathBuf>> {
     get_entries_with_predicate(folder, Path::is_dir)
 }
 
 fn get_entries_with_predicate<F>(
-    folder: &Path,
+    folder: &Utf8Path,
     predicate: F,
-) -> Result<impl Iterator<Item = PathBuf>>
+) -> Result<impl Iterator<Item = Utf8PathBuf>>
 where
     F: Fn(&Path) -> bool,
 {
@@ -101,18 +101,19 @@ where
     Ok(dir_entries?
         .into_iter()
         .map(|entry| entry.path())
-        .filter(move |path| predicate(path)))
+        .filter(move |path| predicate(&path))
+        .map(|path| Utf8Path::from_path(&path).unwrap().to_owned()))
 }
 
-pub fn get_files_recursively(folder: &Path) -> Result<Vec<PathBuf>> {
+pub fn get_files_recursively(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
     Ok(traverse_folder_files(folder)?.collect())
 }
 
-pub fn get_files(folder: &Path) -> Result<Vec<PathBuf>> {
+pub fn get_files(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
     Ok(iter_files(folder)?.collect())
 }
 
-pub fn get_folders(folder: &Path) -> Result<Vec<PathBuf>> {
+pub fn get_folders(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
     Ok(iter_folders(folder)?.collect())
 }
 
@@ -126,7 +127,7 @@ pub struct ShellCommandOutput {
 pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
     command_str: &str,
     args: &[T],
-    working_dir: Option<&Path>,
+    working_dir: Option<&Utf8Path>,
 ) -> ShellCommandOutput {
     let mut command = Command::new(command_str);
     command
@@ -169,18 +170,22 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
         .map(|_| ())
 }
 
-pub fn expanduser(path: &Path) -> Result<PathBuf> {
-    let expanded = shellexpand::tilde(path.to_str().unwrap());
-    Ok(Path::new::<String>(&expanded.into())
-        .canonicalize()?
-        .to_path_buf())
+pub fn expanduser(path: &Utf8Path) -> Result<Utf8PathBuf> {
+    let expanded = shellexpand::tilde(path.as_str());
+    Ok(Utf8PathBuf::from_path_buf(
+        Path::new::<String>(&expanded.into())
+            .canonicalize()?
+            .to_path_buf(),
+    )
+    .unwrap())
 }
 
-pub fn get_relative_path(folder: &Path, base_folder: &Path) -> Result<PathBuf> {
-    diff_paths(folder, base_folder).ok_or_else(|| {
+pub fn get_relative_path(folder: &Utf8Path, base_folder: &Utf8Path) -> Result<Utf8PathBuf> {
+    let path_buf = diff_paths(folder, base_folder).ok_or_else(|| {
         anyhow!(format!(
             "Failed to construct relative link from {:?} to {:?}",
             folder, base_folder
         ))
-    })
+    })?;
+    Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
 }

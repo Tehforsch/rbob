@@ -1,8 +1,8 @@
 use crate::array_utils::{FArray1, FArray2};
 use crate::sim_params::SimParams;
 use anyhow::Result;
+use camino::Utf8Path;
 use ndarray::{array, s};
-use std::path::Path;
 use uom::si::f64::Time;
 
 use super::read_hdf5::get_header_attribute;
@@ -60,7 +60,7 @@ impl<'a> Snapshot<'a> {
         Ok(self.file.dataset(dataset)?.read()?)
     }
 
-    pub fn from_file(sim: &'a SimParams, file: &Path) -> Result<Snapshot<'a>> {
+    pub fn from_file(sim: &'a SimParams, file: &Utf8Path) -> Result<Snapshot<'a>> {
         let h5file = hdf5::File::open(file)?;
         let time = get_header_attribute(&h5file, "Time", sim.units.time)?;
         Ok(Snapshot {
@@ -72,9 +72,8 @@ impl<'a> Snapshot<'a> {
 
     pub fn get_name(&self) -> String {
         let snap_shot_base = self.sim["SnapshotFileBase"].unwrap_string();
-        Path::new(&self.file.filename())
+        Utf8Path::new(&self.file.filename())
             .file_name()
-            .and_then(|x| x.to_str())
             .and_then(|x| x.strip_suffix(".hdf5"))
             .and_then(|x| x.strip_prefix(&snap_shot_base))
             .unwrap()

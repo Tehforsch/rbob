@@ -1,15 +1,15 @@
 use anyhow::{anyhow, Context, Result};
+use camino::{Utf8Path, Utf8PathBuf};
 use regex::Regex;
-use std::path::{Path, PathBuf};
 
 use crate::util::read_file_contents;
 
 pub struct ArepoLogFile {
-    pub file: PathBuf,
+    pub file: Utf8PathBuf,
 }
 
 impl ArepoLogFile {
-    pub fn new(file: &Path) -> ArepoLogFile {
+    pub fn new(file: &Utf8Path) -> ArepoLogFile {
         ArepoLogFile {
             file: file.to_owned(),
         }

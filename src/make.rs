@@ -1,8 +1,6 @@
 use anyhow::{anyhow, Context, Result};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use camino::{Utf8Path, Utf8PathBuf};
+use std::fs;
 
 use crate::config;
 use crate::sim_params::get_config_file_path;
@@ -34,7 +32,7 @@ fn copy_source_code_to_output(sim: &SimParams) -> Result<()> {
 }
 
 fn build_arepo() -> Result<()> {
-    let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
+    let arepo_path = Utf8Path::new(config::DEFAULT_AREPO_FOLDER);
     delete_arepoconfig_header_file_if_present()?;
     let out = get_shell_command_output("make", &[&"build"], Some(arepo_path));
     if !out.success {
@@ -68,7 +66,7 @@ fn copy_arepoconfig_header_file() -> Result<()> {
 
 fn copy_config_file(sim: &SimParams) -> Result<()> {
     let source = get_config_file_path(&sim.folder);
-    let arepo_path = Path::new(config::DEFAULT_AREPO_FOLDER);
+    let arepo_path = Utf8Path::new(config::DEFAULT_AREPO_FOLDER);
     let target = arepo_path.join(config::DEFAULT_CONFIG_FILE_NAME);
     copy_file(source, target)
 }
@@ -80,6 +78,6 @@ fn copy_arepo_file(sim: &SimParams) -> Result<()> {
     copy_file(source, target)
 }
 
-fn get_arepo_path() -> PathBuf {
-    Path::new(config::DEFAULT_AREPO_FOLDER).to_path_buf()
+fn get_arepo_path() -> Utf8PathBuf {
+    Utf8Path::new(config::DEFAULT_AREPO_FOLDER).to_path_buf()
 }

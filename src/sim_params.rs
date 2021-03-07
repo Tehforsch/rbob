@@ -2,12 +2,11 @@ use crate::{
     arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow,
 };
 use anyhow::{anyhow, Context, Result};
+use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
-use std::path::{Path, PathBuf};
 use std::{
     collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, ops::Index,
 };
-
 
 use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
@@ -30,7 +29,7 @@ pub enum SimParamsKind {
 
 #[derive(Debug, Clone)]
 pub struct SimParams {
-    pub folder: PathBuf,
+    pub folder: Utf8PathBuf,
     params: HashMap<String, ParamValue>,
     pub time_limit_cpu: Time,
     pub units: SimUnits,
@@ -38,7 +37,7 @@ pub struct SimParams {
 }
 
 impl SimParams {
-    pub fn from_folder<U: AsRef<Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
+    pub fn from_folder<U: AsRef<Utf8Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let mut params = HashMap::new();
         let param_file_path = get_param_file_path(&folder);
         let config_file_path = get_config_file_path(&folder);
@@ -86,7 +85,7 @@ impl SimParams {
     }
 
     pub fn new(
-        folder: &Path,
+        folder: &Utf8Path,
         params: HashMap<String, ParamValue>,
         kind: SimParamsKind,
     ) -> Result<SimParams> {
@@ -105,24 +104,22 @@ impl SimParams {
         })
     }
 
-    pub fn output_folder(&self) -> PathBuf {
+    pub fn output_folder(&self) -> Utf8PathBuf {
         self.folder
-            .join(Path::new(self.params["OutputDir"].unwrap_string()))
+            .join(Utf8Path::new(self.params["OutputDir"].unwrap_string()))
             .to_owned()
     }
 
-    pub fn get_pic_folder(&self) -> PathBuf {
-        self.folder.join(
-            std::path::Path::new("../pics")
-                .join(self.folder.file_name().unwrap().to_str().unwrap()),
-        )
+    pub fn get_pic_folder(&self) -> Utf8PathBuf {
+        self.folder
+            .join(camino::Utf8Path::new("../pics").join(self.folder.file_name().unwrap()))
     }
 
     pub fn contains_key(&self, key: &str) -> bool {
         self.params.contains_key(key)
     }
 
-    pub fn write_param_file(&self, path: &Path) -> Result<()> {
+    pub fn write_param_file(&self, path: &Utf8Path) -> Result<()> {
         let contents = self.get_param_file_contents();
         write_file(path, &contents)?;
         Ok(())
@@ -138,7 +135,7 @@ impl SimParams {
             .join("\n")
     }
 
-    pub fn write_config_file(&self, path: &Path) -> Result<()> {
+    pub fn write_config_file(&self, path: &Utf8Path) -> Result<()> {
         let contents = self.get_config_file_contents();
         write_file(path, &contents)?;
         Ok(())
@@ -163,7 +160,7 @@ impl SimParams {
             .join("\n")
     }
 
-    pub fn write_job_file(&self, path: &Path) -> Result<()> {
+    pub fn write_job_file(&self, path: &Utf8Path) -> Result<()> {
         let contents = self.get_job_file_contents()?;
         write_file(path, &contents)?;
         Ok(())
@@ -199,21 +196,21 @@ impl SimParams {
     }
 }
 
-pub fn get_param_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_PARAM_FILE_NAME)
         .to_owned()
 }
 
-pub fn get_config_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_config_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_CONFIG_FILE_NAME)
         .to_owned()
 }
 
-pub fn get_job_file_path<U: AsRef<Path>>(folder: U) -> PathBuf {
+pub fn get_job_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder
         .as_ref()
         .join(config::DEFAULT_JOB_FILE_NAME)
@@ -251,7 +248,7 @@ fn get_job_file_params() -> HashMap<String, ParamValue> {
     HashMap::new()
 }
 
-fn read_config_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
+fn read_config_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
         read_file_contents(path).context(format!("While reading config file {:?}", path))?;
     read_config_lines(&contents, "#")
@@ -285,7 +282,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
     Ok(params)
 }
 
-fn read_param_file(path: &Path) -> Result<HashMap<String, ParamValue>> {
+fn read_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
     let contents =
         read_file_contents(path).context(format!("While reading parameter file {:?}", path))?;
     let re = Regex::new("^([^ ]*?)\\s+([^ ]*)\\s*[;%]*.*$").unwrap();

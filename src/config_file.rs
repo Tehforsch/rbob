@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use camino::Utf8Path;
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -30,13 +31,14 @@ impl ConfigFile {
 
     fn default() -> ConfigFile {
         ConfigFile {
-            plot_template_folder: "~/projects/bob/plotTemplates".into(),
+            plot_template_folder: Path::new("~/projects/bob/plotTemplates").into(),
         }
     }
 
     pub fn expanduser(&self) -> Result<ConfigFile> {
+        let expanded = expanduser(Utf8Path::new(&self.plot_template_folder.to_str().unwrap()))?;
         Ok(ConfigFile {
-            plot_template_folder: expanduser(&self.plot_template_folder)?,
+            plot_template_folder: Path::new(&expanded).to_owned(),
         })
     }
 }

@@ -1,14 +1,12 @@
 use super::{plot_template::PlotTemplate, snapshot::Snapshot};
 use crate::{config, config_file::ConfigFile, sim_params::SimParams};
 use anyhow::Result;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use camino::{Utf8Path, Utf8PathBuf};
+use std::fs;
 
 pub struct PlotInfo {
-    pub plot_folder: PathBuf,
-    pub data_folder: PathBuf,
+    pub plot_folder: Utf8PathBuf,
+    pub data_folder: Utf8PathBuf,
     pub plot_name: String,
     pub name: String,
     pub qualified_name: String,
@@ -16,7 +14,7 @@ pub struct PlotInfo {
 
 impl PlotInfo {
     pub fn new(
-        sim_set_folder: &Path,
+        sim_set_folder: &Utf8Path,
         name: &str,
         qualified_name: &str,
         mb_sim: Option<&SimParams>,
@@ -24,7 +22,7 @@ impl PlotInfo {
     ) -> PlotInfo {
         let plot_name = match mb_sim {
             Some(sim) => {
-                let sim_name = sim.folder.file_name().unwrap().to_str().unwrap();
+                let sim_name = sim.folder.file_name().unwrap();
                 match mb_snap {
                     None => format!("{}_{}", qualified_name, sim_name),
                     Some(snap) => {
@@ -55,13 +53,13 @@ impl PlotInfo {
         PlotTemplate::new(config_file, &self.name)
     }
 
-    pub fn get_pic_file(&self) -> PathBuf {
+    pub fn get_pic_file(&self) -> Utf8PathBuf {
         let filename = format!("{}.{}", self.plot_name, config::PIC_FILE_ENDING);
         self.plot_folder.join(filename).to_path_buf()
     }
 }
 
-fn create_folder_if_nonexistent(folder: &Path) -> Result<()> {
+fn create_folder_if_nonexistent(folder: &Utf8Path) -> Result<()> {
     if !folder.is_dir() {
         fs::create_dir_all(&folder)?;
     };

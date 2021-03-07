@@ -10,8 +10,9 @@ use anyhow::{anyhow, Result};
 use args::SubCommand;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
+use camino::Utf8Path;
 use clap::Clap;
-use std::{error::Error, path::Path};
+use std::error::Error;
 
 pub mod args;
 
@@ -54,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn start_sim_set(sim_set: SimSet, input_folder: &Path, output_folder: &Path) -> Result<()> {
+fn start_sim_set(sim_set: SimSet, input_folder: &Utf8Path, output_folder: &Utf8Path) -> Result<()> {
     let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder)?;
     build_sim_set(&output_sim_set)?;
     run_sim_set(&output_sim_set)
@@ -80,11 +81,11 @@ fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
     Ok(())
 }
 
-fn get_sim_set_from_input(folder: &Path) -> Result<SimSet> {
+fn get_sim_set_from_input(folder: &Utf8Path) -> Result<SimSet> {
     let config_file_path = folder.join(DEFAULT_BOB_CONFIG_NAME);
     SimSet::from_bob_file_and_input_folder(&config_file_path, folder)
 }
 
-fn get_sim_set_from_output(folder: &Path) -> Result<SimSet> {
+fn get_sim_set_from_output(folder: &Utf8Path) -> Result<SimSet> {
     SimSet::from_output_folder(folder)
 }

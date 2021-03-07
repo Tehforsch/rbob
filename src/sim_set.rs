@@ -1,4 +1,6 @@
-use std::{collections::HashMap, fs, iter::FromIterator, path::Path, path::PathBuf, slice::Iter};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use std::{collections::HashMap, fs, iter::FromIterator, slice::Iter};
 
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
@@ -23,7 +25,7 @@ pub struct SimSetConfig {
 }
 
 impl SimSetConfig {
-    pub fn from_file<U: AsRef<Path>>(path: U) -> Result<SimSetConfig> {
+    pub fn from_file<U: AsRef<Utf8Path>>(path: U) -> Result<SimSetConfig> {
         let data = fs::read_to_string(path.as_ref()).context(format!(
             "While reading bob config file at {:?}",
             path.as_ref()
@@ -46,7 +48,7 @@ impl FromIterator<(usize, SimParams)> for SimSet {
 }
 
 impl SimSet {
-    pub fn from_bob_file_and_input_folder<U: AsRef<Path>, V: AsRef<Path>>(
+    pub fn from_bob_file_and_input_folder<U: AsRef<Utf8Path>, V: AsRef<Utf8Path>>(
         config_file_path: U,
         folder: V,
     ) -> Result<SimSet> {
@@ -58,11 +60,11 @@ impl SimSet {
         Ok(SimSet { simulations })
     }
 
-    pub fn from_output_folder<U: AsRef<Path>>(folder: U) -> Result<SimSet> {
+    pub fn from_output_folder<U: AsRef<Utf8Path>>(folder: U) -> Result<SimSet> {
         let all_folders = get_folders(folder.as_ref())?;
-        let mut sim_folders: Vec<(usize, &PathBuf)> = all_folders
+        let mut sim_folders: Vec<(usize, &Utf8PathBuf)> = all_folders
             .iter()
-            .map(|f| (f.file_name().unwrap().to_str().unwrap().parse::<usize>(), f))
+            .map(|f| (f.file_name().unwrap().parse::<usize>(), f))
             .filter(|(maybe_num, _)| maybe_num.is_ok())
             .map(|(num, f)| (num.unwrap(), f))
             .collect();
@@ -83,7 +85,7 @@ impl SimSet {
         self.simulations.iter()
     }
 
-    pub fn get_folder(&self) -> Result<PathBuf> {
+    pub fn get_folder(&self) -> Result<Utf8PathBuf> {
         self.simulations
             .get(0)
             .ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
