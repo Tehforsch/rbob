@@ -12,9 +12,7 @@ pub fn run_sim_set(sim_set: &SimSet) -> Result<()> {
 }
 
 fn run_sim(sim: &SimParams) -> Result<()> {
-    let job_file_name = sim.folder.join(config::DEFAULT_JOB_FILE_NAME);
-    sim.write_job_file(&job_file_name)?;
-    run_job_file(sim, &job_file_name)?;
+    run_job_file(sim, &sim.folder.join(config::DEFAULT_JOB_FILE_NAME))?;
     Ok(())
 }
 

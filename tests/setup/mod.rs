@@ -8,6 +8,7 @@ use std::{
 };
 
 use anyhow::Result;
+use camino::{Utf8Path, Utf8PathBuf};
 use tempdir::TempDir;
 
 use bob::util::{copy_recursive, get_shell_command_output, ShellCommandOutput};
@@ -27,6 +28,14 @@ pub struct TestOutput {
     pub success: bool,
     pub output: String,
     pub stderr: String,
+}
+
+impl TestOutput {
+    pub fn get_utf8_env_dir(&self) -> Utf8PathBuf {
+        Utf8Path::from_path(self.env.dir.path())
+            .unwrap()
+            .to_path_buf()
+    }
 }
 
 #[allow(dead_code)] // Somehow rust doesnt realize I use these in other modules.

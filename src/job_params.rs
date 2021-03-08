@@ -13,7 +13,9 @@ pub struct JobParams {
     wall_time: String,
     job_name: String,
     log_file: String,
-    run_command: String,
+    run_params: String,
+    executable_name: String,
+    param_file: String,
 }
 
 impl JobParams {
@@ -29,7 +31,10 @@ impl JobParams {
             wall_time: sim.get_default_string("wallTime", config::DEFAULT_WALL_TIME),
             job_name: sim.get_default_string("jobName", config::DEFAULT_JOB_NAME),
             log_file: sim.get_default_string("logFile", config::DEFAULT_LOG_FILE),
-            run_command: sim.get_default_string("runCommand", config::DEFAULT_RUN_COMMAND),
+            run_params: sim.get_default_string("runParams", config::DEFAULT_RUN_PARAMS),
+            param_file: sim.get_default_string("paramFile", config::DEFAULT_PARAM_FILE_NAME),
+            executable_name: sim
+                .get_default_string("executableName", config::DEFAULT_AREPO_EXECUTABLE_NAME),
         })
     }
 
@@ -64,7 +69,12 @@ impl JobParams {
         res.insert("wallTime".to_owned(), self.wall_time.to_string());
         res.insert("jobName".to_owned(), self.job_name.to_string());
         res.insert("logFile".to_owned(), self.log_file.to_string());
-        res.insert("runCommand".to_owned(), self.run_command.to_string());
+        res.insert("runParams".to_owned(), self.run_params.to_string());
+        res.insert("paramFile".to_owned(), self.param_file.to_string());
+        res.insert(
+            "executableName".to_owned(),
+            self.executable_name.to_string(),
+        );
         res
     }
 }

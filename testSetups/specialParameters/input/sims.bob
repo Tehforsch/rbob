@@ -2,4 +2,4 @@ cartesian_type: All
 substitutions:
     SX_SWEEP: [true, false]
     numCores: [1, 2, 4]
-    runCommand: ["21 0 10 10"]
+    runParams: ["21 0 10 10"]

@@ -34,7 +34,15 @@ fn copy_source_code_to_output(sim: &SimParams) -> Result<()> {
 fn build_arepo() -> Result<()> {
     let arepo_path = Utf8Path::new(config::DEFAULT_AREPO_FOLDER);
     delete_arepoconfig_header_file_if_present()?;
-    let out = get_shell_command_output("make", &[&"build"], Some(arepo_path));
+    let out = get_shell_command_output(
+        "make",
+        &[
+            &"build",
+            &"-j",
+            &config::DEFAULT_NUM_CORES_TO_COMPILE.to_string().as_ref(),
+        ],
+        Some(arepo_path),
+    );
     if !out.success {
         println!("{}", out.stdout);
         println!("{}", out.stderr);

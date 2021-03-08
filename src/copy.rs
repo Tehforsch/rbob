@@ -37,6 +37,7 @@ fn copy_sim(
     copy_recursive(input_folder, sim_output_folder)?;
     sim.write_param_file(&sim_output_folder.join(config::DEFAULT_PARAM_FILE_NAME))?;
     sim.write_config_file(&sim_output_folder.join(config::DEFAULT_CONFIG_FILE_NAME))?;
+    sim.write_job_file(&sim_output_folder.join(config::DEFAULT_JOB_FILE_NAME))?;
     // This is not the most efficient thing ever but it should be completely fine since this is not done very often, nor is the hashmap very large.
     let mut new_sim_params = sim.clone();
     new_sim_params.folder = sim_output_folder.to_owned();

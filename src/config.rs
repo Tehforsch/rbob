@@ -32,7 +32,7 @@ module load numlib/gsl/2.2.1-intel-16.0
 module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
 module load lib/hdf5/1.8-intel-16.0
 module load devel/python_intel/3.6
-startexe=\"mpirun {runCommand}\"
+startexe=\"mpirun ./{executableName} {paramFile} {runParams}\"
 exec $startexe";
 
 #[cfg(feature = "bwfor")]
@@ -46,7 +46,7 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-mpirun -n {numCores} {runCommand} > {logFile}";
+mpirun -n {numCores} ./{executableName} {paramFile} {runParams} > {logFile}";
 
 #[cfg(not(feature = "bwfor"))]
 pub static RUN_COMMAND: &str = "bash";
@@ -62,7 +62,8 @@ pub static DEFAULT_JOB_NAME: &str = "arepoTest";
 pub static DEFAULT_WALL_TIME: &str = "3:00:00";
 pub static DEFAULT_PARTITION: &str = "single";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
-pub static DEFAULT_RUN_COMMAND: &str = &"./Arepo param.txt 0";
+pub static DEFAULT_RUN_PARAMS: &str = &"0";
+pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &6;
 
 pub static NX_SLICE: usize = 100;
 pub static NY_SLICE: usize = 100;
@@ -72,7 +73,8 @@ pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 
-pub static SPECIAL_PARAMS: &'static [&'static str] = &["numCores", "runCommand"];
+pub static SPECIAL_PARAMS: &'static [&'static str] =
+    &["numCores", "runParams", "executableName", "paramFile"];
 
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "NTYPES",
