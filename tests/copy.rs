@@ -15,3 +15,16 @@ fn copy() {
     assert!(out.success);
     assert!(!different_output_folders(&out.env, "produced_out", "out"));
 }
+
+#[test]
+fn num_cores_as_parameter() {
+    let out = run_bob_on_setup(
+        "numCoresAsParameter",
+        &[
+            NormalArg("copy"),
+            RelativePath("input"),
+            RelativePath("output"),
+        ],
+    );
+    assert!(out.success);
+}

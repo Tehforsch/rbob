@@ -7,8 +7,8 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
-use crate::sim_params::SimParams;
 use crate::util::get_folders;
+use crate::{config, sim_params::SimParams};
 use crate::{param_value::ParamValue, sim_params::SimParamsKind};
 
 #[derive(Serialize, Deserialize)]
@@ -122,13 +122,21 @@ fn get_sim_params_from_substitutions(
             let mut new_sim = base.clone();
             for (k, v) in substitution_map.iter() {
                 match new_sim.insert(k, v) {
-                    None => Err(anyhow!("Found parameter in substitutions that does not appear in parameter files: {}", k))?,
+                    None => {
+                        if !is_special_param(k) {
+                            Err(anyhow!("Found (non-special) parameter in substitutions that does not appear in parameter files: {}", k))?
+                        }
+                    }
                     _ => {}
                 }
             }
             Ok((i as usize, new_sim))
         })
         .collect()
+}
+
+fn is_special_param(k: &str) -> bool {
+    config::SPECIAL_PARAMS.contains(&k)
 }
 
 fn get_substitutions_normal(
