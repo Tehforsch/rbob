@@ -1,4 +1,6 @@
-use super::{post_fn::PostFn, post_scaling::ScalingFn, post_slice::SliceFn};
+use super::{
+    post_compare::CompareFn, post_fn::PostFn, post_scaling::ScalingFn, post_slice::SliceFn,
+};
 use clap::Clap;
 
 #[derive(Clap, Debug)]
@@ -6,6 +8,7 @@ pub enum PostFnName {
     // Expansion(ExpansionFn),
     Slice(SliceFn),
     Scaling(ScalingFn),
+    Compare(CompareFn),
 }
 
 impl PostFnName {
@@ -13,6 +16,7 @@ impl PostFnName {
         match self {
             Self::Scaling(s) => Box::new(s),
             Self::Slice(s) => Box::new(s),
+            Self::Compare(s) => Box::new(s),
         }
     }
 }

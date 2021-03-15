@@ -16,6 +16,7 @@ pub mod data_plot_info;
 pub mod plot;
 pub mod plot_info;
 pub mod plot_template;
+pub mod post_compare;
 pub mod post_expansion;
 pub mod post_fn;
 pub mod post_fn_name;

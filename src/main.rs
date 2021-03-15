@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            copy_sim_set(&sim_set, l.input_folder, l.output_folder)?;
+            copy_sim_set(&sim_set, l.input_folder, l.output_folder, l.delete)?;
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            start_sim_set(sim_set, &l.input_folder, &l.output_folder)?;
+            start_sim_set(sim_set, &l.input_folder, &l.output_folder, l.delete)?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -55,8 +55,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn start_sim_set(sim_set: SimSet, input_folder: &Utf8Path, output_folder: &Utf8Path) -> Result<()> {
-    let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder)?;
+fn start_sim_set(
+    sim_set: SimSet,
+    input_folder: &Utf8Path,
+    output_folder: &Utf8Path,
+    delete: bool,
+) -> Result<()> {
+    let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder, delete)?;
     build_sim_set(&output_sim_set)?;
     run_sim_set(&output_sim_set)
 }

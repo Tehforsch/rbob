@@ -12,13 +12,19 @@ pub fn copy_sim_set<U: AsRef<Utf8Path>>(
     sim_set: &SimSet,
     input_folder: U,
     output_folder: U,
+    delete: bool,
 ) -> Result<SimSet> {
-    fs::create_dir(output_folder.as_ref()).with_context(|| "When creating the output folder")?;
+    let output_folder = output_folder.as_ref();
+    if delete && output_folder.is_dir() {
+        fs::remove_dir_all(output_folder)
+            .with_context(|| "When deleting the previous output folder")?;
+    }
+    fs::create_dir(output_folder).with_context(|| "When creating the output folder")?;
     let output_sim_set: Result<SimSet> = sim_set
         .enumerate()
         .map(|(i, sim)| -> Result<(usize, SimParams)> {
             println!("Copying files for sim {}:", i);
-            let sim_output_folder = output_folder.as_ref().join(String::from(i.to_string()));
+            let sim_output_folder = output_folder.join(String::from(i.to_string()));
             Ok((
                 *i,
                 copy_sim(sim, &input_folder.as_ref(), &sim_output_folder)

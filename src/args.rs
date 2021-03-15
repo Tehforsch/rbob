@@ -53,6 +53,8 @@ pub struct ShowSimulationInfoOutput {
 pub struct CopySimulation {
     pub input_folder: Utf8PathBuf,
     pub output_folder: Utf8PathBuf,
+    #[clap(short, long)]
+    pub delete: bool,
 }
 
 /// Build arepo for each of the configuration files in the output directory
@@ -72,6 +74,8 @@ pub struct RunSimulation {
 pub struct StartSimulation {
     pub input_folder: Utf8PathBuf,
     pub output_folder: Utf8PathBuf,
+    #[clap(short, long)]
+    pub delete: bool,
 }
 
 #[derive(Clap, Debug)]

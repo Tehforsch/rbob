@@ -6,6 +6,7 @@ pub enum PostFnKind {
     Snap,
     Sim,
     Set,
+    NoPlotSet,
 }
 
 pub trait PostFn {
@@ -25,6 +26,7 @@ pub trait PostFn {
             PostFnKind::Set => self.run_on_sim_set(sim_set),
             PostFnKind::Sim => self.run_on_every_sim(sim_set),
             PostFnKind::Snap => self.run_on_every_sim_and_snap(sim_set),
+            PostFnKind::NoPlotSet => self.run_on_sim_set_no_plot(sim_set),
         }
     }
 
@@ -34,6 +36,11 @@ pub trait PostFn {
             info: self.get_plot_info(sim_set, None, None)?,
             data: post_result,
         }])
+    }
+
+    fn run_on_sim_set_no_plot(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+        self.post(sim_set, None, None)?;
+        Ok(vec![])
     }
 
     fn run_on_every_sim(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {

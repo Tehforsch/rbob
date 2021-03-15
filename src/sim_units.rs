@@ -1,6 +1,6 @@
 use uom::si::f64::{Length, Mass, MassDensity, Time, Velocity};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SimUnits {
     pub length: Length,
     pub velocity: Velocity,
