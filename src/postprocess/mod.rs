@@ -13,6 +13,7 @@ use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
 
 pub mod axis;
 pub mod data_plot_info;
+pub mod kd_tree;
 pub mod plot;
 pub mod plot_info;
 pub mod plot_template;
