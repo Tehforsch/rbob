@@ -5,6 +5,7 @@ use crate::{
     sim_set::SimSet,
 };
 
+use crate::postprocess::kd_tree::KdTree;
 use super::{axis::Axis, post_fn::PostFn};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
@@ -45,17 +46,16 @@ impl PostFn for &SliceFn {
         let max_extent = snap.max_extent();
         let center = snap.center();
         let mut data = FArray2::zeros((NX_SLICE, NY_SLICE));
-        for (i0, i1, pos) in self.get_slice_grid(center, min_extent, max_extent, NX_SLICE, NY_SLICE)
+        let grid = self.get_slice_grid(center, min_extent, max_extent, NX_SLICE, NY_SLICE);
+        let mut coords_vec = vec![];
+        for coord in coords.outer_iter() {
+            coords_vec.push(coord.to_owned());
+        }
+        let tree = KdTree::new(coords_vec);
+        for (i0, i1, pos) in grid
         {
-            let (index, _) = coords
-                .outer_iter()
-                .enumerate()
-                .min_by_key(|(_, coord)| {
-                    let dist = coord - &pos;
-                    OrderedFloat(dist.dot(&dist))
-                })
-                .unwrap();
-            data[[i0, i1]] = h_plus_abundance[index];
+            let (index, coord) = tree.nearest_neighbour(&pos);
+            data[[i0, i1]] = h_plus_abundance[*index];
         }
         Ok(vec![SliceFn::convert_heatmap_to_gnuplot_format(data)])
     }
