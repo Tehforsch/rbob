@@ -11,6 +11,7 @@ use crate::array_utils::meshgrid2;
 use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Clap;
+use itertools::Itertools;
 use ndarray::{array, s, Array};
 use ordered_float::OrderedFloat;
 
@@ -42,18 +43,25 @@ impl PostFn for &CompareFn {
         _snap: Option<&Snapshot>,
     ) -> Result<Vec<FArray2>> {
         let reference_sim_set = SimSet::from_output_folder(&self.reference)?;
-        for (sim, sim_reference) in sim_set.iter().zip(reference_sim_set.iter()) {
-            for (key, value) in sim.iter() {
-                assert_eq!(sim[key], sim_reference[key]);
-                if (key == "SX_SWEEP") {
-                    dbg!(&sim[key], &sim_reference[key]);
-                    assert!(false);
+        for either_or_both in sim_set.iter().zip_longest(reference_sim_set.iter()) {
+            match either_or_both {
+                itertools::EitherOrBoth::Both(sim, sim_reference) => {
+                    CompareFn::compare_sims(sim, sim_reference)?;
                 }
-            }
-            for (snap, snap_reference) in get_snapshots(sim)?.zip(get_snapshots(sim_reference)?) {
-                let snap = snap?;
-                let snap_reference = snap_reference?;
-                CompareFn::compare_snaps(&snap, &snap_reference)?;
+                itertools::EitherOrBoth::Left(sim) => {
+                    assert!(
+                        false,
+                        "Simulation {} available in new run but not in reference run!",
+                        sim.get_name()
+                    );
+                }
+                itertools::EitherOrBoth::Right(sim_reference) => {
+                    assert!(
+                        false,
+                        "Simulation {} available in reference run but not in new run!",
+                        sim_reference.get_name()
+                    );
+                }
             }
         }
         Ok(vec![])
@@ -61,7 +69,46 @@ impl PostFn for &CompareFn {
 }
 
 impl CompareFn {
+    fn compare_sims(sim: &SimParams, sim_reference: &SimParams) -> Result<()> {
+        println!(
+            "Comparing sim {} to {}",
+            sim.get_name(),
+            sim_reference.get_name()
+        );
+        for (key, value) in sim.iter() {
+            assert_eq!(sim[key], sim_reference[key]);
+        }
+        for either_or_both in get_snapshots(sim)?.zip_longest(get_snapshots(sim_reference)?) {
+            match either_or_both {
+                itertools::EitherOrBoth::Both(snap, snap_reference) => {
+                    let snap = snap?;
+                    let snap_reference = snap_reference?;
+                    CompareFn::compare_snaps(&snap, &snap_reference)?;
+                }
+                itertools::EitherOrBoth::Left(snap) => {
+                    assert!(
+                        false,
+                        "Snapshot {} available in simulation but not in reference!",
+                        snap?.get_name()
+                    );
+                }
+                itertools::EitherOrBoth::Right(snap_reference) => {
+                    assert!(
+                        false,
+                        "Snapshot {} available in reference but not in simulation!",
+                        snap_reference?.get_name()
+                    );
+                }
+            }
+        }
+        Ok(())
+    }
     fn compare_snaps(snap1: &Snapshot, snap2: &Snapshot) -> Result<()> {
+        println!(
+            "  Comparing snap {} to {}",
+            snap1.get_name(),
+            snap2.get_name()
+        );
         assert!(CompareFn::is_close(
             snap1.coordinates()?,
             snap2.coordinates()?
@@ -79,13 +126,12 @@ impl CompareFn {
     {
         arr1.indexed_iter().zip(arr2.indexed_iter()).all(
             |((indices1, value1), (indices2, value2))| {
-                dbg!(&indices1, &indices2, &value1, &value2);
                 indices1 == indices2 && CompareFn::same_within_epsilon(*value1, *value2)
             },
         )
     }
 
     pub fn same_within_epsilon(val1: f64, val2: f64) -> bool {
-        dbg!((val1 - val2) / (val1.abs() + val2.abs() + MIN_VAL)) < EPSILON
+        (val1 - val2) / (val1.abs() + val2.abs() + MIN_VAL) < EPSILON
     }
 }

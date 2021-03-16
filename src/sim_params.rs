@@ -104,6 +104,10 @@ impl SimParams {
         })
     }
 
+    pub fn get_name(&self) -> String {
+        self.folder.file_name().unwrap().to_owned()
+    }
+
     pub fn output_folder(&self) -> Utf8PathBuf {
         self.folder
             .join(Utf8Path::new(self.params["OutputDir"].unwrap_string()))

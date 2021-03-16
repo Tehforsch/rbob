@@ -72,16 +72,15 @@ pub fn get_snapshots<'a>(
 }
 
 pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
-    Ok(Box::new(
-        get_files(&sim.output_folder())
-            .context(format!(
-                "No output folder in simulation folder: {:?} (looking in {:?})",
-                sim.folder,
-                sim.output_folder(),
-            ))?
-            .into_iter()
-            .filter(|f| f.extension().map(|ext| ext == "hdf5").unwrap_or(false)),
-    ))
+    let mut files = get_files(&sim.output_folder()).context(format!(
+        "No output folder in simulation folder: {:?} (looking in {:?})",
+        sim.folder,
+        sim.output_folder(),
+    ))?;
+    files.sort_by_key(|snap_file| snap_file.file_name().unwrap().to_owned());
+    Ok(Box::new(files.into_iter().filter(|f| {
+        f.extension().map(|ext| ext == "hdf5").unwrap_or(false)
+    })))
 }
 
 pub fn show_image(path: &str) {
