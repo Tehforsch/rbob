@@ -38,7 +38,7 @@ impl KdTree {
         }
     }
 
-    pub fn nearest_neighbour(&self, point: FArray1) -> FArray1 {
+    pub fn nearest_neighbour(&self, _point: FArray1) -> FArray1 {
         todo!()
     }
 }
@@ -59,11 +59,10 @@ fn split_along(points: Vec<FArray1>, split_axis: usize) -> (KdTree, KdTree, f64)
 #[cfg(test)]
 mod tests {
     use ndarray::array;
-    use ndarray::s;
 
     #[test]
     pub fn kdtree() {
-        let coords = vec![
+        let _coords = vec![
             (0, 0, array![2., 1., 1.]),
             (0, 1, array![2., 1., 2.]),
             (0, 2, array![2., 1., 3.]),
@@ -74,7 +73,7 @@ mod tests {
             (2, 1, array![2., 3., 2.]),
             (2, 2, array![2., 3., 3.]),
         ];
-        dbg!(KdTree::new(coords));
+        // dbg!(KdTree::new(coords));
         assert!(false);
     }
 }

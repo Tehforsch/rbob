@@ -1,6 +1,6 @@
 mod setup;
-use bob::util::{get_files, get_folders, read_file_contents};
-use camino::Utf8Path;
+use bob::util::{get_files, read_file_contents};
+
 use setup::TestArg::{NormalArg, RelativePath};
 pub use setup::*;
 

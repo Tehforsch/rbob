@@ -1,19 +1,13 @@
-use crate::{
-    array_utils::{FArray1, FArray2},
-    config::{NX_SLICE, NY_SLICE},
-    sim_params::SimParams,
-    sim_set::SimSet,
-};
+use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 
-use super::{axis::Axis, get_snapshots, post_fn::PostFn};
+use super::{get_snapshots, post_fn::PostFn};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
-use crate::array_utils::meshgrid2;
+
 use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Clap;
 use itertools::Itertools;
-use ndarray::{array, s, Array};
-use ordered_float::OrderedFloat;
+use ndarray::Array;
 
 static EPSILON: f64 = 1e-50;
 static MIN_VAL: f64 = 1e-24;
@@ -75,7 +69,7 @@ impl CompareFn {
             sim.get_name(),
             sim_reference.get_name()
         );
-        for (key, value) in sim.iter() {
+        for (key, _value) in sim.iter() {
             assert_eq!(sim[key], sim_reference[key]);
         }
         for either_or_both in get_snapshots(sim)?.zip_longest(get_snapshots(sim_reference)?) {
