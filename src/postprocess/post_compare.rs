@@ -15,7 +15,7 @@ use itertools::Itertools;
 use ndarray::{array, s, Array};
 use ordered_float::OrderedFloat;
 
-static EPSILON: f64 = 1e-2;
+static EPSILON: f64 = 1e-50;
 static MIN_VAL: f64 = 1e-24;
 
 #[derive(Clap, Debug)]
@@ -103,12 +103,9 @@ impl CompareFn {
         }
         Ok(())
     }
+
     fn compare_snaps(snap1: &Snapshot, snap2: &Snapshot) -> Result<()> {
-        println!(
-            "  Comparing snap {} to {}",
-            snap1.get_name(),
-            snap2.get_name()
-        );
+        println!("  Comparing snap {} to {}", snap1, snap2,);
         assert!(CompareFn::is_close(
             snap1.coordinates()?,
             snap2.coordinates()?
