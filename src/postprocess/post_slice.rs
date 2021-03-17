@@ -72,8 +72,8 @@ impl SliceFn {
         let shape = heatmap.shape();
         let mut result = FArray2::zeros((shape[0] * shape[1], 3));
         for ((i0, i1), v) in heatmap.indexed_iter() {
-            result[[i0 * shape[0] + i1, 0]] = i0 as f64;
-            result[[i0 * shape[0] + i1, 1]] = i1 as f64;
+            result[[i0 * shape[0] + i1, 0]] = i0 as f64 / NX_SLICE as f64;
+            result[[i0 * shape[0] + i1, 1]] = i1 as f64 / NY_SLICE as f64;
             result[[i0 * shape[0] + i1, 2]] = *v as f64;
         }
         result
