@@ -51,11 +51,11 @@ impl PostFn for &SliceFn {
         for coord in coords.outer_iter() {
             coords_vec.push(coord.to_owned());
         }
-        let tree = KdTree::new(coords_vec);
+        let tree = KdTree::new(&coords_vec);
         for (i0, i1, pos) in grid
         {
-            let (index, coord) = tree.nearest_neighbour(&pos);
-            data[[i0, i1]] = h_plus_abundance[*index];
+            let index = tree.nearest_neighbour_index(&pos);
+            data[[i0, i1]] = h_plus_abundance[index];
         }
         Ok(vec![SliceFn::convert_heatmap_to_gnuplot_format(data)])
     }

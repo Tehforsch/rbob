@@ -6,35 +6,37 @@ static NUM_DIM: usize = 3;
 static MAX_DEPTH: usize = 15;
 
 #[derive(Debug)]
-pub enum KdTree {
-    Tree(KdTreeNode),
-    Leaf(Vec<(usize, FArray1)>),
+pub enum KdTree<'a> {
+    Tree(KdTreeNode<'a>),
+    Leaf(&'a Vec<FArray1>, Vec<usize>),
 }
 
 #[derive(Debug)]
-pub struct KdTreeNode {
-    split_1: Box<KdTree>,
-    split_2: Box<KdTree>,
+pub struct KdTreeNode<'a> {
+    split_1: Box<KdTree<'a>>,
+    split_2: Box<KdTree<'a>>,
+    points: &'a Vec<FArray1>,
     split_axis: usize,
     split_pos: f64,
 }
 
-impl KdTree {
-    pub fn new(points: Vec<FArray1>) -> KdTree {
+impl<'a> KdTree<'a> {
+    pub fn new(points: &'a Vec<FArray1>) -> KdTree<'a> {
         assert!(points.len() > 0);
         let first_split_axis = 0;
-        let points = points.iter().enumerate().map(|(i, x)| (i, x.clone())).collect();
-        KdTree::construct(points, first_split_axis, 0)
+        let indices = points.iter().enumerate().map(|(i, _)| i).collect();
+        KdTree::construct(points, indices, first_split_axis, 0)
     }
 
-    pub fn construct(points: Vec<(usize, FArray1)>, split_axis: usize, depth: usize) -> KdTree {
-        if points.len() <= LEAF_MAX_NUM_POINTS || depth > MAX_DEPTH {
-            KdTree::Leaf(points)
+    pub fn construct(points: &'a Vec<FArray1>, indices: Vec<usize>, split_axis: usize, depth: usize) -> KdTree<'a> {
+        if indices.len() <= LEAF_MAX_NUM_POINTS || depth > MAX_DEPTH {
+            KdTree::Leaf(points, indices)
         } else {
-            let (split_1, split_2, split_pos) = split_along(points, split_axis, depth);
+            let (split_1, split_2, split_pos) = split_along(points, indices, split_axis, depth);
             let node = KdTreeNode {
                 split_1: Box::new(split_1),
                 split_2: Box::new(split_2),
+                points,
                 split_pos,
                 split_axis,
             };
@@ -42,11 +44,22 @@ impl KdTree {
         }
     }
 
-    pub fn nearest_neighbour(&self, point: &FArray1) -> &(usize, FArray1) {
+    pub fn get_point(&self, index: usize) -> &FArray1 {
+        match self {
+            KdTree::Tree(node) => {&node.points[index]}
+            KdTree::Leaf(points, _) => {&points[index]}
+        }
+    }
+
+    pub fn nearest_neighbour(&self, point: &FArray1) -> &FArray1 {
+        self.get_point(self.nearest_neighbour_traverse(point, 0))
+    }
+
+    pub fn nearest_neighbour_index(&self, point: &FArray1) -> usize {
         self.nearest_neighbour_traverse(point, 0)
     }
 
-    pub fn nearest_neighbour_traverse(&self, point: &FArray1, split_axis: usize) -> &(usize, FArray1) {
+    pub fn nearest_neighbour_traverse(&self, point: &FArray1, split_axis: usize) -> usize {
         match self {
             KdTree::Tree(node) => match point[split_axis] < node.split_pos {
                 true => node
@@ -56,16 +69,16 @@ impl KdTree {
                     .split_2
                     .nearest_neighbour_traverse(point, next_axis(split_axis)),
             },
-            KdTree::Leaf(list) => nearest_neighbour_from_list(&point, list),
+            KdTree::Leaf(points, list) => nearest_neighbour_from_list(points, list, point),
         }
     }
 }
 
-fn nearest_neighbour_from_list<'a>(point: &FArray1, list: &'a Vec<(usize, FArray1)>) -> &'a (usize, FArray1) {
-    assert!(list.len() > 0);
-    list.iter()
-        .min_by_key(|(i, p1)| {
-            OrderedFloat(squared_distance(p1, point))
+fn nearest_neighbour_from_list<'a>(points: &'a Vec<FArray1>, indices: &Vec<usize>, point: &FArray1 ) -> usize {
+    assert!(indices.len() > 0);
+    *indices.iter()
+        .min_by_key(|index| {
+            OrderedFloat(squared_distance(&points[**index], point))
         })
         .unwrap()
 }
@@ -74,21 +87,23 @@ fn squared_distance(p1: &FArray1, p2: &FArray1) -> f64 {
     (p1 - p2).dot(&(p1 - p2))
 }
 
-fn split_along(mut points: Vec<(usize, FArray1)>, split_axis: usize, depth: usize) -> (KdTree, KdTree, f64) {
-    points.sort_by_key(|x| OrderedFloat(x.1[split_axis]));
-    let (index, pos) = find_split_index_and_pos(&points, split_axis);
-    let split = points.split_at(index);
+fn split_along(points: &Vec<FArray1>, mut indices: Vec<usize>, split_axis: usize, depth: usize) -> (KdTree, KdTree, f64) {
+    indices.sort_by_key(|i| OrderedFloat(points[*i][split_axis]));
+    dbg!(&indices);
+    let (index, pos) = find_split_index_and_pos(points, &indices, split_axis);
+    let split = indices.split_at(index);
     (
-        KdTree::construct(split.0.to_vec(), next_axis(split_axis), depth + 1),
-        KdTree::construct(split.1.to_vec(), next_axis(split_axis), depth + 1),
+        KdTree::construct(points, split.0.to_vec(), next_axis(split_axis), depth + 1),
+        KdTree::construct(points, split.1.to_vec(), next_axis(split_axis), depth + 1),
         pos,
     )
 }
 
-fn find_split_index_and_pos(points: &Vec<(usize, FArray1)>, split_axis: usize) -> (usize, f64) {
-    let mid = points.len() / 2;
-    let pos = points[mid].1[split_axis];
-    let split_index = points.iter().enumerate().filter(|(_, point)| point.1[split_axis] == pos).next().unwrap().0;
+fn find_split_index_and_pos(points: &Vec<FArray1>, indices: &Vec<usize>, split_axis: usize) -> (usize, f64) {
+    assert!(indices.len() > 1);
+    let mid = indices.len() / 2;
+    let pos = points[indices[mid]][split_axis];
+    let split_index = indices.iter().enumerate().filter(|(i, index)| points[**index][split_axis] == pos).next().unwrap().0;
     (split_index, pos)
 }
 
@@ -124,10 +139,10 @@ mod tests {
             (array![2., 5., 2.]),
             (array![5., 2., 2.]),
         ];
-        let tree = KdTree::new(coords.clone());
-        for coord in coords.iter() {
+        let tree = KdTree::new(&coords);
+        for (i, coord) in coords.iter().enumerate() {
             assert_eq!(
-                &tree.nearest_neighbour(coord + &array![0.1, 0.1, 0.1]).1,
+                tree.nearest_neighbour(&(coord + &array![0.1, 0.1, 0.1])),
                 coord
             );
         }
