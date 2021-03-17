@@ -117,6 +117,7 @@ fn run_gnuplot_command(info: &PlotInfo, plot_file: &Utf8Path) -> Result<()> {
         "gnuplot",
         &[&plot_file.file_name().unwrap()],
         Some(&info.plot_folder),
+        false,
     );
     match out.success {
         false => Err(anyhow!("Error in gnuplot command:\n{}", out.stderr)),

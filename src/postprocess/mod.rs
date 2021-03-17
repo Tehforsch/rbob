@@ -85,5 +85,5 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
 }
 
 pub fn show_image(path: &str) {
-    get_shell_command_output("viewnior", &[path], None);
+    get_shell_command_output("viewnior", &[path], None, false);
 }

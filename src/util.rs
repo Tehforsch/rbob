@@ -128,13 +128,17 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
     command_str: &str,
     args: &[T],
     working_dir: Option<&Utf8Path>,
+    verbose: bool,
 ) -> ShellCommandOutput {
     let mut command = Command::new(command_str);
     command
         .args(args)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
+        .stdin(Stdio::piped());
+    if !verbose {
+        command
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+    }
     match working_dir {
         Some(dir) => {
             command.current_dir(dir);

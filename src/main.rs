@@ -37,15 +37,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&sim_set)?;
+            build_sim_set(&sim_set, a.verbose)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            run_sim_set(&sim_set)?;
+            run_sim_set(&sim_set, a.verbose)?;
         }
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            start_sim_set(sim_set, &l.input_folder, &l.output_folder, l.delete)?;
+            start_sim_set(sim_set, &l.input_folder, &l.output_folder, l.delete, a.verbose)?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -60,10 +60,11 @@ fn start_sim_set(
     input_folder: &Utf8Path,
     output_folder: &Utf8Path,
     delete: bool,
+    verbose: bool,
 ) -> Result<()> {
     let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder, delete)?;
-    build_sim_set(&output_sim_set)?;
-    run_sim_set(&output_sim_set)
+    build_sim_set(&output_sim_set, verbose)?;
+    run_sim_set(&output_sim_set, verbose)
 }
 
 fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {

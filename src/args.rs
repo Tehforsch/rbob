@@ -7,8 +7,8 @@ use clap::Clap;
 #[clap(version = "0.1.0", author = "Toni Peter")]
 pub struct Opts {
     /// A level of verbosity, and can be used multiple times
-    #[clap(short, long, parse(from_occurrences))]
-    pub verbose: i32,
+    #[clap(short, long)]
+    pub verbose: bool,
     #[clap(subcommand)]
     pub subcmd: SubCommand,
 }
