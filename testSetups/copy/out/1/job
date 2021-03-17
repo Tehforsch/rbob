@@ -1,2 +1,0 @@
-#!/bin/bash
-mpirun -n 1 ./Arepo param.txt 0 > stdout.log

@@ -82,6 +82,7 @@ pub fn run_bob(env: &TestEnv, args: &[TestArg]) -> Result<ShellCommandOutput> {
         env.executable.to_str().unwrap(),
         &convert_args(&args, &env.dir.path())?,
         None,
+        false,
     ))
 }
 
