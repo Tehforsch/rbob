@@ -46,7 +46,7 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-mpirun -n {numCores} ./{executableName} {paramFile} {runParams} | tee {logFile}";
+mpirun -n {numCores} ./{executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
 
 #[cfg(not(feature = "bwfor"))]
 pub static RUN_COMMAND: &str = "bash";
