@@ -131,13 +131,9 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
     verbose: bool,
 ) -> ShellCommandOutput {
     let mut command = Command::new(command_str);
-    command
-        .args(args)
-        .stdin(Stdio::piped());
+    command.args(args).stdin(Stdio::piped());
     if !verbose {
-        command
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        command.stdout(Stdio::piped()).stderr(Stdio::piped());
     }
     match working_dir {
         Some(dir) => {
