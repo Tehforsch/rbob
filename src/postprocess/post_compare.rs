@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 
 use super::{get_snapshots, post_fn::PostFn};
@@ -35,7 +37,7 @@ impl PostFn for &CompareFn {
         sim_set: &SimSet,
         _sim: Option<&SimParams>,
         _snap: Option<&Snapshot>,
-    ) -> Result<Vec<FArray2>> {
+    ) -> Result<(Vec<FArray2>, HashMap<String, String>)> {
         let reference_sim_set = SimSet::from_output_folder(&self.reference)?;
         for either_or_both in sim_set.iter().zip_longest(reference_sim_set.iter()) {
             match either_or_both {
@@ -58,7 +60,7 @@ impl PostFn for &CompareFn {
                 }
             }
         }
-        Ok(vec![])
+        Ok((vec![], HashMap::new()))
     }
 }
 

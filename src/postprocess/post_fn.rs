@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::{data_plot_info::DataPlotInfo, get_snapshots, plot_info::PlotInfo, snapshot::Snapshot};
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
@@ -19,7 +21,7 @@ pub trait PostFn {
         sim_set: &SimSet,
         sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
-    ) -> Result<Vec<FArray2>>;
+    ) -> Result<(Vec<FArray2>, HashMap<String, String>)>;
 
     fn run_post(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
         match self.kind() {
@@ -34,7 +36,8 @@ pub trait PostFn {
         let post_result = self.post(sim_set, None, None)?;
         Ok(vec![DataPlotInfo {
             info: self.get_plot_info(sim_set, None, None)?,
-            data: post_result,
+            data: post_result.0,
+            replacements: post_result.1,
         }])
     }
 
@@ -50,7 +53,8 @@ pub trait PostFn {
                 let post_result = self.post(sim_set, Some(sim), None)?;
                 Ok(DataPlotInfo {
                     info: self.get_plot_info(sim_set, Some(sim), None)?,
-                    data: post_result,
+                    data: post_result.0,
+                    replacements: post_result.1,
                 })
             })
             .collect()
@@ -80,9 +84,11 @@ pub trait PostFn {
         sim: &SimParams,
         snap: &Snapshot,
     ) -> Result<DataPlotInfo> {
+        let res = self.post(sim_set, Some(sim), Some(&snap))?;
         Ok(DataPlotInfo {
             info: self.get_plot_info(sim_set, Some(sim), Some(&snap))?,
-            data: self.post(sim_set, Some(sim), Some(&snap))?,
+            data: res.0,
+            replacements: res.1,
         })
     }
 

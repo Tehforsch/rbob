@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     array_utils::{FArray1, FArray2},
     config::{NX_SLICE, NY_SLICE},
@@ -5,14 +7,14 @@ use crate::{
     sim_set::SimSet,
 };
 
-use crate::postprocess::kd_tree::KdTree;
 use super::{axis::Axis, post_fn::PostFn};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
 use anyhow::Result;
 use clap::Clap;
 use ndarray::{array, s};
-use ordered_float::OrderedFloat;
+use kdtree::KdTree;
+use kdtree::distance::squared_euclidean;
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
@@ -37,7 +39,7 @@ impl PostFn for &SliceFn {
         _sim_set: &SimSet,
         _sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
-    ) -> Result<Vec<FArray2>> {
+    ) -> Result<(Vec<FArray2>, HashMap<String, String>)> {
         let snap = snap.unwrap();
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
@@ -46,18 +48,22 @@ impl PostFn for &SliceFn {
         let max_extent = snap.max_extent();
         let center = snap.center();
         let mut data = FArray2::zeros((NX_SLICE, NY_SLICE));
-        let grid = self.get_slice_grid(center, min_extent, max_extent, NX_SLICE, NY_SLICE);
-        let mut coords_vec = vec![];
-        for coord in coords.outer_iter() {
-            coords_vec.push(coord.to_owned());
+        let grid = self.get_slice_grid(&center, &min_extent, &max_extent, NX_SLICE, NY_SLICE);
+        let mut tree = KdTree::new(3);
+        let coords_iter = coords.outer_iter().map(|x| [x[0], x[1], x[2]]);
+        for (i, coord) in coords_iter.enumerate() {
+            tree.add(coord, i)?;
         }
-        let tree = KdTree::new(&coords_vec);
-        for (i0, i1, pos) in grid
-        {
-            let index = tree.nearest_neighbour_index(&pos);
-            data[[i0, i1]] = h_plus_abundance[index];
+        for (i0, i1, pos) in grid {
+            let (_, index) = tree.nearest(&[pos[0], pos[1], pos[2]], 1, &squared_euclidean).unwrap()[0];
+            data[[i0, i1]] = h_plus_abundance[*index];
         }
-        Ok(vec![SliceFn::convert_heatmap_to_gnuplot_format(data)])
+        let mut replacements = HashMap::new();
+        replacements.insert("minX".to_owned(), format!("{}", min_extent[0]));
+        replacements.insert("maxX".to_owned(), format!("{}", max_extent[0]));
+        replacements.insert("minY".to_owned(), format!("{}", min_extent[1]));
+        replacements.insert("maxY".to_owned(), format!("{}", max_extent[1]));
+        Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements))
     }
 }
 
@@ -75,15 +81,15 @@ impl SliceFn {
 
     fn get_slice_grid(
         &self,
-        center: FArray1,
-        min_extent: FArray1,
-        max_extent: FArray1,
+        center: &FArray1,
+        min_extent: &FArray1,
+        max_extent: &FArray1,
         n0: usize,
         n1: usize,
     ) -> Box<dyn Iterator<Item = (usize, usize, FArray1)>> {
         let (orth1, orth2) = self.axis.get_orthogonal_vectors();
-        let min_extent_2d = array![orth1.dot(&min_extent), orth2.dot(&min_extent)];
-        let max_extent_2d = array![orth1.dot(&max_extent), orth2.dot(&max_extent)];
+        let min_extent_2d = array![orth1.dot(min_extent), orth2.dot(min_extent)];
+        let max_extent_2d = array![orth1.dot(max_extent), orth2.dot(max_extent)];
         let grid = meshgrid2(&min_extent_2d, &max_extent_2d, n0, n1);
         let axis = self.axis.get_axis_vector();
         let center_along_axis = (center.dot(&axis)) * axis;
@@ -116,7 +122,7 @@ mod tests {
         let max_extent = array![3., 3., 3.];
         let slice_fn = SliceFn { axis: Axis::X };
         let grid: Vec<(usize, usize, FArray1)> = slice_fn
-            .get_slice_grid(center, min_extent, max_extent, 3, 3)
+            .get_slice_grid(&center, &min_extent, &max_extent, 3, 3)
             .collect();
         assert_eq!(
             grid,

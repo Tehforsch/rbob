@@ -14,8 +14,12 @@ pub fn run_plot(
     config_file: &ConfigFile,
     info: &PlotInfo,
     filenames: &Vec<Utf8PathBuf>,
+    special_replacements: &HashMap<String, String>,
 ) -> Result<String> {
-    let replacements = get_default_replacements(info, filenames)?;
+    let mut replacements = get_default_replacements(info, filenames)?;
+    for (k, v) in special_replacements {
+        replacements.insert(k.to_string(), v.to_string());
+    }
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
     let plot_template = copy_plot_template(config_file, info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
