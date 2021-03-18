@@ -36,7 +36,12 @@ pub fn postprocess_sim_set(
     for data_plot_info in data_plot_info_list.iter() {
         data_plot_info.info.create_folders_if_nonexistent()?;
         let filenames = write_results(&data_plot_info)?;
-        let image_file = plot::run_plot(config_file, &data_plot_info.info, &filenames, &data_plot_info.replacements)?;
+        let image_file = plot::run_plot(
+            config_file,
+            &data_plot_info.info,
+            &filenames,
+            &data_plot_info.replacements,
+        )?;
         if args.show {
             show_image(&image_file);
         }
@@ -66,9 +71,10 @@ pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> 
 pub fn get_snapshots<'a>(
     sim: &'a SimParams,
 ) -> Result<Box<dyn Iterator<Item = Result<Snapshot<'a>>> + 'a>> {
-    Ok(Box::new(get_snapshot_files(sim)?.map(move |snap_file| {
-        Snapshot::from_file(sim, &snap_file)
-    })))
+    Ok(Box::new(
+        get_snapshot_files(sim)?
+            .map(move |snap_file| Snapshot::from_file(sim, &snap_file)),
+    ))
 }
 
 pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
@@ -77,10 +83,22 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
         sim.folder,
         sim.output_folder(),
     ))?;
+    files = filter_first_snapshot_for_postprocessing_runs(files);
     files.sort_by_key(|snap_file| snap_file.file_name().unwrap().to_owned());
     Ok(Box::new(files.into_iter().filter(|f| {
         f.extension().map(|ext| ext == "hdf5").unwrap_or(false)
     })))
+}
+
+fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec<Utf8PathBuf> {
+    let has_postprocessing_type_snapshots = files.iter().any(|snap| snap.as_str().contains("1000"));
+    if has_postprocessing_type_snapshots {
+        files.iter().filter(move |file| file.file_name().unwrap() != "snap_000.hdf5").map(|pb| pb.to_owned()).collect()
+    }
+    else {
+        files
+    }
+    
 }
 
 pub fn show_image(path: &str) {
