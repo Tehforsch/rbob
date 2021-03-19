@@ -6,7 +6,7 @@ use crate::{
     sim_params::SimParams,
     sim_set::SimSet,
 };
-
+use ndarray_stats::QuantileExt;
 use super::{axis::Axis, post_fn::PostFn};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
@@ -19,6 +19,8 @@ use kdtree::distance::squared_euclidean;
 #[derive(Clap, Debug)]
 pub struct SliceFn {
     pub axis: Axis,
+    #[clap(short, long)]
+    pub log: bool,
 }
 
 impl PostFn for &SliceFn {
@@ -63,6 +65,8 @@ impl PostFn for &SliceFn {
         replacements.insert("maxX".to_owned(), format!("{}", max_extent[0]));
         replacements.insert("minY".to_owned(), format!("{}", min_extent[1]));
         replacements.insert("maxY".to_owned(), format!("{}", max_extent[1]));
+        replacements.insert("logPlot".to_owned(), format!("{}", self.log as i32));
+        replacements.insert("minC".to_owned(), h_plus_abundance.min().unwrap().to_string());
         Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements))
     }
 }
