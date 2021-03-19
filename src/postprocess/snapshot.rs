@@ -76,6 +76,7 @@ impl<'a> Snapshot<'a> {
             .file_name()
             .and_then(|x| x.strip_suffix(".hdf5"))
             .and_then(|x| x.strip_prefix(&snap_shot_base))
+            .and_then(|x| x.strip_prefix("_"))
             .unwrap()
             .to_owned()
     }
