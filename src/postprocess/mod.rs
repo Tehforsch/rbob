@@ -46,6 +46,9 @@ pub fn postprocess_sim_set(
             show_image(&image_file);
         }
     }
+    if args.showall && data_plot_info_list.len() > 0{
+        show_image_folder(data_plot_info_list[0].info.pic_folder.as_str());
+    }
     Ok(())
 }
 
@@ -102,5 +105,11 @@ fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec
 }
 
 pub fn show_image(path: &str) {
+    println!("Showing image {}", path);
     get_shell_command_output("viewnior", &[path], None, false);
+}
+
+pub fn show_image_folder(path: &str) {
+    println!("Showing all images at {}", path);
+    get_shell_command_output("nomacs", &[path], None, false);
 }

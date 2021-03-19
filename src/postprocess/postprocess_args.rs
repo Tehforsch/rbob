@@ -8,6 +8,8 @@ use camino::Utf8PathBuf;
 pub struct PostprocessArgs {
     #[clap(short, long)]
     pub show: bool,
+    #[clap(short, long)]
+    pub showall: bool,
     pub output_folder: Utf8PathBuf,
     #[clap(subcommand)]
     pub function: PostFnName,

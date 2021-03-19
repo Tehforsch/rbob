@@ -5,6 +5,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use std::fs;
 
 pub struct PlotInfo {
+    pub pic_folder: Utf8PathBuf,
     pub plot_folder: Utf8PathBuf,
     pub data_folder: Utf8PathBuf,
     pub plot_name: String,
@@ -33,9 +34,11 @@ impl PlotInfo {
             None => qualified_name.into(),
         }
         .to_owned();
+        let pic_folder = sim_set_folder.join("pics");
         let plot_folder = sim_set_folder.join("pics").join(&plot_name);
         let data_folder = plot_folder.join("data");
         PlotInfo {
+            pic_folder,
             plot_folder,
             data_folder,
             plot_name,
@@ -55,7 +58,7 @@ impl PlotInfo {
 
     pub fn get_pic_file(&self) -> Utf8PathBuf {
         let filename = format!("{}.{}", self.plot_name, config::PIC_FILE_ENDING);
-        self.plot_folder.join(filename).to_path_buf()
+        self.pic_folder.join(filename).to_path_buf()
     }
 }
 
