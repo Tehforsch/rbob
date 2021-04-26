@@ -57,21 +57,21 @@ impl ParamValue {
         match self {
             ParamValue::Float(f, _) => *f,
             ParamValue::Int(i) => *i as f64,
-            _ => panic!(format!("Tried to read value {} as float.", self)),
+            _ => panic!("Tried to read value {} as float.", self),
         }
     }
 
     pub fn unwrap_i64(&self) -> i64 {
         match self {
             ParamValue::Int(i) => *i,
-            _ => panic!(format!("Tried to read value {} as int.", self)),
+            _ => panic!("Tried to read value {} as int.", self),
         }
     }
 
     pub fn unwrap_string(&self) -> &str {
         match self {
             ParamValue::Str(s) => s,
-            _ => panic!(format!("Tried to read value {} as string.", self)),
+            _ => panic!("Tried to read value {} as string.", self),
         }
     }
 }
