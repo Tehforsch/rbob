@@ -6,7 +6,7 @@ use camino::Utf8PathBuf;
 /// Run the postprocessing scripts
 #[derive(Clap, Debug)]
 pub struct PostprocessArgs {
-    #[clap(short, long)]
+    #[clap(long)]
     pub show: bool,
     #[clap(short, long)]
     pub showall: bool,
