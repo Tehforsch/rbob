@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::{
     calculations::{get_recombination_time, get_stroemgren_radius},
     get_snapshots,
-    post_fn::PostFn,
+    post_fn::{PostFn, PostResult},
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::{
@@ -38,11 +38,12 @@ impl PostFn for &ExpansionFn {
     fn post(
         &self,
         sim_set: &SimSet,
-        sim: Option<&SimParams>,
-        snap: Option<&Snapshot>,
-    ) -> Result<(Vec<FArray2>, HashMap<String, String>)> {
+        _sim: Option<&SimParams>,
+        _snap: Option<&Snapshot>,
+    ) -> Result<PostResult> {
         let num_snaps = get_snapshots(sim_set.iter().next().unwrap())?.count();
         let mut result = vec![];
+        let mut max_t = 0.0;
         for sim in sim_set.iter() {
             let mut data = FArray2::zeros((num_snaps, 2));
             for (j, snap) in get_snapshots(sim)?.enumerate() {
@@ -50,21 +51,23 @@ impl PostFn for &ExpansionFn {
                 let photon_rate = Frequency::new::<hertz>(1.0e49);
                 let recombination_time = get_recombination_time(&snap)?;
                 let stroemgren_radius = get_stroemgren_radius(&snap, photon_rate)?;
-                dbg!(recombination_time, snap.time);
-                data[[j, 0]] = (snap.time / recombination_time).value;
+                let time = (snap.time / recombination_time).value;
+                data[[j, 0]] = time;
                 data[[j, 1]] = (get_radius(&snap)? / stroemgren_radius).value;
+                if time > max_t {
+                    max_t = time;
+                }
             }
             result.push(data);
         }
         let mut replacements = HashMap::new();
-        // replacements.insert("minX".to_owned(), format!("{}", min_extent[0]));
-        // replacements.insert("maxX".to_owned(), format!("{}", max_extent[0]));
-        // replacements.insert("minY".to_owned(), format!("{}", min_extent[1]));
-        // replacements.insert("maxY".to_owned(), format!("{}", max_extent[1]));
-        // replacements.insert("logPlot".to_owned(), format!("{}", self.log as i32));
+        replacements.insert("minX".to_owned(), format!("{}", 0.0));
+        replacements.insert("maxX".to_owned(), format!("{}", max_t));
+        replacements.insert("minY".to_owned(), format!("{}", 0.0));
+        replacements.insert("maxY".to_owned(), format!("{}", 1.0));
         // replacements.insert("minC".to_owned(), h_plus_abundance.min().unwrap().to_string());
         // Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements));
-        Ok((result, replacements))
+        Ok(PostResult::new(replacements, result))
     }
 }
 
@@ -135,12 +138,6 @@ fn get_mean_abundance_at_radius(
             num_points += 1;
         }
     }
-    println!(
-        "Ab@{} = {} ({})",
-        radius,
-        mean_abundance / num_points as f64,
-        num_points
-    );
     match num_points {
         0 => None,
         _ => Some(mean_abundance / num_points as f64),

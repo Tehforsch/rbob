@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{
-    post_fn::{PostFn, PostFnKind},
+    post_fn::{PostFn, PostFnKind, PostResult},
     snapshot::Snapshot,
 };
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
@@ -47,14 +47,14 @@ impl PostFn for &ScalingFn {
         sim_set: &SimSet,
         _sim: Option<&SimParams>,
         _snap: Option<&Snapshot>,
-    ) -> Result<(Vec<FArray2>, HashMap<String, String>)> {
+    ) -> Result<PostResult> {
         let mut res = FArray2::zeros((sim_set.len(), 2));
         for (i, sim) in sim_set.enumerate() {
             res[[*i, 0]] = sim.get_num_cores()? as f64;
             res[[*i, 1]] = sim.get_run_time()?;
         }
 
-        Ok((vec![res], HashMap::new()))
+        Ok(PostResult::new(HashMap::new(), vec![res]))
     }
 
     // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {

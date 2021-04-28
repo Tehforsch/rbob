@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use super::{axis::Axis, post_fn::PostFn};
+use super::{
+    axis::Axis,
+    post_fn::{PostFn, PostResult},
+};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
 use crate::{
@@ -41,7 +44,7 @@ impl PostFn for &SliceFn {
         _sim_set: &SimSet,
         _sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
-    ) -> Result<(Vec<FArray2>, HashMap<String, String>)> {
+    ) -> Result<PostResult> {
         let snap = snap.unwrap();
         let coords = snap.coordinates()?;
         // let dens = snap.density()?;
@@ -72,9 +75,9 @@ impl PostFn for &SliceFn {
             "minC".to_owned(),
             h_plus_abundance.min().unwrap().to_string(),
         );
-        Ok((
-            vec![SliceFn::convert_heatmap_to_gnuplot_format(data)],
+        Ok(PostResult::new(
             replacements,
+            vec![SliceFn::convert_heatmap_to_gnuplot_format(data)],
         ))
     }
 }

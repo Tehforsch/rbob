@@ -11,6 +11,17 @@ pub enum PostFnKind {
     NoPlotSet,
 }
 
+pub struct PostResult {
+    pub replacements: HashMap<String, String>,
+    pub data: Vec<FArray2>,
+}
+
+impl PostResult {
+    pub fn new(replacements: HashMap<String, String>, data: Vec<FArray2>) -> Self {
+        Self { replacements, data }
+    }
+}
+
 pub trait PostFn {
     fn kind(&self) -> PostFnKind;
     fn name(&self) -> &'static str;
@@ -21,7 +32,7 @@ pub trait PostFn {
         sim_set: &SimSet,
         sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
-    ) -> Result<(Vec<FArray2>, HashMap<String, String>)>;
+    ) -> Result<PostResult>;
 
     fn run_post(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
         match self.kind() {
@@ -34,11 +45,10 @@ pub trait PostFn {
 
     fn run_on_sim_set(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
         let post_result = self.post(sim_set, None, None)?;
-        Ok(vec![DataPlotInfo {
-            info: self.get_plot_info(sim_set, None, None)?,
-            data: post_result.0,
-            replacements: post_result.1,
-        }])
+        Ok(vec![DataPlotInfo::new(
+            self.get_plot_info(sim_set, None, None)?,
+            post_result,
+        )])
     }
 
     fn run_on_sim_set_no_plot(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
@@ -51,11 +61,10 @@ pub trait PostFn {
             .iter()
             .map(|sim| {
                 let post_result = self.post(sim_set, Some(sim), None)?;
-                Ok(DataPlotInfo {
-                    info: self.get_plot_info(sim_set, Some(sim), None)?,
-                    data: post_result.0,
-                    replacements: post_result.1,
-                })
+                Ok(DataPlotInfo::new(
+                    self.get_plot_info(sim_set, Some(sim), None)?,
+                    post_result,
+                ))
             })
             .collect()
     }
@@ -85,11 +94,10 @@ pub trait PostFn {
         snap: &Snapshot,
     ) -> Result<DataPlotInfo> {
         let res = self.post(sim_set, Some(sim), Some(&snap))?;
-        Ok(DataPlotInfo {
-            info: self.get_plot_info(sim_set, Some(sim), Some(&snap))?,
-            data: res.0,
-            replacements: res.1,
-        })
+        Ok(DataPlotInfo::new(
+            self.get_plot_info(sim_set, Some(sim), Some(&snap))?,
+            res,
+        ))
     }
 
     fn get_plot_info(
