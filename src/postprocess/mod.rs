@@ -12,6 +12,7 @@ use snapshot::Snapshot;
 use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
 
 pub mod axis;
+pub mod calculations;
 pub mod data_plot_info;
 pub mod plot;
 pub mod plot_info;
@@ -46,7 +47,7 @@ pub fn postprocess_sim_set(
             show_image(&image_file);
         }
     }
-    if args.showall && data_plot_info_list.len() > 0{
+    if args.showall && data_plot_info_list.len() > 0 {
         show_image_folder(data_plot_info_list[0].info.pic_folder.as_str());
     }
     Ok(())
@@ -74,10 +75,9 @@ pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> 
 pub fn get_snapshots<'a>(
     sim: &'a SimParams,
 ) -> Result<Box<dyn Iterator<Item = Result<Snapshot<'a>>> + 'a>> {
-    Ok(Box::new(
-        get_snapshot_files(sim)?
-            .map(move |snap_file| Snapshot::from_file(sim, &snap_file)),
-    ))
+    Ok(Box::new(get_snapshot_files(sim)?.map(move |snap_file| {
+        Snapshot::from_file(sim, &snap_file)
+    })))
 }
 
 pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
@@ -96,12 +96,14 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
 fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec<Utf8PathBuf> {
     let has_postprocessing_type_snapshots = files.iter().any(|snap| snap.as_str().contains("1000"));
     if has_postprocessing_type_snapshots {
-        files.iter().filter(move |file| file.file_name().unwrap() != "snap_000.hdf5").map(|pb| pb.to_owned()).collect()
-    }
-    else {
+        files
+            .iter()
+            .filter(move |file| file.file_name().unwrap() != "snap_000.hdf5")
+            .map(|pb| pb.to_owned())
+            .collect()
+    } else {
         files
     }
-    
 }
 
 pub fn show_image(path: &str) {

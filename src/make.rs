@@ -2,11 +2,11 @@ use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use std::fs;
 
-use crate::{config, util::read_file_contents};
 use crate::sim_params::get_config_file_path;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
+use crate::{config, util::read_file_contents};
 
 pub fn build_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
@@ -79,8 +79,7 @@ fn copy_config_file(sim: &SimParams) -> Result<()> {
     let target = arepo_path.join(config::DEFAULT_CONFIG_FILE_NAME);
     if config_files_differ(&source, &target)? {
         copy_file(source, target)
-    }
-    else {
+    } else {
         println!("Config file is the same as in arepo file - not copying it");
         Ok(())
     }
@@ -88,8 +87,8 @@ fn copy_config_file(sim: &SimParams) -> Result<()> {
 
 fn config_files_differ(source: &Utf8Path, target: &Utf8Path) -> Result<bool> {
     if source.is_file() && target.is_file() {
-        let contents_a = read_file_contents(source)? ;
-        let contents_b = read_file_contents(target)? ;
+        let contents_a = read_file_contents(source)?;
+        let contents_b = read_file_contents(target)?;
         if contents_a == contents_b {
             return Ok(false);
         }

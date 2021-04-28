@@ -12,7 +12,11 @@ pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
 }
 
 fn run_sim(sim: &SimParams, verbose: bool) -> Result<()> {
-    run_job_file(sim, &sim.folder.join(config::DEFAULT_JOB_FILE_NAME), verbose)?;
+    run_job_file(
+        sim,
+        &sim.folder.join(config::DEFAULT_JOB_FILE_NAME),
+        verbose,
+    )?;
     Ok(())
 }
 

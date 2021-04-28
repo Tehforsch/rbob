@@ -45,7 +45,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            start_sim_set(sim_set, &l.input_folder, &l.output_folder, l.delete, a.verbose)?;
+            start_sim_set(
+                sim_set,
+                &l.input_folder,
+                &l.output_folder,
+                l.delete,
+                a.verbose,
+            )?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;

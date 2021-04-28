@@ -1,20 +1,20 @@
 use std::collections::HashMap;
 
+use super::{axis::Axis, post_fn::PostFn};
+use super::{post_fn::PostFnKind, snapshot::Snapshot};
+use crate::array_utils::meshgrid2;
 use crate::{
     array_utils::{FArray1, FArray2},
     config::{NX_SLICE, NY_SLICE},
     sim_params::SimParams,
     sim_set::SimSet,
 };
-use ndarray_stats::QuantileExt;
-use super::{axis::Axis, post_fn::PostFn};
-use super::{post_fn::PostFnKind, snapshot::Snapshot};
-use crate::array_utils::meshgrid2;
 use anyhow::Result;
 use clap::Clap;
-use ndarray::{array, s};
-use kdtree::KdTree;
 use kdtree::distance::squared_euclidean;
+use kdtree::KdTree;
+use ndarray::{array, s};
+use ndarray_stats::QuantileExt;
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
@@ -57,7 +57,9 @@ impl PostFn for &SliceFn {
             tree.add(coord, i)?;
         }
         for (i0, i1, pos) in grid {
-            let (_, index) = tree.nearest(&[pos[0], pos[1], pos[2]], 1, &squared_euclidean).unwrap()[0];
+            let (_, index) = tree
+                .nearest(&[pos[0], pos[1], pos[2]], 1, &squared_euclidean)
+                .unwrap()[0];
             data[[i0, i1]] = h_plus_abundance[*index];
         }
         let mut replacements = HashMap::new();
@@ -66,8 +68,14 @@ impl PostFn for &SliceFn {
         replacements.insert("minY".to_owned(), format!("{}", min_extent[1]));
         replacements.insert("maxY".to_owned(), format!("{}", max_extent[1]));
         replacements.insert("logPlot".to_owned(), format!("{}", self.log as i32));
-        replacements.insert("minC".to_owned(), h_plus_abundance.min().unwrap().to_string());
-        Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements))
+        replacements.insert(
+            "minC".to_owned(),
+            h_plus_abundance.min().unwrap().to_string(),
+        );
+        Ok((
+            vec![SliceFn::convert_heatmap_to_gnuplot_format(data)],
+            replacements,
+        ))
     }
 }
 

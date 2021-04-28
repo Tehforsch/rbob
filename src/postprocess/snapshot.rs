@@ -10,7 +10,7 @@ use super::read_hdf5::get_header_attribute;
 #[derive(Debug)]
 pub struct Snapshot<'a> {
     file: hdf5::File,
-    sim: &'a SimParams,
+    pub sim: &'a SimParams,
     pub time: Time,
 }
 
@@ -58,6 +58,13 @@ impl<'a> Snapshot<'a> {
 
     pub fn read_1d_dataset(&self, dataset: &str) -> Result<FArray1> {
         Ok(self.file.dataset(dataset)?.read()?)
+    }
+
+    pub fn get_header_attribute<Q>(&self, name: &str, unit: Q) -> Result<Q>
+    where
+        Q: Clone + std::ops::Mul<f64, Output = Q>,
+    {
+        get_header_attribute(&self.file, name, unit)
     }
 
     pub fn from_file(sim: &'a SimParams, file: &Utf8Path) -> Result<Snapshot<'a>> {
