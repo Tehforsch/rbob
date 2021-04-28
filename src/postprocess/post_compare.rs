@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
-use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
+use crate::{sim_params::SimParams, sim_set::SimSet};
 
 use super::{
     get_snapshots,
+    plot_params::PlotParams,
     post_fn::{PostFn, PostResult},
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
@@ -64,7 +63,7 @@ impl PostFn for &CompareFn {
                 }
             }
         }
-        Ok(PostResult::new(HashMap::new(), vec![]))
+        Ok(PostResult::new(PlotParams::new(), vec![]))
     }
 }
 

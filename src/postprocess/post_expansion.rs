@@ -1,8 +1,7 @@
-use std::collections::HashMap;
-
 use super::{
     calculations::{get_recombination_time, get_stroemgren_radius},
     get_snapshots,
+    plot_params::PlotParams,
     post_fn::{PostFn, PostResult},
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
@@ -60,14 +59,14 @@ impl PostFn for &ExpansionFn {
             }
             result.push(data);
         }
-        let mut replacements = HashMap::new();
-        replacements.insert("minX".to_owned(), format!("{}", 0.0));
-        replacements.insert("maxX".to_owned(), format!("{}", max_t));
-        replacements.insert("minY".to_owned(), format!("{}", 0.0));
-        replacements.insert("maxY".to_owned(), format!("{}", 1.0));
+        let mut params = PlotParams::new();
+        params.add("minX", 0.0);
+        params.add("maxX", max_t);
+        params.add("minY", 0.0);
+        params.add("maxY", 1.0);
         // replacements.insert("minC".to_owned(), h_plus_abundance.min().unwrap().to_string());
         // Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements));
-        Ok(PostResult::new(replacements, result))
+        Ok(PostResult::new(params, result))
     }
 }
 

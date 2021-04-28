@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use super::{
     axis::Axis,
+    plot_params::PlotParams,
     post_fn::{PostFn, PostResult},
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
@@ -65,18 +64,15 @@ impl PostFn for &SliceFn {
                 .unwrap()[0];
             data[[i0, i1]] = h_plus_abundance[*index];
         }
-        let mut replacements = HashMap::new();
-        replacements.insert("minX".to_owned(), format!("{}", min_extent[0]));
-        replacements.insert("maxX".to_owned(), format!("{}", max_extent[0]));
-        replacements.insert("minY".to_owned(), format!("{}", min_extent[1]));
-        replacements.insert("maxY".to_owned(), format!("{}", max_extent[1]));
-        replacements.insert("logPlot".to_owned(), format!("{}", self.log as i32));
-        replacements.insert(
-            "minC".to_owned(),
-            h_plus_abundance.min().unwrap().to_string(),
-        );
+        let mut params = PlotParams::new();
+        params.add("minX", min_extent[0]);
+        params.add("maxX", max_extent[0]);
+        params.add("minY", min_extent[1]);
+        params.add("maxY", max_extent[1]);
+        params.add("logPlot", self.log as i32);
+        params.add("minC", *h_plus_abundance.min().unwrap());
         Ok(PostResult::new(
-            replacements,
+            params,
             vec![SliceFn::convert_heatmap_to_gnuplot_format(data)],
         ))
     }

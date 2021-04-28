@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use super::{
+    plot_params::PlotParams,
     post_fn::{PostFn, PostFnKind, PostResult},
     snapshot::Snapshot,
 };
@@ -54,12 +53,8 @@ impl PostFn for &ScalingFn {
             res[[*i, 1]] = sim.get_run_time()?;
         }
 
-        Ok(PostResult::new(HashMap::new(), vec![res]))
+        Ok(PostResult::new(PlotParams::new(), vec![res]))
     }
-
-    // fn plot(&self, result: &Vec<Self::Output>, plot_info: &PlotInfo) -> Result<()> {
-    //     run_plot(
-    // }
 }
 
 impl ScalingFn {}

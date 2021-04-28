@@ -15,7 +15,7 @@ impl DataPlotInfo {
         Self {
             info,
             data: result.data,
-            replacements: result.replacements,
+            replacements: result.replacements.0,
         }
     }
 }

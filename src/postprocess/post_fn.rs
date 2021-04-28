@@ -1,6 +1,7 @@
-use std::collections::HashMap;
-
-use super::{data_plot_info::DataPlotInfo, get_snapshots, plot_info::PlotInfo, snapshot::Snapshot};
+use super::{
+    data_plot_info::DataPlotInfo, get_snapshots, plot_info::PlotInfo, plot_params::PlotParams,
+    snapshot::Snapshot,
+};
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 
@@ -12,12 +13,12 @@ pub enum PostFnKind {
 }
 
 pub struct PostResult {
-    pub replacements: HashMap<String, String>,
+    pub replacements: PlotParams,
     pub data: Vec<FArray2>,
 }
 
 impl PostResult {
-    pub fn new(replacements: HashMap<String, String>, data: Vec<FArray2>) -> Self {
+    pub fn new(replacements: PlotParams, data: Vec<FArray2>) -> Self {
         Self { replacements, data }
     }
 }
