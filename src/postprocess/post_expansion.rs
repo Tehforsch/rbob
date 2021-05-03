@@ -1,4 +1,4 @@
-use std::str::FromStr;
+
 
 use super::{
     calculations::{get_recombination_time, get_stroemgren_radius},
@@ -13,9 +13,9 @@ use crate::{
     sim_params::SimParams,
     sim_set::SimSet,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{Result};
 use clap::Clap;
-use uom::si::f64::{Frequency, Length, Time};
+use uom::si::f64::{Length, Time};
 use uom::si::length::parsec;
 use uom::si::time::year;
 
