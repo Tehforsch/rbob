@@ -76,6 +76,8 @@ pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 pub static SPECIAL_PARAMS: &'static [&'static str] =
     &["numCores", "runParams", "executableName", "paramFile"];
 
+pub static H_IONIZATION_RATE_INDEX: usize = 2;
+
 pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "NTYPES",
     "PERIODIC",

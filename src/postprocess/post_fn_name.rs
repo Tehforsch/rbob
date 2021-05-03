@@ -1,12 +1,10 @@
-use super::{
-    post_compare::CompareFn, post_expansion::ExpansionFn, post_fn::PostFn, post_scaling::ScalingFn,
-    post_slice::SliceFn,
-};
+use super::{post_compare::CompareFn, post_expansion::{DTypeExpansionFn, RTypeExpansionFn}, post_fn::PostFn, post_scaling::ScalingFn, post_slice::SliceFn};
 use clap::Clap;
 
 #[derive(Clap, Debug)]
 pub enum PostFnName {
-    Expansion(ExpansionFn),
+    RType(RTypeExpansionFn),
+    DType(DTypeExpansionFn),
     Slice(SliceFn),
     Scaling(ScalingFn),
     Compare(CompareFn),
@@ -18,7 +16,8 @@ impl PostFnName {
             Self::Scaling(s) => Box::new(s),
             Self::Slice(s) => Box::new(s),
             Self::Compare(s) => Box::new(s),
-            Self::Expansion(s) => Box::new(s),
+            Self::RType(s) => Box::new(s),
+            Self::DType(s) => Box::new(s),
         }
     }
 }

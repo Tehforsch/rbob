@@ -5,6 +5,7 @@ use ndarray_csv::Array2Writer;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
+use crate::source_file::SourceFile;
 
 use camino::Utf8PathBuf;
 use snapshot::Snapshot;
@@ -106,6 +107,14 @@ fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec
         files
     }
 }
+
+pub fn get_source_file(
+    sim: &SimParams,
+) -> Result<SourceFile> {
+    let path = sim.folder.join(sim.get("TestSrcFile").unwrap().unwrap_string());
+    SourceFile::read(&path)
+}
+
 
 pub fn show_image(path: &str) {
     println!("Showing image {}", path);

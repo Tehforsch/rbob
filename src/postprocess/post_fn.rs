@@ -13,13 +13,13 @@ pub enum PostFnKind {
 }
 
 pub struct PostResult {
-    pub replacements: PlotParams,
+    pub params: PlotParams,
     pub data: Vec<FArray2>,
 }
 
 impl PostResult {
-    pub fn new(replacements: PlotParams, data: Vec<FArray2>) -> Self {
-        Self { replacements, data }
+    pub fn new(params: PlotParams, data: Vec<FArray2>) -> Self {
+        Self { params, data }
     }
 }
 

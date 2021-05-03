@@ -1,33 +1,34 @@
+use std::str::FromStr;
+
 use super::{
     calculations::{get_recombination_time, get_stroemgren_radius},
-    get_snapshots,
+    get_snapshots, get_source_file,
     plot_params::PlotParams,
     post_fn::{PostFn, PostResult},
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::{
     array_utils::{FArray1, FArray2},
+    config,
     sim_params::SimParams,
     sim_set::SimSet,
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::Clap;
-use uom::si::f64::{Frequency, Length};
-use uom::si::frequency::hertz;
+use uom::si::f64::{Frequency, Length, Time};
+use uom::si::length::parsec;
+use uom::si::time::year;
 
 #[derive(Clap, Debug)]
-pub struct ExpansionFn {
-    #[clap(short, long)]
-    pub log: bool,
-}
+pub struct RTypeExpansionFn {}
 
-impl PostFn for &ExpansionFn {
+impl PostFn for &RTypeExpansionFn {
     fn kind(&self) -> PostFnKind {
         PostFnKind::Set
     }
 
     fn name(&self) -> &'static str {
-        "expansion"
+        "rtype"
     }
 
     fn qualified_name(&self) -> String {
@@ -40,34 +41,77 @@ impl PostFn for &ExpansionFn {
         _sim: Option<&SimParams>,
         _snap: Option<&Snapshot>,
     ) -> Result<PostResult> {
-        let num_snaps = get_snapshots(sim_set.iter().next().unwrap())?.count();
-        let mut result = vec![];
-        let mut max_t = 0.0;
-        for sim in sim_set.iter() {
-            let mut data = FArray2::zeros((num_snaps, 2));
-            for (j, snap) in get_snapshots(sim)?.enumerate() {
-                let snap = snap?;
-                let photon_rate = Frequency::new::<hertz>(1.0e49);
-                let recombination_time = get_recombination_time(&snap)?;
-                let stroemgren_radius = get_stroemgren_radius(&snap, photon_rate)?;
-                let time = (snap.time / recombination_time).value;
-                data[[j, 0]] = time;
-                data[[j, 1]] = (get_radius(&snap)? / stroemgren_radius).value;
-                if time > max_t {
-                    max_t = time;
-                }
-            }
-            result.push(data);
-        }
-        let mut params = PlotParams::new();
-        params.add("minX", 0.0);
-        params.add("maxX", max_t);
-        params.add("minY", 0.0);
-        params.add("maxY", 1.0);
-        // replacements.insert("minC".to_owned(), h_plus_abundance.min().unwrap().to_string());
-        // Ok((vec![SliceFn::convert_heatmap_to_gnuplot_format(data)], replacements));
-        Ok(PostResult::new(params, result))
+        get_expansion_data(sim_set)
     }
+}
+
+#[derive(Clap, Debug)]
+pub struct DTypeExpansionFn {}
+
+impl PostFn for &DTypeExpansionFn {
+    fn kind(&self) -> PostFnKind {
+        PostFnKind::Set
+    }
+
+    fn name(&self) -> &'static str {
+        "dtype"
+    }
+
+    fn qualified_name(&self) -> String {
+        format!("{}", self.name())
+    }
+
+    fn post(
+        &self,
+        sim_set: &SimSet,
+        _sim: Option<&SimParams>,
+        _snap: Option<&Snapshot>,
+    ) -> Result<PostResult> {
+        get_expansion_data(sim_set).map(|mut result| {
+            result.params.add("startTimeAnalytical", 1.0);
+            result
+        })
+    }
+}
+
+fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
+    let first_sim = sim_set.iter().next().unwrap();
+    let num_snaps = get_snapshots(first_sim)?.count();
+    let mut result = vec![];
+    let mut max_t = 0.0;
+    let megayear = Time::new::<year>(1e6);
+    let kpc = Length::new::<parsec>(1e3);
+    let first_snap = get_snapshots(first_sim)?.next().unwrap()?;
+    let recombination_time = get_recombination_time(&first_snap)?;
+    let photon_rate = get_source_file(first_sim)?.get_rate(0, config::H_IONIZATION_RATE_INDEX);
+    let stroemgren_radius = get_stroemgren_radius(&first_snap, photon_rate)?;
+    println!(
+        "Stroemgren radius: {:?} kpc, Recombination time: {:?} Myr",
+        stroemgren_radius / kpc,
+        recombination_time / megayear
+    );
+    for sim in sim_set.iter() {
+        let mut data = FArray2::zeros((num_snaps, 2));
+        for (j, snap) in get_snapshots(sim)?.enumerate() {
+            let snap = snap?;
+            let time = (snap.time / recombination_time).value;
+            data[[j, 0]] = time;
+            data[[j, 1]] = (get_radius(&snap)? / stroemgren_radius).value;
+            if time > max_t {
+                max_t = time;
+            }
+        }
+        result.push(data);
+    }
+    let mut params = PlotParams::new();
+    params.add("minX", 0.0);
+    params.add("maxX", max_t);
+    params.add("minY", 0.0);
+    params.add("maxY", 1.0);
+    params.add("maxY", result[0][[num_snaps - 1, 1]].max(1.0));
+    params.add("stroemgrenRadius", (stroemgren_radius / kpc).value);
+    params.add("recombinationTime", (recombination_time / megayear).value);
+    Ok(PostResult::new(params, result))
 }
 
 fn get_radius(snap: &Snapshot) -> Result<Length> {
