@@ -20,6 +20,7 @@ pub fn get_recombination_time(snap: &Snapshot) -> Result<Time> {
     let density_previous = (snap.sim.units.mass / snap.sim.units.length.powi(P3::new()))
         * ((redshift + 1.0).powi(3) * h.powi(2));
     let proton_mass = Mass::new::<gram>(1.672623e-24);
+    println!("Daily reminder of mu = 1.0");
     let mu = 1.00;
     let density_to_number_density = 1.0 / (proton_mass * mu);
     let mean_density = snap.density()?.mean().unwrap();
