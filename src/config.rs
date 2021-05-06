@@ -74,7 +74,9 @@ pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 
 pub static SPECIAL_PARAMS: &'static [&'static str] =
-    &["numCores", "runParams", "executableName", "paramFile"];
+    &["numCores", "runParams", "executableName", "paramFile", "initialSnap"];
+
+pub static INITIAL_SNAP_IDENTIFIER: &'static str = "initialSnap";
 
 pub static H_IONIZATION_RATE_INDEX: usize = 2;
 

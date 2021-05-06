@@ -1,12 +1,8 @@
-use crate::{
-    arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow,
-};
+use crate::{arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow, util::copy_file};
 use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
-use std::{
-    collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, ops::Index,
-};
+use std::{collections::HashMap, collections::hash_map::Iter, collections::hash_map::Keys, fs, ops::Index};
 
 use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
@@ -109,9 +105,7 @@ impl SimParams {
     }
 
     pub fn output_folder(&self) -> Utf8PathBuf {
-        self.folder
-            .join(Utf8Path::new(self.params["OutputDir"].unwrap_string()))
-            .to_owned()
+        get_output_folder_from_sim_folder(self, &self.folder)
     }
 
     pub fn get_pic_folder(&self) -> Utf8PathBuf {
@@ -170,6 +164,18 @@ impl SimParams {
         Ok(())
     }
 
+    pub fn copy_initial_snapshot_if_needed(&self, source_folder: &Utf8Path, target_folder: &Utf8Path) -> Result<()> {
+        if let Some(initial_snap_file_name) = self.get(config::INITIAL_SNAP_IDENTIFIER) {
+            let initial_snap_file = source_folder.join(initial_snap_file_name.unwrap_string());
+            let snap_file_base = self.get("SnapshotFileBase").unwrap();
+            let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
+            fs::create_dir_all(&sim_output_folder)?;
+            let target_file = sim_output_folder.join(format!("{snap_file_base}_000.hdf5", snap_file_base = snap_file_base));
+            copy_file(initial_snap_file, target_file)?;
+        }
+        Ok(())
+    }
+
     fn get_job_file_contents(&self) -> Result<String> {
         let job_params = self.get_job_params()?;
         let replacements = job_params.to_hashmap();
@@ -198,6 +204,11 @@ impl SimParams {
         assert_eq!(self.kind, SimParamsKind::Output);
         self.get_log_file().get_run_time()
     }
+}
+pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path) -> Utf8PathBuf {
+    sim_folder
+        .join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
+        .to_owned()
 }
 
 pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
