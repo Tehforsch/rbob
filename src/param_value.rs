@@ -33,7 +33,7 @@ impl ParamValue {
                 } else if x.is_f64() {
                     Ok(ParamValue::Float(
                         x.as_f64().unwrap(),
-                        v.as_str().unwrap().to_owned(),
+                        x.as_f64().unwrap().to_string().to_owned(),
                     ))
                 } else {
                     Err(anyhow!("Found invalid number type: {}", &x))
