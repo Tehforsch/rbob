@@ -112,8 +112,18 @@ fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec
 pub fn get_source_file(
     sim: &SimParams,
 ) -> Result<SourceFile> {
-    let path = sim.folder.join(sim.get("TestSrcFile").unwrap().unwrap_string());
-    SourceFile::read(&path)
+    match sim.get("SX_SOURCES").unwrap().unwrap_i64() {
+        10 => {
+            let path = sim.folder.join(sim.get("TestSrcFile").unwrap().unwrap_string());
+            SourceFile::read(&path)
+        },
+        9 => {
+            Ok(SourceFile::from_params(sim))
+        }
+        _ => {
+            panic!("Reading sources file for wrong SX_SOURCES value")
+        }
+    }
 }
 
 

@@ -7,6 +7,8 @@ use uom::{si::f64::Frequency};
 use uom::si::frequency::hertz;
 use byteorder::{LittleEndian, ReadBytesExt};
 
+use crate::sim_params::SimParams;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Source {
     pub pos: Vec<f64>,
@@ -45,5 +47,23 @@ impl SourceFile {
             })
         }
         Ok(Self { sources })
+    }
+
+    pub fn from_params(sim: &SimParams) -> SourceFile {
+        Self {
+            sources: vec![Source {
+            pos: vec![
+                sim.get("TestSourcePosX").unwrap().unwrap_f64(),
+                sim.get("TestSourcePosY").unwrap().unwrap_f64(),
+                sim.get("TestSourcePosZ").unwrap().unwrap_f64()],
+            rates: vec![
+                sim.get("TestSourceRate056").unwrap().unwrap_f64(),
+                sim.get("TestSourceRate112").unwrap().unwrap_f64(),
+                sim.get("TestSourceRate136").unwrap().unwrap_f64(),
+                sim.get("TestSourceRate152").unwrap().unwrap_f64(),
+                sim.get("TestSourceRate246").unwrap().unwrap_f64(),
+                ]
+            }]
+        }
     }
 }
