@@ -1,8 +1,4 @@
-use super::{
-    axis::Axis,
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostResult},
-};
+use super::{axis::Axis, field_identifier::FieldIdentifier, plot_params::PlotParams, post_fn::{PostFn, PostResult}};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
 use crate::{
@@ -20,6 +16,7 @@ use ndarray_stats::QuantileExt;
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
+    pub field: FieldIdentifier,
     pub axis: Axis,
     #[clap(short, long)]
     pub log: bool,
@@ -46,12 +43,14 @@ impl PostFn for &SliceFn {
     ) -> Result<PostResult> {
         let snap = snap.unwrap();
         let coords = snap.coordinates()?;
-        // let dens = snap.density()?;
-        let h_plus_abundance = snap.h_plus_abundance()?;
+        let data = match self.field {
+            FieldIdentifier::HpAbundance => {snap.h_plus_abundance()?}
+            FieldIdentifier::Density => {snap.density()?}
+        };
         let min_extent = snap.min_extent();
         let max_extent = snap.max_extent();
         let center = snap.center();
-        let mut data = FArray2::zeros((NX_SLICE, NY_SLICE));
+        let mut result = FArray2::zeros((NX_SLICE, NY_SLICE));
         let grid = self.get_slice_grid(&center, &min_extent, &max_extent, NX_SLICE, NY_SLICE);
         let mut tree = KdTree::new(3);
         let coords_iter = coords.outer_iter().map(|x| [x[0], x[1], x[2]]);
@@ -62,7 +61,7 @@ impl PostFn for &SliceFn {
             let (_, index) = tree
                 .nearest(&[pos[0], pos[1], pos[2]], 1, &squared_euclidean)
                 .unwrap()[0];
-            data[[i0, i1]] = h_plus_abundance[*index];
+            result[[i0, i1]] = data[*index];
         }
         let mut params = PlotParams::new();
         params.add("minX", min_extent[0]);
@@ -70,10 +69,11 @@ impl PostFn for &SliceFn {
         params.add("minY", min_extent[1]);
         params.add("maxY", max_extent[1]);
         params.add("logPlot", self.log as i32);
-        params.add("minC", *h_plus_abundance.min().unwrap());
+        params.add("minC", *data.min().unwrap());
+        params.add("maxC", *data.max().unwrap());
         Ok(PostResult::new(
             params,
-            vec![SliceFn::convert_heatmap_to_gnuplot_format(data)],
+            vec![SliceFn::convert_heatmap_to_gnuplot_format(result)],
         ))
     }
 }

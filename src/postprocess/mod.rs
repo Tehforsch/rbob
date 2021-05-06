@@ -28,6 +28,7 @@ pub mod post_slice;
 pub mod postprocess_args;
 pub mod read_hdf5;
 pub mod snapshot;
+pub mod field_identifier;
 
 pub fn postprocess_sim_set(
     config_file: &ConfigFile,

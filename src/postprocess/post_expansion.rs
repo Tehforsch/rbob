@@ -75,7 +75,7 @@ impl PostFn for &DTypeExpansionFn {
 }
 
 fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
-    let first_sim = sim_set.iter().next().unwrap();
+    let first_sim = sim_set.iter().next().expect("No sim found.");
     let num_snaps = get_snapshots(first_sim)?.count();
     let mut result = vec![];
     let mut max_t = 0.0;
