@@ -17,7 +17,7 @@ use anyhow::{Result};
 use clap::Clap;
 use uom::si::f64::{Length, Time};
 use uom::si::length::parsec;
-use uom::si::time::year;
+use uom::si::time::{year};
 
 #[derive(Clap, Debug)]
 pub struct RTypeExpansionFn {}
@@ -100,6 +100,7 @@ fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
             if time > max_t {
                 max_t = time;
             }
+            println!("{} Myr, {} kpc", (snap.time / megayear).value, (get_radius(&snap)? / kpc).value);
         }
         result.push(data);
     }
@@ -125,15 +126,12 @@ fn get_radius_code_units(snap: &Snapshot) -> Result<f64> {
     let min_extent = snap.min_extent();
     let max_extent = snap.max_extent();
     let max_radius = (max_extent[0] - min_extent[0]).max(max_extent[1] - min_extent[1]);
-    for i in 1..10 {
-        get_mean_abundance_at_radius(&coords, &h_plus_abundance, &center, 0.1 * (i as f64));
-    }
     Ok(bisect(
         |radius| {
             1.0 - get_mean_abundance_at_radius(&coords, &h_plus_abundance, &center, radius).unwrap()
         },
         0.5,
-        0.001,
+        0.00001,
         0.0,
         max_radius,
     ))
@@ -176,7 +174,7 @@ fn get_mean_abundance_at_radius(
     let mut num_points = 0;
     let coords_iter = coordinates.outer_iter().map(|x| [x[0], x[1], x[2]]);
     for (i, coord) in coords_iter.enumerate() {
-        if (distance_to_center(&coord, center) - radius).abs() < thickness {
+        if (distance_to_center(&coord, center) - radius).abs() < thickness / 2.0 {
             mean_abundance += h_plus_abundance[i];
             num_points += 1;
         }
