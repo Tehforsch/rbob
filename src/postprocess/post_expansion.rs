@@ -100,7 +100,6 @@ fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
             if time > max_t {
                 max_t = time;
             }
-            println!("{} Myr, {} kpc", (snap.time / megayear).value, (get_radius(&snap)? / kpc).value);
         }
         result.push(data);
     }
