@@ -22,7 +22,6 @@ pub fn get_recombination_time(snap: &Snapshot) -> Result<Time> {
     let proton_mass = Mass::new::<gram>(1.672623e-24);
     let density_to_number_density = 1.0 / proton_mass;
     let mean_density = snap.density()?.mean().unwrap();
-    dbg!(mean_density);
     let number_density_hydrogen = mean_density * density_to_number_density * density_previous;
     let alpha_b =
         2.59e-13 * Length::new::<centimeter>(1.0).powi(P3::new()) / Time::new::<second>(1.0);
@@ -39,7 +38,6 @@ pub fn get_stroemgren_radius(snap: &Snapshot, photon_rate: Frequency) -> Result<
     let density_to_number_density = 1.0 / proton_mass;
     let mean_density = snap.density()?.mean().unwrap();
     let number_density_hydrogen = mean_density * density_to_number_density * density_previous;
-    dbg!(density_to_number_density, mean_density,number_density_hydrogen);
     let alpha_b =
         2.59e-13 * Length::new::<centimeter>(1.0).powi(P3::new()) / Time::new::<second>(1.0);
     let number_density_electron = number_density_hydrogen;
