@@ -1,4 +1,10 @@
-use super::{post_compare::CompareFn, post_expansion::{DTypeExpansionFn, RTypeExpansionFn}, post_fn::PostFn, post_scaling::ScalingFn, post_slice::SliceFn};
+use super::{
+    post_compare::CompareFn,
+    post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
+    post_fn::PostFn,
+    post_scaling::ScalingFn,
+    post_slice::SliceFn,
+};
 use clap::Clap;
 
 #[derive(Clap, Debug)]

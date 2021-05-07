@@ -50,7 +50,6 @@ pub fn get_hubble_param(snap: &Snapshot) -> f64 {
     snap.get_header_attribute("HubbleParam", 1.0).unwrap()
 }
 
-
 pub fn get_redshift(snap: &Snapshot) -> f64 {
     snap.get_header_attribute("Redshift", 1.0).unwrap()
 }

@@ -1,11 +1,11 @@
-use clap::Clap;
 use anyhow::{anyhow, Result};
+use clap::Clap;
 use std::str::FromStr;
 
 #[derive(Clap, Debug)]
 pub enum FieldIdentifier {
     HpAbundance,
-    Density
+    Density,
 }
 
 impl FromStr for FieldIdentifier {

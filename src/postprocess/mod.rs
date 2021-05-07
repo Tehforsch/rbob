@@ -2,10 +2,10 @@ use anyhow::{Context, Result};
 use csv::WriterBuilder;
 use ndarray_csv::Array2Writer;
 
+use crate::source_file::SourceFile;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
-use crate::source_file::SourceFile;
 
 use camino::Utf8PathBuf;
 use snapshot::Snapshot;
@@ -15,6 +15,7 @@ use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
 pub mod axis;
 pub mod calculations;
 pub mod data_plot_info;
+pub mod field_identifier;
 pub mod plot;
 pub mod plot_info;
 pub mod plot_params;
@@ -28,7 +29,6 @@ pub mod post_slice;
 pub mod postprocess_args;
 pub mod read_hdf5;
 pub mod snapshot;
-pub mod field_identifier;
 
 pub fn postprocess_sim_set(
     config_file: &ConfigFile,
@@ -109,23 +109,20 @@ fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec
     }
 }
 
-pub fn get_source_file(
-    sim: &SimParams,
-) -> Result<SourceFile> {
+pub fn get_source_file(sim: &SimParams) -> Result<SourceFile> {
     match sim.get("SX_SOURCES").unwrap().unwrap_i64() {
         10 => {
-            let path = sim.folder.join(sim.get("TestSrcFile").unwrap().unwrap_string());
+            let path = sim
+                .folder
+                .join(sim.get("TestSrcFile").unwrap().unwrap_string());
             SourceFile::read(&path)
-        },
-        9 => {
-            Ok(SourceFile::from_params(sim))
         }
+        9 => Ok(SourceFile::from_params(sim)),
         _ => {
             panic!("Reading sources file for wrong SX_SOURCES value")
         }
     }
 }
-
 
 pub fn show_image(path: &str) {
     println!("Showing image {}", path);

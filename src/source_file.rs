@@ -1,11 +1,14 @@
-use std::{fs::{self}, io::Cursor};
+use std::{
+    fs::{self},
+    io::Cursor,
+};
 
-use anyhow::{Result};
-use camino::Utf8Path;
-use serde::{Serialize, Deserialize};
-use uom::{si::f64::Frequency};
-use uom::si::frequency::hertz;
+use anyhow::Result;
 use byteorder::{LittleEndian, ReadBytesExt};
+use camino::Utf8Path;
+use serde::{Deserialize, Serialize};
+use uom::si::f64::Frequency;
+use uom::si::frequency::hertz;
 
 use crate::sim_params::SimParams;
 
@@ -32,7 +35,7 @@ impl SourceFile {
         let n_energy = reader.read_i32::<LittleEndian>().unwrap();
         let n_sources = reader.read_i32::<LittleEndian>().unwrap();
         let n_rates = reader.read_i32::<LittleEndian>().unwrap();
-        let mut next_float = move || { reader.read_f64::<LittleEndian>().unwrap() };
+        let mut next_float = move || reader.read_f64::<LittleEndian>().unwrap();
         let mut sources = vec![];
         for _ in 0..n_sources {
             let pos_x = next_float();
@@ -52,18 +55,19 @@ impl SourceFile {
     pub fn from_params(sim: &SimParams) -> SourceFile {
         Self {
             sources: vec![Source {
-            pos: vec![
-                sim.get("TestSourcePosX").unwrap().unwrap_f64(),
-                sim.get("TestSourcePosY").unwrap().unwrap_f64(),
-                sim.get("TestSourcePosZ").unwrap().unwrap_f64()],
-            rates: vec![
-                sim.get("TestSourceRate056").unwrap().unwrap_f64(),
-                sim.get("TestSourceRate112").unwrap().unwrap_f64(),
-                sim.get("TestSourceRate136").unwrap().unwrap_f64(),
-                sim.get("TestSourceRate152").unwrap().unwrap_f64(),
-                sim.get("TestSourceRate246").unwrap().unwrap_f64(),
-                ]
-            }]
+                pos: vec![
+                    sim.get("TestSourcePosX").unwrap().unwrap_f64(),
+                    sim.get("TestSourcePosY").unwrap().unwrap_f64(),
+                    sim.get("TestSourcePosZ").unwrap().unwrap_f64(),
+                ],
+                rates: vec![
+                    sim.get("TestSourceRate056").unwrap().unwrap_f64(),
+                    sim.get("TestSourceRate112").unwrap().unwrap_f64(),
+                    sim.get("TestSourceRate136").unwrap().unwrap_f64(),
+                    sim.get("TestSourceRate152").unwrap().unwrap_f64(),
+                    sim.get("TestSourceRate246").unwrap().unwrap_f64(),
+                ],
+            }],
         }
     }
 }

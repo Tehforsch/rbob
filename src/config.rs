@@ -73,8 +73,13 @@ pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 
-pub static SPECIAL_PARAMS: &'static [&'static str] =
-    &["numCores", "runParams", "executableName", "paramFile", "initialSnap"];
+pub static SPECIAL_PARAMS: &'static [&'static str] = &[
+    "numCores",
+    "runParams",
+    "executableName",
+    "paramFile",
+    "initialSnap",
+];
 
 pub static INITIAL_SNAP_IDENTIFIER: &'static str = "initialSnap";
 

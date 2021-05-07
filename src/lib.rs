@@ -12,6 +12,6 @@ pub mod run;
 pub mod sim_params;
 pub mod sim_set;
 pub mod sim_units;
+pub mod source_file;
 pub mod strfmt_utils;
 pub mod util;
-pub mod source_file;

@@ -1,8 +1,13 @@
-use crate::{arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow, util::copy_file};
+use crate::{
+    arepo_log_file::ArepoLogFile, config, sim_units::SimUnits, strfmt_utils::strfmt_anyhow,
+    util::copy_file,
+};
 use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
-use std::{collections::HashMap, collections::hash_map::Iter, collections::hash_map::Keys, fs, ops::Index};
+use std::{
+    collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, fs, ops::Index,
+};
 
 use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
@@ -164,13 +169,20 @@ impl SimParams {
         Ok(())
     }
 
-    pub fn copy_initial_snapshot_if_needed(&self, source_folder: &Utf8Path, target_folder: &Utf8Path) -> Result<()> {
+    pub fn copy_initial_snapshot_if_needed(
+        &self,
+        source_folder: &Utf8Path,
+        target_folder: &Utf8Path,
+    ) -> Result<()> {
         if let Some(initial_snap_file_name) = self.get(config::INITIAL_SNAP_IDENTIFIER) {
             let initial_snap_file = source_folder.join(initial_snap_file_name.unwrap_string());
             let snap_file_base = self.get("SnapshotFileBase").unwrap();
             let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
             fs::create_dir_all(&sim_output_folder)?;
-            let target_file = sim_output_folder.join(format!("{snap_file_base}_000.hdf5", snap_file_base = snap_file_base));
+            let target_file = sim_output_folder.join(format!(
+                "{snap_file_base}_000.hdf5",
+                snap_file_base = snap_file_base
+            ));
             copy_file(initial_snap_file, target_file)?;
         }
         Ok(())

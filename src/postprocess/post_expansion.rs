@@ -1,5 +1,3 @@
-
-
 use super::{
     calculations::{get_recombination_time, get_stroemgren_radius},
     get_snapshots, get_source_file,
@@ -13,11 +11,11 @@ use crate::{
     sim_params::SimParams,
     sim_set::SimSet,
 };
-use anyhow::{Result};
+use anyhow::Result;
 use clap::Clap;
 use uom::si::f64::{Length, Time};
 use uom::si::length::parsec;
-use uom::si::time::{year};
+use uom::si::time::year;
 
 #[derive(Clap, Debug)]
 pub struct RTypeExpansionFn {}

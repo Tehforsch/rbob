@@ -1,4 +1,9 @@
-use super::{axis::Axis, field_identifier::FieldIdentifier, plot_params::PlotParams, post_fn::{PostFn, PostResult}};
+use super::{
+    axis::Axis,
+    field_identifier::FieldIdentifier,
+    plot_params::PlotParams,
+    post_fn::{PostFn, PostResult},
+};
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 use crate::array_utils::meshgrid2;
 use crate::{
@@ -44,8 +49,8 @@ impl PostFn for &SliceFn {
         let snap = snap.unwrap();
         let coords = snap.coordinates()?;
         let data = match self.field {
-            FieldIdentifier::HpAbundance => {snap.h_plus_abundance()?}
-            FieldIdentifier::Density => {snap.density()?}
+            FieldIdentifier::HpAbundance => snap.h_plus_abundance()?,
+            FieldIdentifier::Density => snap.density()?,
         };
         let min_extent = snap.min_extent();
         let max_extent = snap.max_extent();
