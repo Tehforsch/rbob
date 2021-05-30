@@ -10,7 +10,7 @@ use crate::{
     config,
     config_file::ConfigFile,
     util::{
-        copy_recursive, get_folders, get_relative_path, get_shell_command_output,
+        copy_recursive, get_files, get_folders, get_relative_path, get_shell_command_output,
         read_file_contents, write_file,
     },
 };
@@ -31,6 +31,7 @@ pub fn run_plot(
     copy_plot_config_folder(config_file, info)?;
     write_plot_info_file(info, &replacements)?;
     run_gnuplot_command(info, &main_plot_file)?;
+    maybe_run_pdflatex(info)?;
     Ok(info.get_pic_file().as_str().into())
 }
 
@@ -164,5 +165,29 @@ fn run_gnuplot_command(info: &PlotInfo, plot_file: &Utf8Path) -> Result<()> {
     match out.success {
         false => Err(anyhow!("Error in gnuplot command:\n{}", out.stderr)),
         true => Ok(()),
+    }
+}
+
+fn maybe_run_pdflatex(info: &PlotInfo) -> Result<()> {
+    let plot_folder = info.get_plot_folder();
+    let files = get_files(&plot_folder)?;
+    let latex_file = files.iter().find(|file| {
+        file.extension()
+            .map(|extension| extension == "tex")
+            .unwrap_or(false)
+    });
+    if let Some(latex_file) = latex_file {
+        let out = get_shell_command_output(
+            "pdflatex",
+            &[&latex_file.file_name().unwrap()],
+            Some(&info.get_plot_folder()),
+            false,
+        );
+        match out.success {
+            false => Err(anyhow!("Error in pdflatex command:\n{}", out.stderr)),
+            true => Ok(()),
+        }
+    } else {
+        Ok(())
     }
 }
