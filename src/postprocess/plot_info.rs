@@ -61,7 +61,7 @@ impl PlotInfo {
 
     pub fn get_pic_file(&self) -> Utf8PathBuf {
         let filename = format!("{}", self.plot_name);
-        self.pic_folder.join(filename).to_path_buf()
+        self.plot_folder.join(filename).to_path_buf()
     }
 }
 

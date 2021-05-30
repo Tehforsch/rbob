@@ -113,11 +113,6 @@ impl SimParams {
         get_output_folder_from_sim_folder(self, &self.folder)
     }
 
-    pub fn get_pic_folder(&self) -> Utf8PathBuf {
-        self.folder
-            .join(camino::Utf8Path::new("../pics").join(self.folder.file_name().unwrap()))
-    }
-
     pub fn contains_key(&self, key: &str) -> bool {
         self.params.contains_key(key)
     }
