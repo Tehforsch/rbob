@@ -9,11 +9,11 @@ use std::{ffi::OsStr, path::Path};
 use std::{fmt::Display, path::PathBuf};
 
 pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
-    fs::read_to_string(path).with_context(|| format!("While reading file {:?}", path))
+    fs::read_to_string(path).with_context(|| format!("While reading file {}", path))
 }
 
 pub fn write_file(path: &Utf8Path, contents: &str) -> Result<()> {
-    fs::write(path, contents).with_context(|| "While writing file")
+    fs::write(path, contents).with_context(|| format!("While writing file {}", path))
 }
 
 // Taken from 'Doug' from
