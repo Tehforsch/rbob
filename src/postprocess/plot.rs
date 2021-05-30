@@ -1,13 +1,18 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
 use std::collections::HashMap;
 
-use super::plot_info::PlotInfo;
+use super::{
+    plot_info::PlotInfo, plot_info_file_contents::PlotInfoFileContents, replot_args::ReplotArgs,
+};
 use crate::{
     config,
     config_file::ConfigFile,
-    util::{copy_recursive, get_relative_path, get_shell_command_output, write_file},
+    util::{
+        copy_recursive, get_folders, get_relative_path, get_shell_command_output,
+        read_file_contents, write_file,
+    },
 };
 
 pub fn run_plot(
@@ -24,8 +29,39 @@ pub fn run_plot(
     let plot_template = copy_plot_template(config_file, info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
     copy_plot_config_folder(config_file, info)?;
+    write_plot_info_file(info, &replacements)?;
     run_gnuplot_command(info, &main_plot_file)?;
     Ok(info.get_pic_file().as_str().into())
+}
+
+pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
+    let pic_folder = args.folder.join("pics");
+    for folder in get_folders(&pic_folder)? {
+        let plot_info_file = folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
+        let plot_info = read_plot_info_file(&plot_info_file)?;
+        run_plot(
+            config_file,
+            &plot_info.info,
+            &vec![],
+            &plot_info.replacements,
+        )?;
+    }
+    Ok(())
+}
+
+fn write_plot_info_file(info: &PlotInfo, replacements: &HashMap<String, String>) -> Result<()> {
+    let contents = serde_yaml::to_string(&PlotInfoFileContents {
+        info: info.clone(),
+        replacements: replacements.clone(),
+    })?;
+    let info_file_name = info.plot_folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
+    write_file(&info_file_name, &contents)?;
+    Ok(())
+}
+
+fn read_plot_info_file(path: &Utf8Path) -> Result<PlotInfoFileContents> {
+    let contents = read_file_contents(path)?;
+    serde_yaml::from_str(&contents).context("While reading plot info file")
 }
 
 fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<()> {

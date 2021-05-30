@@ -1,10 +1,10 @@
 use self::args::Opts;
-use bob::copy::copy_sim_set;
 use bob::diff;
 use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
+use bob::{copy::copy_sim_set, postprocess::plot::replot};
 
 use anyhow::{anyhow, Result};
 use args::SubCommand;
@@ -56,6 +56,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
             postprocess_sim_set(&config_file, &sim_set, &l)?;
+        }
+        SubCommand::Replot(l) => {
+            replot(&config_file, &l)?;
         }
     }
     Ok(())

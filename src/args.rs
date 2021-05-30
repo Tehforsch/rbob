@@ -1,4 +1,4 @@
-use bob::postprocess::postprocess_args::PostprocessArgs;
+use bob::postprocess::{postprocess_args::PostprocessArgs, replot_args::ReplotArgs};
 use camino::Utf8PathBuf;
 use clap::Clap;
 
@@ -23,6 +23,7 @@ pub enum SubCommand {
     Run(RunSimulation),
     Start(StartSimulation),
     Post(PostprocessArgs),
+    Replot(ReplotArgs),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -76,9 +77,4 @@ pub struct StartSimulation {
     pub output_folder: Utf8PathBuf,
     #[clap(short, long)]
     pub delete: bool,
-}
-
-#[derive(Clap, Debug)]
-pub struct ShadowingType {
-    name: String,
 }

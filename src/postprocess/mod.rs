@@ -18,6 +18,7 @@ pub mod data_plot_info;
 pub mod field_identifier;
 pub mod plot;
 pub mod plot_info;
+pub mod plot_info_file_contents;
 pub mod plot_params;
 pub mod plot_template;
 pub mod post_compare;
@@ -28,6 +29,7 @@ pub mod post_scaling;
 pub mod post_slice;
 pub mod postprocess_args;
 pub mod read_hdf5;
+pub mod replot_args;
 pub mod snapshot;
 
 pub fn postprocess_sim_set(

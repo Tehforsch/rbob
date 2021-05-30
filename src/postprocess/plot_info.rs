@@ -1,9 +1,12 @@
 use super::{plot_template::PlotTemplate, snapshot::Snapshot};
 use crate::{config, config_file::ConfigFile, sim_params::SimParams};
+
 use anyhow::Result;
 use camino::{Utf8Path, Utf8PathBuf};
+use serde::{Deserialize, Serialize};
 use std::fs;
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct PlotInfo {
     pub pic_folder: Utf8PathBuf,
     pub plot_folder: Utf8PathBuf,
