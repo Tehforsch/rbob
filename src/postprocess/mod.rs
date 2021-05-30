@@ -59,7 +59,7 @@ pub fn postprocess_sim_set(
 }
 
 pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> {
-    let data_folder = &data_plot_info.info.data_folder;
+    let data_folder = &data_plot_info.info.get_data_folder();
     data_plot_info
         .data
         .iter()

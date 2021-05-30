@@ -54,7 +54,9 @@ fn write_plot_info_file(info: &PlotInfo, replacements: &HashMap<String, String>)
         info: info.clone(),
         replacements: replacements.clone(),
     })?;
-    let info_file_name = info.plot_folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
+    let info_file_name = info
+        .get_plot_folder()
+        .join(config::DEFAULT_PLOT_INFO_FILE_NAME);
     write_file(&info_file_name, &contents)?;
     Ok(())
 }
@@ -69,7 +71,7 @@ fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<
         .plot_template_folder
         .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
     let target = info
-        .plot_folder
+        .get_plot_folder()
         .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
     copy_recursive(source, target)
 }
@@ -83,7 +85,7 @@ fn get_default_replacements(
     result.insert(
         "picFile".into(),
         in_quotes(
-            &get_relative_path(&info.get_pic_file(), &info.plot_folder)?
+            &get_relative_path(&info.get_pic_file(), &info.get_plot_folder())?
                 .as_str()
                 .to_string(),
         ),
@@ -102,14 +104,14 @@ fn in_quotes(s: &str) -> String {
 fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<Utf8PathBuf> {
     let plot_template = info.get_plot_template(config_file)?;
     let plot_file =
-        info.plot_folder
+        info.get_plot_folder()
             .join(format!("{}.{}", &info.name, config::DEFAULT_PLOT_EXTENSION));
     plot_template.write_to(&plot_file)?;
     Ok(plot_file.to_owned())
 }
 
 fn write_main_plot_file(info: &PlotInfo, files_to_load: Vec<&Utf8Path>) -> Result<Utf8PathBuf> {
-    let path = info.plot_folder.join(config::DEFAULT_PLOT_FILE_NAME);
+    let path = info.get_plot_folder().join(config::DEFAULT_PLOT_FILE_NAME);
     let contents = files_to_load
         .iter()
         .map(|file| format!("load \"{}\"", file.file_name().unwrap()))
@@ -123,7 +125,7 @@ fn write_plot_param_file(
     filenames: &Vec<Utf8PathBuf>,
     replacements: &HashMap<String, String>,
 ) -> Result<Utf8PathBuf> {
-    let path = info.plot_folder.join("params.gp");
+    let path = info.get_plot_folder().join("params.gp");
     let contents = get_plot_param_file_contents(info, filenames, replacements)?;
     write_file(&path, &contents)?;
     Ok(path.to_owned())
@@ -145,7 +147,7 @@ fn get_joined_filenames(info: &PlotInfo, filenames: &Vec<Utf8PathBuf>) -> Result
     Ok(filenames
         .iter()
         .map(|filename| {
-            get_relative_path(filename, &info.plot_folder)
+            get_relative_path(filename, &info.get_plot_folder())
                 .map(|rel_path| rel_path.as_str().to_owned())
         })
         .collect::<Result<Vec<String>>>()?
@@ -156,7 +158,7 @@ fn run_gnuplot_command(info: &PlotInfo, plot_file: &Utf8Path) -> Result<()> {
     let out = get_shell_command_output(
         "gnuplot",
         &[&plot_file.file_name().unwrap()],
-        Some(&info.plot_folder),
+        Some(&info.get_plot_folder()),
         false,
     );
     match out.success {

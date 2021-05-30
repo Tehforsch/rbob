@@ -6,11 +6,9 @@ use camino::{Utf8Path, Utf8PathBuf};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PlotInfo {
     pub pic_folder: Utf8PathBuf,
-    pub plot_folder: Utf8PathBuf,
-    pub data_folder: Utf8PathBuf,
     pub plot_name: String,
     pub name: String,
     pub qualified_name: String,
@@ -38,21 +36,25 @@ impl PlotInfo {
         }
         .to_owned();
         let pic_folder = sim_set_folder.join("pics");
-        let plot_folder = sim_set_folder.join("pics").join(&plot_name);
-        let data_folder = plot_folder.join("data");
         PlotInfo {
             pic_folder,
-            plot_folder,
-            data_folder,
             plot_name,
             name: name.into(),
             qualified_name: qualified_name.into(),
         }
     }
 
+    pub fn get_plot_folder(&self) -> Utf8PathBuf {
+        self.pic_folder.join(&self.plot_name)
+    }
+
+    pub fn get_data_folder(&self) -> Utf8PathBuf {
+        self.get_plot_folder().join("data")
+    }
+
     pub fn create_folders_if_nonexistent(&self) -> Result<()> {
-        create_folder_if_nonexistent(&self.plot_folder)?;
-        create_folder_if_nonexistent(&self.data_folder)
+        create_folder_if_nonexistent(&self.get_plot_folder())?;
+        create_folder_if_nonexistent(&self.get_data_folder())
     }
 
     pub fn get_plot_template(&self, config_file: &ConfigFile) -> Result<PlotTemplate> {
@@ -61,7 +63,7 @@ impl PlotInfo {
 
     pub fn get_pic_file(&self) -> Utf8PathBuf {
         let filename = format!("{}", self.plot_name);
-        self.plot_folder.join(filename).to_path_buf()
+        self.get_plot_folder().join(filename).to_path_buf()
     }
 }
 
