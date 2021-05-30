@@ -33,7 +33,7 @@ impl ConfigFile {
     }
 
     pub fn expanduser(&self) -> Result<ConfigFile> {
-        let expanded = expanduser(&self.plot_template_folder)?;
+        let expanded = expanduser(&self.plot_template_folder).context("While reading plot template folder")?;
         Ok(ConfigFile {
             plot_template_folder: Utf8Path::new(&expanded).to_owned(),
         })
