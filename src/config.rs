@@ -67,7 +67,6 @@ pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &6;
 
 pub static NX_SLICE: usize = 400;
 pub static NY_SLICE: usize = 400;
-pub static PIC_FILE_ENDING: &str = "png";
 
 pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";

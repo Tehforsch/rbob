@@ -1,5 +1,5 @@
 use super::{plot_template::PlotTemplate, snapshot::Snapshot};
-use crate::{config, config_file::ConfigFile, sim_params::SimParams};
+use crate::{config_file::ConfigFile, sim_params::SimParams};
 
 use anyhow::Result;
 use camino::{Utf8Path, Utf8PathBuf};
@@ -60,7 +60,7 @@ impl PlotInfo {
     }
 
     pub fn get_pic_file(&self) -> Utf8PathBuf {
-        let filename = format!("{}.{}", self.plot_name, config::PIC_FILE_ENDING);
+        let filename = format!("{}", self.plot_name);
         self.pic_folder.join(filename).to_path_buf()
     }
 }
