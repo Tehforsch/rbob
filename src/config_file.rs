@@ -28,12 +28,15 @@ impl ConfigFile {
 
     fn default() -> ConfigFile {
         ConfigFile {
-            plot_template_folder: Utf8Path::new("~/projects/bob/plotTemplates").into(),
+            plot_template_folder: Utf8Path::new("~/projects/phd/plotTemplates").into(),
         }
     }
 
     pub fn expanduser(&self) -> Result<ConfigFile> {
-        let expanded = expanduser(&self.plot_template_folder).context("While reading plot template folder")?;
+        let expanded = expanduser(&self.plot_template_folder).context(format!(
+            "While reading plot template folder: {}",
+            self.plot_template_folder
+        ))?;
         Ok(ConfigFile {
             plot_template_folder: Utf8Path::new(&expanded).to_owned(),
         })
