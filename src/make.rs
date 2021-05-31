@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
 use std::fs;
 
 use crate::sim_params::get_config_file_path;
@@ -8,32 +8,31 @@ use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
 use crate::{config, util::read_file_contents};
 
-pub fn build_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
+pub fn build_sim_set(arepo_path: &Utf8Path, sim_set: &SimSet, verbose: bool) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
-        build_sim(sim, verbose)?;
+        build_sim(arepo_path, sim, verbose)?;
     }
     Ok(())
 }
 
-fn build_sim(sim: &SimParams, verbose: bool) -> Result<()> {
-    copy_config_file(sim)?;
-    build_arepo(verbose)?;
-    copy_arepo_file(sim)?;
-    copy_source_code_to_output(sim)?;
+fn build_sim(arepo_path: &Utf8Path, sim: &SimParams, verbose: bool) -> Result<()> {
+    copy_config_file(arepo_path, sim)?;
+    build_arepo(arepo_path, verbose)?;
+    copy_arepo_file(arepo_path, sim)?;
+    copy_source_code_to_output(arepo_path, sim)?;
     Ok(())
 }
 
-fn copy_source_code_to_output(sim: &SimParams) -> Result<()> {
+fn copy_source_code_to_output(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
     copy_recursive(
-        get_arepo_path().join(config::DEFAULT_AREPO_SOURCE_FOLDER),
+        arepo_path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
         sim.folder.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
     )
 }
 
-fn build_arepo(verbose: bool) -> Result<()> {
-    let arepo_path = Utf8Path::new(config::DEFAULT_AREPO_FOLDER);
-    delete_arepoconfig_header_file_if_present()?;
+fn build_arepo(arepo_path: &Utf8Path, verbose: bool) -> Result<()> {
+    delete_arepoconfig_header_file_if_present(arepo_path)?;
     let out = get_shell_command_output(
         "make",
         &[
@@ -49,11 +48,10 @@ fn build_arepo(verbose: bool) -> Result<()> {
         println!("{}", out.stderr);
         return Err(anyhow!("Arepo compilation failed!"));
     }
-    copy_arepoconfig_header_file() // For clang to make sense of the situation
+    copy_arepoconfig_header_file(arepo_path) // For clang to make sense of the situation
 }
 
-fn delete_arepoconfig_header_file_if_present() -> Result<()> {
-    let arepo_path = get_arepo_path();
+fn delete_arepoconfig_header_file_if_present(arepo_path: &Utf8Path) -> Result<()> {
     let file = arepo_path.join(config::DEFAULT_AREPO_CONFIG_SOURCE_FILE);
     match file.is_file() {
         true => fs::remove_file(&file).with_context(|| {
@@ -66,16 +64,14 @@ fn delete_arepoconfig_header_file_if_present() -> Result<()> {
     }
 }
 
-fn copy_arepoconfig_header_file() -> Result<()> {
-    let arepo_path = get_arepo_path();
+fn copy_arepoconfig_header_file(arepo_path: &Utf8Path) -> Result<()> {
     let source = arepo_path.join(config::DEFAULT_AREPO_CONFIG_BUILD_FILE);
     let target = arepo_path.join(config::DEFAULT_AREPO_CONFIG_SOURCE_FILE);
     copy_file(source, target)
 }
 
-fn copy_config_file(sim: &SimParams) -> Result<()> {
+fn copy_config_file(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
     let source = get_config_file_path(&sim.folder);
-    let arepo_path = Utf8Path::new(config::DEFAULT_AREPO_FOLDER);
     let target = arepo_path.join(config::DEFAULT_CONFIG_FILE_NAME);
     if config_files_differ(&source, &target)? {
         copy_file(source, target)
@@ -96,13 +92,8 @@ fn config_files_differ(source: &Utf8Path, target: &Utf8Path) -> Result<bool> {
     Ok(true)
 }
 
-fn copy_arepo_file(sim: &SimParams) -> Result<()> {
-    let arepo_path = get_arepo_path();
+fn copy_arepo_file(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
     let source = arepo_path.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
     let target = sim.folder.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
     copy_file(source, target)
-}
-
-fn get_arepo_path() -> Utf8PathBuf {
-    Utf8Path::new(config::DEFAULT_AREPO_FOLDER).to_path_buf()
 }

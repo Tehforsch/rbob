@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&sim_set, a.verbose)?;
+            build_sim_set(&config_file.arepo_folder, &sim_set, a.verbose)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -46,6 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             start_sim_set(
+                &config_file,
                 sim_set,
                 &l.input_folder,
                 &l.output_folder,
@@ -65,6 +66,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn start_sim_set(
+    config_file: &ConfigFile,
     sim_set: SimSet,
     input_folder: &Utf8Path,
     output_folder: &Utf8Path,
@@ -72,7 +74,7 @@ fn start_sim_set(
     verbose: bool,
 ) -> Result<()> {
     let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder, delete)?;
-    build_sim_set(&output_sim_set, verbose)?;
+    build_sim_set(&config_file.arepo_folder, &output_sim_set, verbose)?;
     run_sim_set(&output_sim_set, verbose)
 }
 

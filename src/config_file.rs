@@ -8,6 +8,7 @@ use crate::{config, util::expanduser};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
     pub plot_template_folder: Utf8PathBuf,
+    pub arepo_folder: Utf8PathBuf,
 }
 
 impl ConfigFile {
@@ -29,16 +30,15 @@ impl ConfigFile {
     fn default() -> ConfigFile {
         ConfigFile {
             plot_template_folder: Utf8Path::new("~/projects/phd/plotTemplates").into(),
+            arepo_folder: Utf8Path::new("~/projects/arepo").into(),
         }
     }
 
     pub fn expanduser(&self) -> Result<ConfigFile> {
-        let expanded = expanduser(&self.plot_template_folder).context(format!(
-            "While reading plot template folder: {}",
-            self.plot_template_folder
-        ))?;
         Ok(ConfigFile {
-            plot_template_folder: Utf8Path::new(&expanded).to_owned(),
+            plot_template_folder: Utf8Path::new(&expanduser(&self.plot_template_folder)?)
+                .to_owned(),
+            arepo_folder: Utf8Path::new(&expanduser(&self.arepo_folder)?).to_owned(),
         })
     }
 }
