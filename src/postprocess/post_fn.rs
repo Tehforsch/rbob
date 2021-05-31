@@ -21,6 +21,23 @@ impl PostResult {
     pub fn new(params: PlotParams, data: Vec<FArray2>) -> Self {
         Self { params, data }
     }
+
+    pub fn join(results: Vec<PostResult>) -> PostResult {
+        let mut final_result = PostResult {
+            params: PlotParams::default(),
+            data: vec![],
+        };
+        for (i, result) in results.into_iter().enumerate() {
+            final_result.data.extend(result.data);
+            for (k, v) in result.params.0.iter() {
+                final_result
+                    .params
+                    .0
+                    .insert(format!("{}_{}", k, i), v.into());
+            }
+        }
+        final_result
+    }
 }
 
 pub trait PostFn {

@@ -130,7 +130,7 @@ pub fn get_source_file(sim: &SimParams) -> Result<SourceFile> {
 pub fn show_image(path: &Utf8Path) {
     let string = path.to_string();
     println!("Showing image {}", string);
-    get_shell_command_output("viewnior", &[string], None, false);
+    get_shell_command_output("nomacs", &[string], None, false);
 }
 
 pub fn show_image_folder(path: &Utf8Path) {
