@@ -73,7 +73,7 @@ pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 pub static DEFAULT_PLOT_INFO_FILE_NAME: &str = "plot.info";
 
-pub static SPECIAL_PARAMS: &'static [&'static str] = &[
+pub static SPECIAL_PARAMS: &[&str] = &[
     "numCores",
     "runParams",
     "executableName",
@@ -81,11 +81,11 @@ pub static SPECIAL_PARAMS: &'static [&'static str] = &[
     "initialSnap",
 ];
 
-pub static INITIAL_SNAP_IDENTIFIER: &'static str = "initialSnap";
+pub static INITIAL_SNAP_IDENTIFIER: &str = "initialSnap";
 
 pub static H_IONIZATION_RATE_INDEX: usize = 2;
 
-pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
+pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "NTYPES",
     "PERIODIC",
     "TWODIMS",
@@ -834,7 +834,7 @@ pub static CONFIG_FILE_PARAMS: &'static [&'static str] = &[
     "SX_SWEEP_MOST_STRAIGHTFORWARD",
 ];
 
-pub static PARAM_FILE_PARAMS: &'static [&'static str] = &[
+pub static PARAM_FILE_PARAMS: &[&str] = &[
     "ActivePartFracForNewDomainDecomp",
     "AtomicCoolOption",
     "BoxSize",

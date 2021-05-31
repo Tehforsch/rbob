@@ -72,7 +72,7 @@ pub fn get_slice_result(
             .unwrap()[0];
         result[[i0, i1]] = data[*index];
     }
-    let mut params = PlotParams::new();
+    let mut params = PlotParams::default();
     params.add("minX", min_extent[0]);
     params.add("maxX", max_extent[0]);
     params.add("minY", min_extent[1]);

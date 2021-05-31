@@ -30,7 +30,7 @@ impl PostFn for &RTypeExpansionFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}", self.name())
+        self.name().to_string()
     }
 
     fn post(
@@ -56,7 +56,7 @@ impl PostFn for &DTypeExpansionFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}", self.name())
+        self.name().to_string()
     }
 
     fn post(
@@ -101,7 +101,7 @@ fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
         }
         result.push(data);
     }
-    let mut params = PlotParams::new();
+    let mut params = PlotParams::default();
     params.add("minX", 0.0);
     params.add("maxX", max_t);
     params.add("minY", 0.0);
@@ -149,9 +149,7 @@ fn bisect_to_value(
 ) -> f64 {
     let x_try = (x_max + x_min) / 2.0;
     let y = f(x_try);
-    if (y - y_target).abs() < treshold {
-        x_try
-    } else if depth > max_depth {
+    if (y - y_target).abs() < treshold || depth > max_depth {
         x_try
     } else if y > y_target {
         bisect_to_value(f, y_target, treshold, x_min, x_try, depth + 1, max_depth)

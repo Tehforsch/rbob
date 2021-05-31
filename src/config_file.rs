@@ -23,7 +23,7 @@ impl ConfigFile {
     fn from_file(file: &Path) -> Result<ConfigFile> {
         let data = fs::read_to_string(file)
             .context(format!("While reading config file at {:?}", file,))?;
-        Ok(serde_yaml::from_str(&data).context("Reading config file contents")?)
+        serde_yaml::from_str(&data).context("Reading config file contents")
     }
 
     fn default() -> ConfigFile {

@@ -7,6 +7,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
 use std::{
     collections::hash_map::Iter, collections::hash_map::Keys, collections::HashMap, fs, ops::Index,
+    str::FromStr,
 };
 
 use crate::job_params::JobParams;
@@ -54,7 +55,7 @@ impl SimParams {
                 .with_context(|| format!("While reading config file at {:?}", config_file_path))?,
         )?;
         update_from(&mut params, get_job_file_params())?;
-        Ok(SimParams::new(folder.as_ref(), params, kind)?)
+        SimParams::new(folder.as_ref(), params, kind)
     }
 
     pub fn insert(&mut self, key: &str, value: &ParamValue) -> Option<ParamValue> {
@@ -76,13 +77,13 @@ impl SimParams {
     pub fn get_default_string(&self, key: &str, default: &str) -> String {
         self.get(key)
             .map(|s| s.unwrap_string().to_owned())
-            .unwrap_or(default.to_owned())
+            .unwrap_or_else(|| default.to_owned())
     }
 
     pub fn get_default_i64(&self, key: &str, default: &i64) -> i64 {
         self.get(key)
             .map(|s| s.unwrap_i64())
-            .unwrap_or(default.to_owned())
+            .unwrap_or_else(|| default.to_owned())
     }
 
     pub fn new(
@@ -147,14 +148,14 @@ impl SimParams {
             .filter(|key| config::CONFIG_FILE_PARAMS.contains(&key.as_str()))
             .map(|key| match &self[key] {
                 ParamValue::Bool(value) => match value {
-                    true => Some(format!("{}", key)),
+                    true => Some(key.to_string()),
                     false => None,
                 },
                 ParamValue::Int(value) => Some(format!("{}={}", key, value)),
                 ParamValue::Float(_, s) => Some(format!("{}={}", key, s)),
                 _ => panic!("Wrong param value: {}", key),
             })
-            .filter_map(|x| x)
+            .flatten()
             .join("\n")
     }
 
@@ -213,33 +214,22 @@ impl SimParams {
     }
 }
 pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path) -> Utf8PathBuf {
-    sim_folder
-        .join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
-        .to_owned()
+    sim_folder.join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
 }
 
 pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder
-        .as_ref()
-        .join(config::DEFAULT_PARAM_FILE_NAME)
-        .to_owned()
+    folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME)
 }
 
 pub fn get_config_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder
-        .as_ref()
-        .join(config::DEFAULT_CONFIG_FILE_NAME)
-        .to_owned()
+    folder.as_ref().join(config::DEFAULT_CONFIG_FILE_NAME)
 }
 
 pub fn get_job_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder
-        .as_ref()
-        .join(config::DEFAULT_JOB_FILE_NAME)
-        .to_owned()
+    folder.as_ref().join(config::DEFAULT_JOB_FILE_NAME)
 }
 
-pub fn try_get_f64<'a>(map: &'a HashMap<String, ParamValue>, key: &str) -> Result<f64> {
+pub fn try_get_f64(map: &HashMap<String, ParamValue>, key: &str) -> Result<f64> {
     map.get(key)
         .map(|v| v.unwrap_f64())
         .ok_or_else(|| anyhow!("Key not found: {}", key))
@@ -284,7 +274,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
     for line in get_nonempty_noncomment_lines(content, comment_string) {
         let (mut key, value) = match line.contains(&"=") {
             true => {
-                let split: Vec<&str> = line.split("=").collect();
+                let split: Vec<&str> = line.split('=').collect();
                 match split.len() {
                     2 => Ok((split[0].to_string(), ParamValue::from_str(split[1])?)),
                     _ => Err(anyhow!(format!(
@@ -296,9 +286,8 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
             false => Ok((line.to_string(), ParamValue::Bool(true))),
         }?;
         key = key.trim_start().trim_end().to_string();
-        match params.insert(key, value) {
-            None => return Err(anyhow!("Found invalid config parameter: {}", line)),
-            _ => {}
+        if params.insert(key, value) == None {
+            return Err(anyhow!("Found invalid config parameter: {}", line));
         }
     }
     Ok(params)
@@ -315,7 +304,7 @@ fn read_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
         .collect()
 }
 
-fn get_nonempty_noncomment_lines<'a, 'b>(
+fn get_nonempty_noncomment_lines<'a>(
     contents: &'a str,
     comment_string: &'a str,
 ) -> Box<dyn Iterator<Item = &'a str> + 'a> {

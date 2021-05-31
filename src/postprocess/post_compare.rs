@@ -32,7 +32,7 @@ impl PostFn for &CompareFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}", self.name())
+        self.name().to_string()
     }
 
     fn post(
@@ -48,22 +48,20 @@ impl PostFn for &CompareFn {
                     CompareFn::compare_sims(sim, sim_reference)?;
                 }
                 itertools::EitherOrBoth::Left(sim) => {
-                    assert!(
-                        false,
+                    panic!(
                         "Simulation {} available in new run but not in reference run!",
                         sim.get_name()
                     );
                 }
                 itertools::EitherOrBoth::Right(sim_reference) => {
-                    assert!(
-                        false,
+                    panic!(
                         "Simulation {} available in reference run but not in new run!",
                         sim_reference.get_name()
                     );
                 }
             }
         }
-        Ok(PostResult::new(PlotParams::new(), vec![]))
+        Ok(PostResult::new(PlotParams::default(), vec![]))
     }
 }
 
@@ -85,15 +83,13 @@ impl CompareFn {
                     CompareFn::compare_snaps(&snap, &snap_reference)?;
                 }
                 itertools::EitherOrBoth::Left(snap) => {
-                    assert!(
-                        false,
+                    panic!(
                         "Snapshot {} available in simulation but not in reference!",
                         snap?.get_name()
                     );
                 }
                 itertools::EitherOrBoth::Right(snap_reference) => {
-                    assert!(
-                        false,
+                    panic!(
                         "Snapshot {} available in reference but not in simulation!",
                         snap_reference?.get_name()
                     );
@@ -109,8 +105,7 @@ impl CompareFn {
         if !is_close(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?) {
             let (val1, val2, diff) =
                 get_max_relative_difference(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?);
-            assert!(
-                false,
+            panic!(
                 "Relative difference too high: max difference between \n{}\n{}\n={}",
                 val1, val2, diff
             );

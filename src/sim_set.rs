@@ -30,7 +30,7 @@ impl SimSetConfig {
             "While reading bob config file at {:?}",
             path.as_ref()
         ))?;
-        Ok(serde_yaml::from_str(&data).context("Reading bob config file contents")?)
+        serde_yaml::from_str(&data).context("Reading bob config file contents")
     }
 }
 
@@ -95,6 +95,10 @@ impl SimSet {
     pub fn len(&self) -> usize {
         self.simulations.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.simulations.is_empty()
+    }
 }
 
 fn get_sim_params(
@@ -121,13 +125,8 @@ fn get_sim_params_from_substitutions(
         .map(|(i, substitution_map)| {
             let mut new_sim = base.clone();
             for (k, v) in substitution_map.iter() {
-                match new_sim.insert(k, v) {
-                    None => {
-                        if !is_special_param(k) {
-                            Err(anyhow!("Found (non-special) parameter in substitutions that does not appear in parameter files: {}", k))?
-                        }
-                    }
-                    _ => {}
+                if new_sim.insert(k, v) == None && !is_special_param(k) {
+                    return Err(anyhow!("Found (non-special) parameter in substitutions that does not appear in parameter files: {}", k));
                 }
             }
             Ok((i as usize, new_sim))

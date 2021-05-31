@@ -18,7 +18,7 @@ use crate::{
 pub fn run_plot(
     config_file: &ConfigFile,
     info: &PlotInfo,
-    filenames: &Vec<Utf8PathBuf>,
+    filenames: &[Utf8PathBuf],
     special_replacements: &HashMap<String, String>,
 ) -> Result<String> {
     let mut replacements = get_default_replacements(info, filenames)?;
@@ -40,12 +40,7 @@ pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
     for folder in get_folders(&pic_folder)? {
         let plot_info_file = folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
         let plot_info = read_plot_info_file(&plot_info_file)?;
-        run_plot(
-            config_file,
-            &plot_info.info,
-            &vec![],
-            &plot_info.replacements,
-        )?;
+        run_plot(config_file, &plot_info.info, &[], &plot_info.replacements)?;
     }
     Ok(())
 }
@@ -79,7 +74,7 @@ fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<
 
 fn get_default_replacements(
     info: &PlotInfo,
-    filenames: &Vec<Utf8PathBuf>,
+    filenames: &[Utf8PathBuf],
 ) -> Result<HashMap<String, String>> {
     let mut result = HashMap::new();
     result.insert("numFiles".into(), filenames.len().to_string());
@@ -108,7 +103,7 @@ fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<Utf8P
         info.get_plot_folder()
             .join(format!("{}.{}", &info.name, config::DEFAULT_PLOT_EXTENSION));
     plot_template.write_to(&plot_file)?;
-    Ok(plot_file.to_owned())
+    Ok(plot_file)
 }
 
 fn write_main_plot_file(info: &PlotInfo, files_to_load: Vec<&Utf8Path>) -> Result<Utf8PathBuf> {
@@ -118,23 +113,23 @@ fn write_main_plot_file(info: &PlotInfo, files_to_load: Vec<&Utf8Path>) -> Resul
         .map(|file| format!("load \"{}\"", file.file_name().unwrap()))
         .join("\n");
     write_file(&path, &contents)?;
-    Ok(path.to_owned())
+    Ok(path)
 }
 
 fn write_plot_param_file(
     info: &PlotInfo,
-    filenames: &Vec<Utf8PathBuf>,
+    filenames: &[Utf8PathBuf],
     replacements: &HashMap<String, String>,
 ) -> Result<Utf8PathBuf> {
     let path = info.get_plot_folder().join("params.gp");
     let contents = get_plot_param_file_contents(info, filenames, replacements)?;
     write_file(&path, &contents)?;
-    Ok(path.to_owned())
+    Ok(path)
 }
 
 fn get_plot_param_file_contents(
     _info: &PlotInfo,
-    _filenames: &Vec<Utf8PathBuf>,
+    _filenames: &[Utf8PathBuf],
     replacements: &HashMap<String, String>,
 ) -> Result<String> {
     let contents = replacements
@@ -144,7 +139,7 @@ fn get_plot_param_file_contents(
     Ok(contents)
 }
 
-fn get_joined_filenames(info: &PlotInfo, filenames: &Vec<Utf8PathBuf>) -> Result<String> {
+fn get_joined_filenames(info: &PlotInfo, filenames: &[Utf8PathBuf]) -> Result<String> {
     Ok(filenames
         .iter()
         .map(|filename| {

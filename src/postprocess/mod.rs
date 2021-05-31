@@ -53,7 +53,7 @@ pub fn postprocess_sim_set(
             show_image(&image_file);
         }
     }
-    if args.showall && data_plot_info_list.len() > 0 {
+    if args.showall && !data_plot_info_list.is_empty() {
         show_image_folder(data_plot_info_list[0].info.pic_folder.as_str());
     }
     Ok(())
@@ -73,7 +73,7 @@ pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> 
                 .from_path(&file)?;
             wtr.serialize_array2(res)?;
             wtr.flush()?;
-            Ok(file.to_owned())
+            Ok(file)
         })
         .collect()
 }

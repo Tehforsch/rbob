@@ -76,7 +76,7 @@ fn start_sim_set(
     run_sim_set(&output_sim_set, verbose)
 }
 
-fn show_sim_set(sim_set: SimSet, param_names: &Vec<String>) -> Result<()> {
+fn show_sim_set(sim_set: SimSet, param_names: &[String]) -> Result<()> {
     let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
     for (i, sim) in sim_set.enumerate() {
         println!("{}:", i);

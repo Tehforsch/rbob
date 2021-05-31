@@ -33,8 +33,7 @@ impl PlotInfo {
                 }
             }
             None => qualified_name.into(),
-        }
-        .to_owned();
+        };
         let pic_folder = sim_set_folder.join("pics");
         PlotInfo {
             pic_folder,
@@ -62,7 +61,7 @@ impl PlotInfo {
     }
 
     pub fn get_pic_file(&self) -> Utf8PathBuf {
-        let filename = format!("{}", self.plot_name);
+        let filename = self.plot_name.to_string();
         self.get_plot_folder().join(filename).to_path_buf()
     }
 }

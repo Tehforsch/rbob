@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::{anyhow, Result};
 use serde_yaml::Value;
 
@@ -26,14 +28,14 @@ impl ParamValue {
             Value::Null => {
                 panic!("Null value in serde value");
             }
-            Value::Bool(x) => Ok(ParamValue::Bool(x.clone())),
+            Value::Bool(x) => Ok(ParamValue::Bool(*x)),
             Value::Number(x) => {
                 if x.is_i64() {
                     Ok(ParamValue::Int(x.as_i64().unwrap()))
                 } else if x.is_f64() {
                     Ok(ParamValue::Float(
                         x.as_f64().unwrap(),
-                        x.as_f64().unwrap().to_string().to_owned(),
+                        x.as_f64().unwrap().to_string(),
                     ))
                 } else {
                     Err(anyhow!("Found invalid number type: {}", &x))
@@ -43,14 +45,6 @@ impl ParamValue {
             Value::Sequence(_) => Err(anyhow!("List in serde value - invalid bob file structure?")),
             Value::Mapping(_) => panic!("Mapping in serde value!"),
         }
-    }
-
-    pub fn from_str(s: &str) -> Result<ParamValue> {
-        s.parse::<i64>()
-            .map(|x| ParamValue::Int(x))
-            .or(s.parse::<f64>().map(|x| ParamValue::Float(x, s.to_owned())))
-            .or(s.parse::<bool>().map(|x| ParamValue::Bool(x)))
-            .or(Ok(ParamValue::Str(s.to_string())))
     }
 
     pub fn unwrap_f64(&self) -> f64 {
@@ -73,5 +67,16 @@ impl ParamValue {
             ParamValue::Str(s) => s,
             _ => panic!("Tried to read value {} as string.", self),
         }
+    }
+}
+
+impl FromStr for ParamValue {
+    type Err = anyhow::Error;
+    fn from_str(s: &str) -> Result<ParamValue> {
+        s.parse::<i64>()
+            .map(ParamValue::Int)
+            .or_else(|_| s.parse::<f64>().map(|x| ParamValue::Float(x, s.to_owned())))
+            .or_else(|_| s.parse::<bool>().map(ParamValue::Bool))
+            .or_else(|_| Ok(ParamValue::Str(s.to_string())))
     }
 }

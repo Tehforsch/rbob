@@ -19,8 +19,7 @@ pub fn write_file(path: &Utf8Path, contents: &str) -> Result<()> {
 // Taken from 'Doug' from
 // https://stackoverflow.com/questions/26958489/how-to-copy-a-folder-recursively-in-rust
 pub fn copy_recursive<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<()> {
-    let mut stack = Vec::new();
-    stack.push(PathBuf::from(from.as_ref()));
+    let mut stack = vec![PathBuf::from(from.as_ref())];
 
     let output_root = PathBuf::from(to.as_ref());
     let input_root = PathBuf::from(from.as_ref()).components().count();
@@ -50,18 +49,13 @@ pub fn copy_recursive<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<
             let path = entry.path();
             if path.is_dir() {
                 stack.push(path);
-            } else {
-                match path.file_name() {
-                    Some(filename) => {
-                        let dest_path = dest.join(filename);
-                        fs::copy(&path, &dest_path).context(format!(
-                            "Error copying {} to {}",
-                            &path.to_str().unwrap(),
-                            &dest_path.to_str().unwrap()
-                        ))?;
-                    }
-                    None => {}
-                }
+            } else if let Some(filename) = path.file_name() {
+                let dest_path = dest.join(filename);
+                fs::copy(&path, &dest_path).context(format!(
+                    "Error copying {} to {}",
+                    &path.to_str().unwrap(),
+                    &dest_path.to_str().unwrap()
+                ))?;
             }
         }
     }
@@ -75,9 +69,7 @@ fn traverse_folder_files(folder: &Utf8Path) -> Result<Box<dyn Iterator<Item = Ut
     let sub_folder_results = sub_folders.map(|f| traverse_folder_files(&f));
     let sub_folder_files_iterators_result: Result<Vec<Box<dyn Iterator<Item = Utf8PathBuf>>>> =
         sub_folder_results.collect();
-    let sub_folder_files_iterator = (sub_folder_files_iterators_result?)
-        .into_iter()
-        .flat_map(|it| it);
+    let sub_folder_files_iterator = (sub_folder_files_iterators_result?).into_iter().flatten();
     Ok(Box::new(folder_files.chain(sub_folder_files_iterator)))
 }
 
@@ -135,15 +127,12 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
     if !verbose {
         command.stdout(Stdio::piped()).stderr(Stdio::piped());
     }
-    match working_dir {
-        Some(dir) => {
-            command.current_dir(dir);
-        }
-        _ => {}
+    if let Some(dir) = working_dir {
+        command.current_dir(dir);
     };
     let child = command
         .spawn()
-        .expect(&format!("Failed to run command: {}", command_str));
+        .unwrap_or_else(|_| panic!("Failed to run command: {}", command_str));
 
     let output = child.wait_with_output().expect("Failed to read stdout");
     let exit_code = output.status;
@@ -172,12 +161,7 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
 
 pub fn expanduser(path: &Utf8Path) -> Result<Utf8PathBuf> {
     let expanded = shellexpand::tilde(path.as_str());
-    Ok(Utf8PathBuf::from_path_buf(
-        Path::new::<String>(&expanded.into())
-            .canonicalize()?
-            .to_path_buf(),
-    )
-    .unwrap())
+    Ok(Utf8PathBuf::from_path_buf(Path::new::<String>(&expanded.into()).canonicalize()?).unwrap())
 }
 
 pub fn get_relative_path(folder: &Utf8Path, base_folder: &Utf8Path) -> Result<Utf8PathBuf> {

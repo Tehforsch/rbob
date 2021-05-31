@@ -74,15 +74,15 @@ pub trait PostFn {
         sim_set
             .iter()
             .map(|sim| {
-                Ok(get_snapshots(sim)?
+                get_snapshots(sim)?
                     .map(|snap| {
                         let snap = snap?;
                         self.get_data_plot_info_for_sim_snap(sim_set, sim, &snap)
                     })
-                    .collect::<Result<Vec<DataPlotInfo>>>()?)
+                    .collect::<Result<Vec<DataPlotInfo>>>()
             })
             .flat_map(|res_vec| match res_vec {
-                Ok(vec) => vec.into_iter().map(move |item| Ok(item)).collect(),
+                Ok(vec) => vec.into_iter().map(Ok).collect(),
                 Err(err) => vec![Err(err)],
             })
             .collect()

@@ -22,7 +22,7 @@ impl PostFn for &ShadowingFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}", self.name())
+        self.name().to_string()
     }
 
     fn post(

@@ -38,7 +38,7 @@ impl PostFn for &ScalingFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}", self.name())
+        self.name().to_string()
     }
 
     fn post(
@@ -53,7 +53,7 @@ impl PostFn for &ScalingFn {
             res[[*i, 1]] = sim.get_run_time()?;
         }
 
-        Ok(PostResult::new(PlotParams::new(), vec![res]))
+        Ok(PostResult::new(PlotParams::default(), vec![res]))
     }
 }
 
