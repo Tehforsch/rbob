@@ -3,6 +3,7 @@ use super::{
     post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
     post_fn::PostFn,
     post_scaling::ScalingFn,
+    post_shadowing::ShadowingFn,
     post_slice::SliceFn,
 };
 use clap::Clap;
@@ -14,6 +15,7 @@ pub enum PostFnName {
     Slice(SliceFn),
     Scaling(ScalingFn),
     Compare(CompareFn),
+    Shadowing(ShadowingFn),
 }
 
 impl PostFnName {
@@ -24,6 +26,7 @@ impl PostFnName {
             Self::Compare(s) => Box::new(s),
             Self::RType(s) => Box::new(s),
             Self::DType(s) => Box::new(s),
+            Self::Shadowing(s) => Box::new(s),
         }
     }
 }

@@ -26,6 +26,7 @@ pub mod post_expansion;
 pub mod post_fn;
 pub mod post_fn_name;
 pub mod post_scaling;
+pub mod post_shadowing;
 pub mod post_slice;
 pub mod postprocess_args;
 pub mod read_hdf5;
