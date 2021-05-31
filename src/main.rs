@@ -1,8 +1,8 @@
 use self::args::Opts;
-use bob::diff;
 use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
+use bob::{config, diff, param_value::ParamValue, unit_utils::nice_time};
 use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
 use bob::{copy::copy_sim_set, postprocess::plot::replot};
 
@@ -76,8 +76,12 @@ fn start_sim_set(
     run_sim_set(&output_sim_set, verbose)
 }
 
+fn print_param_value(param: &str, value: &ParamValue) {
+    println!("\t{}: {:?}", param, value);
+}
+
 fn show_sim_set(sim_set: SimSet, param_names: &[String]) -> Result<()> {
-    let print_param = |sim: &SimParams, param: &str| println!("\t{}: {:?}", param, sim[param]);
+    let print_param = |sim: &SimParams, param: &str| print_param_value(param, &sim[param]);
     for (i, sim) in sim_set.enumerate() {
         println!("{}:", i);
         if param_names.is_empty() {
@@ -86,14 +90,30 @@ fn show_sim_set(sim_set: SimSet, param_names: &[String]) -> Result<()> {
             }
         } else {
             for param in param_names.iter() {
+                if config::CALC_PARAMS.contains(&param.as_ref()) {
+                    print_calc_param(sim, param);
+                }
                 if !sim.contains_key(param) {
-                    return Err(anyhow!("Parameter {} not present in parameter files!"));
+                    return Err(anyhow!(
+                        "Parameter {} not present in parameter files!",
+                        param
+                    ));
                 }
                 print_param(sim, param)
             }
         }
     }
     Ok(())
+}
+
+fn print_calc_param(sim: &SimParams, param: &str) {
+    match param {
+        "timeUnit" => {
+            let value = nice_time(sim.units.length / sim.units.velocity);
+            print_param_value(param, &ParamValue::Str(value));
+        }
+        _ => unreachable!(),
+    }
 }
 
 fn get_sim_set_from_input(folder: &Utf8Path) -> Result<SimSet> {

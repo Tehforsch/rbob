@@ -81,6 +81,8 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "initialSnap",
 ];
 
+pub static CALC_PARAMS: &[&str] = &["timeUnit"];
+
 pub static INITIAL_SNAP_IDENTIFIER: &str = "initialSnap";
 
 pub static H_IONIZATION_RATE_INDEX: usize = 2;
