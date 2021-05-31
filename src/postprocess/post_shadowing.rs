@@ -36,12 +36,7 @@ impl PostFn for &ShadowingFn {
     ) -> Result<PostResult> {
         let mut results = vec![];
         let kiloyear = Time::new::<year>(1e3);
-        let times = [
-            3.2 * kiloyear,
-            6.5 * kiloyear,
-            32.0 * kiloyear,
-            64.0 * kiloyear,
-        ];
+        let times = [6.4 * kiloyear, 32.0 * kiloyear, 64.0 * kiloyear];
         for sim in sim_set.iter() {
             let snaps = find_snaps_at_times(sim, &times)?;
             for snap in snaps {
@@ -66,8 +61,8 @@ fn find_snaps_at_times<'a>(sim: &'a SimParams, times: &[Time]) -> Result<Vec<Sna
         let snap1 = &snaps[i];
         let snap2 = &snaps[i + 1];
         let time = times[current_time_index];
-        if snap1.time < time && snap2.time > time {
-            let snap_index = if (time - snap1.time) < (snap2.time - time) {
+        if snap1.time < time && snap2.time > time || snap1.time > time && i == 0 {
+            let snap_index = if (time - snap1.time).abs() < (snap2.time - time).abs() {
                 i
             } else {
                 i + 1
