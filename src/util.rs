@@ -161,7 +161,10 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
 
 pub fn expanduser(path: &Utf8Path) -> Result<Utf8PathBuf> {
     let expanded = shellexpand::tilde(path.as_str());
-    Ok(Utf8PathBuf::from_path_buf(Path::new::<String>(&expanded.into()).canonicalize()?).unwrap())
+    let path_buf = Path::new(&*expanded)
+        .canonicalize()
+        .context(format!("While reading {}", &expanded))?;
+    Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
 }
 
 pub fn get_relative_path(folder: &Utf8Path, base_folder: &Utf8Path) -> Result<Utf8PathBuf> {
