@@ -33,3 +33,47 @@ fn sim_set() {
         ],
     );
 }
+
+#[test]
+fn cartesian_grouped() {
+    let out = run_bob_on_setup(
+        "cartesianGrouped",
+        &[
+            NormalArg("show"),
+            RelativePath("in"),
+            NormalArg("MultipleDomains"),
+            NormalArg("SX_SWEEP"),
+            NormalArg("SX_NUM_ROT"),
+        ],
+    );
+    assert!(out.success);
+    compare_output_lines(
+        out.output,
+        &[
+            "0:",
+            "\tMultipleDomains: Int(1)",
+            "\tSX_SWEEP: Bool(true)",
+            "\tSX_NUM_ROT: Int(4)",
+            "1:",
+            "\tMultipleDomains: Int(1)",
+            "\tSX_SWEEP: Bool(false)",
+            "\tSX_NUM_ROT: Int(5)",
+            "2:",
+            "\tMultipleDomains: Int(2)",
+            "\tSX_SWEEP: Bool(true)",
+            "\tSX_NUM_ROT: Int(4)",
+            "3:",
+            "\tMultipleDomains: Int(2)",
+            "\tSX_SWEEP: Bool(false)",
+            "\tSX_NUM_ROT: Int(5)",
+            "4:",
+            "\tMultipleDomains: Int(3)",
+            "\tSX_SWEEP: Bool(true)",
+            "\tSX_NUM_ROT: Int(4)",
+            "5:",
+            "\tMultipleDomains: Int(3)",
+            "\tSX_SWEEP: Bool(false)",
+            "\tSX_NUM_ROT: Int(5)",
+        ],
+    );
+}
