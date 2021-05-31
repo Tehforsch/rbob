@@ -84,7 +84,7 @@ fn find_snaps_at_times<'a>(sim: &'a SimParams, times: &[Time]) -> Result<Vec<Sna
         if current_time_index == times.len() {
             // Traverse in reverse order - therefore the indices will always be valid
             for index in result_indices.iter().rev() {
-                result.push(snaps.remove(*index));
+                result.insert(0, snaps.remove(*index));
             }
             return Ok(result);
         }
