@@ -78,11 +78,14 @@ impl PostFn for &StrongScalingFn {
 }
 
 fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
-    let mut res = FArray2::zeros((sim_set.len(), 2));
-    for (i, sim) in sim_set.enumerate() {
-        res[[*i, 0]] = sim.get_num_cores()? as f64;
-        res[[*i, 1]] = sim.get_run_time()?;
+    let mut results = vec![];
+    for sub_sim_set in sim_set.quotient("SX_SWEEP") {
+        let mut res = FArray2::zeros((sub_sim_set.len(), 2));
+        for (i, sim) in sub_sim_set.enumerate() {
+            res[[*i, 0]] = sim.get_num_cores()? as f64;
+            res[[*i, 1]] = sim.get_run_time()?;
+        }
+        results.push(PostResult::new(PlotParams::default(), vec![res]));
     }
-
-    Ok(PostResult::new(PlotParams::default(), vec![res]))
+    Ok(PostResult::join(results))
 }

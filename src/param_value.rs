@@ -1,13 +1,14 @@
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
+use ordered_float::OrderedFloat;
 use serde_yaml::Value;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 pub enum ParamValue {
     Str(String),
     Int(i64),
-    Float(f64, String), // Keep the original string representation to make sure we dont change anything
+    Float(OrderedFloat<f64>, String), // Keep the original string representation to make sure we dont change anything
     Bool(bool),
 }
 
@@ -34,7 +35,7 @@ impl ParamValue {
                     Ok(ParamValue::Int(x.as_i64().unwrap()))
                 } else if x.is_f64() {
                     Ok(ParamValue::Float(
-                        x.as_f64().unwrap(),
+                        x.as_f64().unwrap().into(),
                         x.as_f64().unwrap().to_string(),
                     ))
                 } else {
@@ -49,7 +50,7 @@ impl ParamValue {
 
     pub fn unwrap_f64(&self) -> f64 {
         match self {
-            ParamValue::Float(f, _) => *f,
+            ParamValue::Float(f, _) => **f,
             ParamValue::Int(i) => *i as f64,
             _ => panic!("Tried to read value {} as float.", self),
         }
@@ -75,7 +76,10 @@ impl FromStr for ParamValue {
     fn from_str(s: &str) -> Result<ParamValue> {
         s.parse::<i64>()
             .map(ParamValue::Int)
-            .or_else(|_| s.parse::<f64>().map(|x| ParamValue::Float(x, s.to_owned())))
+            .or_else(|_| {
+                s.parse::<f64>()
+                    .map(|x| ParamValue::Float(OrderedFloat(x), s.to_owned()))
+            })
             .or_else(|_| s.parse::<bool>().map(ParamValue::Bool))
             .or_else(|_| Ok(ParamValue::Str(s.to_string())))
     }

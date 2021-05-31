@@ -1,6 +1,11 @@
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use std::{collections::HashMap, fs, iter::FromIterator, slice::Iter};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    iter::FromIterator,
+    slice::Iter,
+};
 
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
@@ -98,6 +103,25 @@ impl SimSet {
 
     pub fn is_empty(&self) -> bool {
         self.simulations.is_empty()
+    }
+
+    pub fn quotient(&self, param: &str) -> Vec<SimSet> {
+        let mut possible_values = HashSet::new();
+        for sim in self.iter() {
+            possible_values.insert(sim[param].clone());
+        }
+        let mut sub_sim_sets = vec![];
+        for possible_value in possible_values.iter() {
+            sub_sim_sets.push(SimSet {
+                simulations: self
+                    .iter()
+                    .filter(|sim| sim[param] == *possible_value)
+                    .cloned()
+                    .enumerate()
+                    .collect(),
+            });
+        }
+        sub_sim_sets
     }
 }
 
