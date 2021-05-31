@@ -26,15 +26,15 @@ impl ScalingDataPoint {
 }
 
 #[derive(Clap, Debug)]
-pub struct ScalingFn {}
+pub struct WeakScalingFn {}
 
-impl PostFn for &ScalingFn {
+impl PostFn for &WeakScalingFn {
     fn kind(&self) -> PostFnKind {
         PostFnKind::Set
     }
 
     fn name(&self) -> &'static str {
-        "scaling"
+        "weak_scaling"
     }
 
     fn qualified_name(&self) -> String {
@@ -47,14 +47,42 @@ impl PostFn for &ScalingFn {
         _sim: Option<&SimParams>,
         _snap: Option<&Snapshot>,
     ) -> Result<PostResult> {
-        let mut res = FArray2::zeros((sim_set.len(), 2));
-        for (i, sim) in sim_set.enumerate() {
-            res[[*i, 0]] = sim.get_num_cores()? as f64;
-            res[[*i, 1]] = sim.get_run_time()?;
-        }
-
-        Ok(PostResult::new(PlotParams::default(), vec![res]))
+        get_scaling_data(sim_set)
     }
 }
 
-impl ScalingFn {}
+#[derive(Clap, Debug)]
+pub struct StrongScalingFn {}
+
+impl PostFn for &StrongScalingFn {
+    fn kind(&self) -> PostFnKind {
+        PostFnKind::Set
+    }
+
+    fn name(&self) -> &'static str {
+        "strong_scaling"
+    }
+
+    fn qualified_name(&self) -> String {
+        self.name().to_string()
+    }
+
+    fn post(
+        &self,
+        sim_set: &SimSet,
+        _sim: Option<&SimParams>,
+        _snap: Option<&Snapshot>,
+    ) -> Result<PostResult> {
+        get_scaling_data(sim_set)
+    }
+}
+
+fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
+    let mut res = FArray2::zeros((sim_set.len(), 2));
+    for (i, sim) in sim_set.enumerate() {
+        res[[*i, 0]] = sim.get_num_cores()? as f64;
+        res[[*i, 1]] = sim.get_run_time()?;
+    }
+
+    Ok(PostResult::new(PlotParams::default(), vec![res]))
+}

@@ -2,7 +2,7 @@ use super::{
     post_compare::CompareFn,
     post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
     post_fn::PostFn,
-    post_scaling::ScalingFn,
+    post_scaling::{StrongScalingFn, WeakScalingFn},
     post_shadowing::ShadowingFn,
     post_slice::SliceFn,
 };
@@ -13,7 +13,8 @@ pub enum PostFnName {
     RType(RTypeExpansionFn),
     DType(DTypeExpansionFn),
     Slice(SliceFn),
-    Scaling(ScalingFn),
+    StrongScaling(StrongScalingFn),
+    WeakScaling(WeakScalingFn),
     Compare(CompareFn),
     Shadowing(ShadowingFn),
 }
@@ -21,7 +22,8 @@ pub enum PostFnName {
 impl PostFnName {
     pub fn get_function<'a>(&'a self) -> Box<dyn PostFn + 'a> {
         match self {
-            Self::Scaling(s) => Box::new(s),
+            Self::StrongScaling(s) => Box::new(s),
+            Self::WeakScaling(s) => Box::new(s),
             Self::Slice(s) => Box::new(s),
             Self::Compare(s) => Box::new(s),
             Self::RType(s) => Box::new(s),
