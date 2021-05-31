@@ -85,7 +85,9 @@ fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
             res[[*i, 0]] = sim.get_num_cores()? as f64;
             res[[*i, 1]] = sim.get_run_time()?;
         }
-        results.push(PostResult::new(PlotParams::default(), vec![res]));
+        let mut params = PlotParams::default();
+        params.0.insert("referenceTime".into(), res[[0, 1]].to_string());
+        results.push(PostResult::new(params, vec![res]));
     }
     Ok(PostResult::join(results))
 }
