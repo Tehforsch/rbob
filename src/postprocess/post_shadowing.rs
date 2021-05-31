@@ -1,6 +1,7 @@
 use super::{
     axis::Axis,
     field_identifier::FieldIdentifier,
+    get_snapshots,
     post_fn::{PostFn, PostResult},
     post_slice::get_slice_result,
 };
@@ -14,7 +15,7 @@ pub struct ShadowingFn {}
 
 impl PostFn for &ShadowingFn {
     fn kind(&self) -> PostFnKind {
-        PostFnKind::Snap
+        PostFnKind::Set
     }
 
     fn name(&self) -> &'static str {
@@ -27,10 +28,14 @@ impl PostFn for &ShadowingFn {
 
     fn post(
         &self,
-        _sim_set: &SimSet,
+        sim_set: &SimSet,
         _sim: Option<&SimParams>,
-        snap: Option<&Snapshot>,
+        _snap: Option<&Snapshot>,
     ) -> Result<PostResult> {
-        get_slice_result(snap.unwrap(), &Axis::Z, &FieldIdentifier::HpAbundance)
+        for sim in sim_set.iter() {
+            let snap = get_snapshots(sim)?.next().unwrap()?;
+            return get_slice_result(&snap, &Axis::Z, &FieldIdentifier::HpAbundance);
+        }
+        panic!()
     }
 }

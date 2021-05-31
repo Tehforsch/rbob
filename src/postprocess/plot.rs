@@ -20,7 +20,7 @@ pub fn run_plot(
     info: &PlotInfo,
     filenames: &[Utf8PathBuf],
     special_replacements: &HashMap<String, String>,
-) -> Result<String> {
+) -> Result<Utf8PathBuf> {
     let mut replacements = get_default_replacements(info, filenames)?;
     for (k, v) in special_replacements {
         replacements.insert(k.to_string(), v.to_string());
@@ -32,7 +32,7 @@ pub fn run_plot(
     write_plot_info_file(info, &replacements)?;
     run_gnuplot_command(info, &main_plot_file)?;
     maybe_run_pdflatex(info)?;
-    Ok(info.get_pic_file().as_str().into())
+    info.find_pic_file_and_copy_one_folder_up()
 }
 
 pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
@@ -78,14 +78,7 @@ fn get_default_replacements(
 ) -> Result<HashMap<String, String>> {
     let mut result = HashMap::new();
     result.insert("numFiles".into(), filenames.len().to_string());
-    result.insert(
-        "picFile".into(),
-        in_quotes(
-            &get_relative_path(&info.get_pic_file(), &info.get_plot_folder())?
-                .as_str()
-                .to_string(),
-        ),
-    );
+    result.insert("picFile".into(), in_quotes(&info.plot_name));
     result.insert(
         "files".into(),
         in_quotes(&get_joined_filenames(info, filenames)?),

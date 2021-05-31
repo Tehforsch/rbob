@@ -1,7 +1,7 @@
 use super::{plot_template::PlotTemplate, snapshot::Snapshot};
-use crate::{config_file::ConfigFile, sim_params::SimParams};
+use crate::{config_file::ConfigFile, sim_params::SimParams, util::copy_file};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -60,9 +60,20 @@ impl PlotInfo {
         PlotTemplate::new(config_file, &self.name)
     }
 
-    pub fn get_pic_file(&self) -> Utf8PathBuf {
-        let filename = self.plot_name.to_string();
-        self.get_plot_folder().join(filename).to_path_buf()
+    pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {
+        let basename = self.plot_name.to_string();
+        let potential_extensions = ["pdf", "png"];
+        let plot_folder = self.get_plot_folder();
+        for extension in potential_extensions.iter() {
+            let filename = format!("{}.{}", &basename, extension);
+            let path = plot_folder.join(&filename);
+            if path.is_file() {
+                let target = path.parent().unwrap().parent().unwrap().join(&filename);
+                copy_file(&path, target)?;
+                return Ok(path);
+            }
+        }
+        Err(anyhow!("No image file generated"))
     }
 }
 

@@ -7,7 +7,7 @@ use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
 
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
 use snapshot::Snapshot;
 
 use self::{data_plot_info::DataPlotInfo, postprocess_args::PostprocessArgs};
@@ -54,7 +54,7 @@ pub fn postprocess_sim_set(
         }
     }
     if args.showall && !data_plot_info_list.is_empty() {
-        show_image_folder(data_plot_info_list[0].info.pic_folder.as_str());
+        show_image_folder(&data_plot_info_list[0].info.pic_folder);
     }
     Ok(())
 }
@@ -127,12 +127,14 @@ pub fn get_source_file(sim: &SimParams) -> Result<SourceFile> {
     }
 }
 
-pub fn show_image(path: &str) {
-    println!("Showing image {}", path);
-    get_shell_command_output("viewnior", &[path], None, false);
+pub fn show_image(path: &Utf8Path) {
+    let string = path.to_string();
+    println!("Showing image {}", string);
+    get_shell_command_output("viewnior", &[string], None, false);
 }
 
-pub fn show_image_folder(path: &str) {
-    println!("Showing all images at {}", path);
-    get_shell_command_output("nomacs", &[path], None, false);
+pub fn show_image_folder(path: &Utf8Path) {
+    let string = path.to_string();
+    println!("Showing all images at {}", string);
+    get_shell_command_output("nomacs", &[string], None, false);
 }
