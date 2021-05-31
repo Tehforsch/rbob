@@ -5,11 +5,6 @@ pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
 pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 
-#[cfg(feature = "bwfor")]
-pub static DEFAULT_AREPO_FOLDER: &str = "/beegfs/home/hd/hd_hd/hd_hp240/projects/phd/arepo";
-#[cfg(not(feature = "bwfor"))]
-pub static DEFAULT_AREPO_FOLDER: &str = "/home/toni/projects/arepo";
-
 pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "Arepo";
 pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
 pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";

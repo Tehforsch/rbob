@@ -81,6 +81,9 @@ pub fn get_slice_result(
     params.add("maxC", *data.max().unwrap());
     Ok(PostResult::new(
         params,
-        vec![convert_heatmap_to_gnuplot_format(result)],
+        vec![convert_heatmap_to_gnuplot_format(
+            result,
+            snap.sim.units.length,
+        )],
     ))
 }
