@@ -33,7 +33,7 @@ impl PostFn for &SliceFn {
     }
 
     fn qualified_name(&self) -> String {
-        format!("{}_{}", self.name(), self.axis)
+        format!("{}_{}_{}", self.name(), self.axis, self.field)
     }
 
     fn post(
