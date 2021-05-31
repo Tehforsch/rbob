@@ -92,14 +92,14 @@ fn show_sim_set(sim_set: SimSet, param_names: &[String]) -> Result<()> {
             for param in param_names.iter() {
                 if config::CALC_PARAMS.contains(&param.as_ref()) {
                     print_calc_param(sim, param);
-                }
-                if !sim.contains_key(param) {
+                } else if sim.contains_key(param) {
+                    print_param(sim, param)
+                } else {
                     return Err(anyhow!(
                         "Parameter {} not present in parameter files!",
                         param
                     ));
                 }
-                print_param(sim, param)
             }
         }
     }
