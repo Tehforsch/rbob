@@ -56,8 +56,16 @@ impl PlotInfo {
         create_folder_if_nonexistent(&self.get_data_folder())
     }
 
-    pub fn get_plot_template(&self, config_file: &ConfigFile) -> Result<PlotTemplate> {
-        PlotTemplate::new(config_file, &self.name)
+    pub fn get_plot_template(
+        &self,
+        config_file: &ConfigFile,
+        plot_template_name: Option<&str>,
+    ) -> Result<PlotTemplate> {
+        let plot_template_name = match plot_template_name {
+            Some(name) => name,
+            None => &self.name,
+        };
+        PlotTemplate::new(config_file, plot_template_name)
     }
 
     pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {

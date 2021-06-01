@@ -11,8 +11,7 @@ pub struct PostprocessArgs {
     #[clap(short, long, global = true)]
     pub showall: bool,
     pub output_folder: Utf8PathBuf,
+    pub plot_template: Option<String>,
     #[clap(subcommand)]
     pub function: PostFnName,
-    pub select_snap: Vec<String>,
-    pub select_sim: Vec<String>,
 }

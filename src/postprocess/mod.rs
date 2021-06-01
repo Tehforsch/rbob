@@ -44,6 +44,7 @@ pub fn postprocess_sim_set(
         let filenames = write_results(&data_plot_info)?;
         let image_file = plot::run_plot(
             create_plot,
+            args.plot_template.as_deref(),
             config_file,
             &data_plot_info.info,
             &filenames,

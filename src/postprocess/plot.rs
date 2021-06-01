@@ -17,6 +17,7 @@ use crate::{
 
 pub fn run_plot(
     create_plot: bool,
+    plot_template_name: Option<&str>,
     config_file: &ConfigFile,
     info: &PlotInfo,
     filenames: &[Utf8PathBuf],
@@ -27,7 +28,7 @@ pub fn run_plot(
         replacements.insert(k.to_string(), v.to_string());
     }
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
-    let plot_template = copy_plot_template(config_file, info)?;
+    let plot_template = copy_plot_template(config_file, info, plot_template_name)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
     copy_plot_config_folder(config_file, info)?;
     write_plot_info_file(info, &replacements)?;
@@ -49,6 +50,7 @@ pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
         let plot_info = read_plot_info_file(&plot_info_file)?;
         run_plot(
             true,
+            None,
             config_file,
             &plot_info.info,
             &[],
@@ -103,8 +105,12 @@ fn in_quotes(s: &str) -> String {
     format!("\"{}\"", s)
 }
 
-fn copy_plot_template(config_file: &ConfigFile, info: &PlotInfo) -> Result<Utf8PathBuf> {
-    let plot_template = info.get_plot_template(config_file)?;
+fn copy_plot_template(
+    config_file: &ConfigFile,
+    info: &PlotInfo,
+    plot_template_name: Option<&str>,
+) -> Result<Utf8PathBuf> {
+    let plot_template = info.get_plot_template(config_file, plot_template_name)?;
     let plot_file =
         info.get_plot_folder()
             .join(format!("{}.{}", &info.name, config::DEFAULT_PLOT_EXTENSION));
