@@ -50,9 +50,9 @@ pub fn postprocess_sim_set(
             &data_plot_info.info,
             &filenames,
             &data_plot_info.replacements,
-        )?;
+        );
         if args.show {
-            show_image(&image_file);
+            show_image(&image_file?);
         }
     }
     if args.showall && !data_plot_info_list.is_empty() {

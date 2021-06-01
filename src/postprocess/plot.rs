@@ -37,7 +37,7 @@ pub fn run_plot(
         info.find_pic_file_and_copy_one_folder_up()
     } else {
         Err(anyhow!(
-            "Not creating the plot but showing the image does not make sense"
+            "Plot was not actually created - no output file exists. Run with plot instead of post to change this"
         ))
     }
 }
