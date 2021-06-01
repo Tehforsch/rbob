@@ -13,6 +13,7 @@ pub fn build_sim_set(arepo_path: &Utf8Path, sim_set: &SimSet, verbose: bool) -> 
         println!("Building sim {}", i);
         build_sim(arepo_path, sim, verbose)?;
     }
+    copy_source_code_to_output(arepo_path, &sim_set.iter().next().unwrap().folder)?;
     Ok(())
 }
 
@@ -20,14 +21,13 @@ fn build_sim(arepo_path: &Utf8Path, sim: &SimParams, verbose: bool) -> Result<()
     copy_config_file(arepo_path, sim)?;
     build_arepo(arepo_path, verbose)?;
     copy_arepo_file(arepo_path, sim)?;
-    copy_source_code_to_output(arepo_path, sim)?;
     Ok(())
 }
 
-fn copy_source_code_to_output(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
+fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<()> {
     copy_recursive(
         arepo_path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
-        sim.folder.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
+        path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
     )
 }
 
