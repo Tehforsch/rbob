@@ -16,6 +16,7 @@ use crate::{
 };
 
 pub fn run_plot(
+    create_plot: bool,
     config_file: &ConfigFile,
     info: &PlotInfo,
     filenames: &[Utf8PathBuf],
@@ -30,9 +31,15 @@ pub fn run_plot(
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
     copy_plot_config_folder(config_file, info)?;
     write_plot_info_file(info, &replacements)?;
-    run_gnuplot_command(info, &main_plot_file)?;
-    maybe_run_pdflatex(info)?;
-    info.find_pic_file_and_copy_one_folder_up()
+    if create_plot {
+        run_gnuplot_command(info, &main_plot_file)?;
+        maybe_run_pdflatex(info)?;
+        info.find_pic_file_and_copy_one_folder_up()
+    } else {
+        Err(anyhow!(
+            "Not creating the plot but showing the image does not make sense"
+        ))
+    }
 }
 
 pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
@@ -40,7 +47,13 @@ pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
     for folder in get_folders(&pic_folder)? {
         let plot_info_file = folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
         let plot_info = read_plot_info_file(&plot_info_file)?;
-        run_plot(config_file, &plot_info.info, &[], &plot_info.replacements)?;
+        run_plot(
+            true,
+            config_file,
+            &plot_info.info,
+            &[],
+            &plot_info.replacements,
+        )?;
     }
     Ok(())
 }

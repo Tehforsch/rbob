@@ -23,6 +23,7 @@ pub enum SubCommand {
     Run(RunSimulation),
     Start(StartSimulation),
     Post(PostprocessArgs),
+    Plot(PostprocessArgs),
     Replot(ReplotArgs),
 }
 

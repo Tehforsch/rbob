@@ -56,7 +56,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            postprocess_sim_set(&config_file, &sim_set, &l)?;
+            postprocess_sim_set(false, &config_file, &sim_set, &l)?;
+        }
+        SubCommand::Plot(l) => {
+            let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            postprocess_sim_set(true, &config_file, &sim_set, &l)?;
         }
         SubCommand::Replot(l) => {
             replot(&config_file, &l)?;
