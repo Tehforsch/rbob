@@ -16,6 +16,8 @@ use clap::Clap;
 use kdtree::distance::squared_euclidean;
 use kdtree::KdTree;
 use ndarray_stats::QuantileExt;
+use uom::si::f64::Length;
+use uom::si::length::parsec;
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {
@@ -73,17 +75,16 @@ pub fn get_slice_result(
         result[[i0, i1]] = data[*index];
     }
     let mut params = PlotParams::default();
-    params.add("minX", min_extent[0]);
-    params.add("maxX", max_extent[0]);
-    params.add("minY", min_extent[1]);
-    params.add("maxY", max_extent[1]);
+    let default_length_unit = Length::new::<parsec>(1.0);
+    let length_factor = (snap.sim.units.length / default_length_unit).value;
+    params.add("minX", min_extent[0] * length_factor);
+    params.add("maxX", max_extent[0] * length_factor);
+    params.add("minY", min_extent[1] * length_factor);
+    params.add("maxY", max_extent[1] * length_factor);
     params.add("minC", *data.min().unwrap());
     params.add("maxC", *data.max().unwrap());
     Ok(PostResult::new(
         params,
-        vec![convert_heatmap_to_gnuplot_format(
-            result,
-            snap.sim.units.length,
-        )],
+        vec![convert_heatmap_to_gnuplot_format(result, length_factor)],
     ))
 }

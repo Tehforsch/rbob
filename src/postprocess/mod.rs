@@ -1,11 +1,9 @@
 use anyhow::{Context, Result};
-use csv::WriterBuilder;
-use ndarray_csv::Array2Writer;
 
-use crate::source_file::SourceFile;
 use crate::util::get_files;
 use crate::{config_file::ConfigFile, sim_params::SimParams};
 use crate::{sim_set::SimSet, util::get_shell_command_output};
+use crate::{source_file::SourceFile, util::write_file};
 
 use camino::{Utf8Path, Utf8PathBuf};
 use snapshot::Snapshot;
@@ -69,12 +67,20 @@ pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> 
         .enumerate()
         .map(|(i, res)| {
             let file = data_folder.join(i.to_string());
-            let mut wtr = WriterBuilder::new()
-                .has_headers(false)
-                .delimiter(b' ')
-                .from_path(&file)?;
-            wtr.serialize_array2(res)?;
-            wtr.flush()?;
+            // I initially had ndarray_csv here but that actually produced faulty csv files so now
+            // I use the worlds most primitive and inefficient way to write a csv file:
+            let contents = res
+                .rows()
+                .into_iter()
+                .map(|row| {
+                    row.iter()
+                        .map(|number| number.to_string())
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                })
+                .collect::<Vec<String>>()
+                .join("\n");
+            write_file(&file, &contents)?;
             Ok(file)
         })
         .collect()
