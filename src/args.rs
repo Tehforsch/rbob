@@ -3,11 +3,11 @@ use camino::Utf8PathBuf;
 use clap::Clap;
 
 /// BoB. The Builder.
-#[derive(Clap)]
+#[derive(Clap, Debug)]
 #[clap(version = "0.1.0", author = "Toni Peter")]
 pub struct Opts {
     /// A level of verbosity, and can be used multiple times
-    #[clap(short, long)]
+    #[clap(short, long, global = true)]
     pub verbose: bool,
     #[clap(subcommand)]
     pub subcmd: SubCommand,
