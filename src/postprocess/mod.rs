@@ -101,7 +101,7 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
         sim.folder,
         sim.output_folder(),
     ))?;
-    files = filter_first_snapshot_for_postprocessing_runs(files);
+    // files = filter_first_snapshot_for_postprocessing_runs(files);
     files.sort_by_key(|snap_file| snap_file.file_name().unwrap().to_owned());
     Ok(Box::new(files.into_iter().filter(|f| {
         f.extension().map(|ext| ext == "hdf5").unwrap_or(false)
