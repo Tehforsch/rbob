@@ -7,7 +7,7 @@ use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
 use bob::{copy::copy_sim_set, postprocess::plot::replot};
 
 use anyhow::{anyhow, Result};
-use args::SubCommand;
+use args::{StartSimulation, SubCommand};
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use camino::Utf8Path;
@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&config_file.arepo_folder, &sim_set, a.verbose)?;
+            build_sim_set(&config_file, &sim_set, a.verbose, &l.systype)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -45,14 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            start_sim_set(
-                &config_file,
-                sim_set,
-                &l.input_folder,
-                &l.output_folder,
-                l.delete,
-                a.verbose,
-            )?;
+            start_sim_set(&config_file, sim_set, &l, a.verbose)?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -72,13 +65,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn start_sim_set(
     config_file: &ConfigFile,
     sim_set: SimSet,
-    input_folder: &Utf8Path,
-    output_folder: &Utf8Path,
-    delete: bool,
+    args: &StartSimulation,
     verbose: bool,
 ) -> Result<()> {
-    let output_sim_set = copy_sim_set(&sim_set, input_folder, output_folder, delete)?;
-    build_sim_set(&config_file.arepo_folder, &output_sim_set, verbose)?;
+    let output_sim_set = copy_sim_set(
+        &sim_set,
+        &args.input_folder,
+        &args.output_folder,
+        args.delete,
+    )?;
+    build_sim_set(&config_file, &output_sim_set, verbose, &args.systype)?;
     run_sim_set(&output_sim_set, verbose)
 }
 

@@ -14,5 +14,6 @@ pub mod sim_set;
 pub mod sim_units;
 pub mod source_file;
 pub mod strfmt_utils;
+pub mod systype;
 pub mod unit_utils;
 pub mod util;

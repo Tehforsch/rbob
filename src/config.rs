@@ -58,7 +58,7 @@ pub static DEFAULT_WALL_TIME: &str = "3:00:00";
 pub static DEFAULT_PARTITION: &str = "single";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_PARAMS: &str = &"0";
-pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &6;
+pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &12;
 
 pub static NX_SLICE: usize = 400;
 pub static NY_SLICE: usize = 400;

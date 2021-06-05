@@ -1,4 +1,7 @@
-use bob::postprocess::{postprocess_args::PostprocessArgs, replot_args::ReplotArgs};
+use bob::{
+    postprocess::{postprocess_args::PostprocessArgs, replot_args::ReplotArgs},
+    systype::Systype,
+};
 use camino::Utf8PathBuf;
 use clap::Clap;
 
@@ -63,6 +66,7 @@ pub struct CopySimulation {
 #[derive(Clap, Debug)]
 pub struct BuildSimulation {
     pub output_folder: Utf8PathBuf,
+    pub systype: Option<Systype>,
 }
 
 /// Run each of the simulations in the output directory
@@ -78,4 +82,5 @@ pub struct StartSimulation {
     pub output_folder: Utf8PathBuf,
     #[clap(short, long)]
     pub delete: bool,
+    pub systype: Option<Systype>,
 }

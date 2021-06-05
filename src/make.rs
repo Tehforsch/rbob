@@ -2,26 +2,55 @@ use anyhow::{anyhow, Context, Result};
 use camino::Utf8Path;
 use std::fs;
 
-use crate::sim_params::get_config_file_path;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
 use crate::{config, util::read_file_contents};
+use crate::{
+    config_file::ConfigFile, sim_params::get_config_file_path, systype::Systype, util::write_file,
+};
 
-pub fn build_sim_set(arepo_path: &Utf8Path, sim_set: &SimSet, verbose: bool) -> Result<()> {
+pub fn build_sim_set(
+    config_file: &ConfigFile,
+    sim_set: &SimSet,
+    verbose: bool,
+    systype: &Option<Systype>,
+) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
-        build_sim(arepo_path, sim, verbose)?;
+        build_sim(config_file, sim, verbose, systype)?;
     }
-    copy_source_code_to_output(arepo_path, &sim_set.iter().next().unwrap().folder)?;
+    copy_source_code_to_output(
+        &config_file.arepo_path,
+        &sim_set.iter().next().unwrap().folder,
+    )?;
     Ok(())
 }
 
-fn build_sim(arepo_path: &Utf8Path, sim: &SimParams, verbose: bool) -> Result<()> {
-    copy_config_file(arepo_path, sim)?;
-    build_arepo(arepo_path, verbose)?;
-    copy_arepo_file(arepo_path, sim)?;
+fn build_sim(
+    config_file: &ConfigFile,
+    sim: &SimParams,
+    verbose: bool,
+    systype: &Option<Systype>,
+) -> Result<()> {
+    write_systype_file(config_file, systype)?;
+    copy_config_file(&config_file.arepo_path, sim)?;
+    build_arepo(&config_file.arepo_path, verbose)?;
+    copy_arepo_file(&config_file.arepo_path, sim)?;
     Ok(())
+}
+
+fn write_systype_file(config_file: &ConfigFile, systype: &Option<Systype>) -> Result<()> {
+    let systype_file = config_file.arepo_path.join("Makefile.systype");
+    let contents = match systype {
+        None => config_file.default_systype.clone(),
+        Some(option) => match option {
+            Systype::Asan => format!("{}{}", config_file.default_systype, "Asan"),
+            Systype::Gprof => format!("{}{}", config_file.default_systype, "Gprof"),
+        },
+    };
+    let contents = format!("SYSTYPE={}", contents);
+    write_file(&systype_file, &contents)
 }
 
 fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<()> {

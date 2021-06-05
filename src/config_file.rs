@@ -8,7 +8,8 @@ use crate::{config, util::expanduser};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
     pub plot_template_folder: Utf8PathBuf,
-    pub arepo_folder: Utf8PathBuf,
+    pub arepo_path: Utf8PathBuf,
+    pub default_systype: String,
 }
 
 impl ConfigFile {
@@ -30,7 +31,8 @@ impl ConfigFile {
     fn default() -> ConfigFile {
         ConfigFile {
             plot_template_folder: Utf8Path::new("~/projects/phd/plotTemplates").into(),
-            arepo_folder: Utf8Path::new("~/projects/arepo").into(),
+            arepo_path: Utf8Path::new("~/projects/arepo").into(),
+            default_systype: "Manjaro".into(),
         }
     }
 
@@ -38,7 +40,8 @@ impl ConfigFile {
         Ok(ConfigFile {
             plot_template_folder: Utf8Path::new(&expanduser(&self.plot_template_folder)?)
                 .to_owned(),
-            arepo_folder: Utf8Path::new(&expanduser(&self.arepo_folder)?).to_owned(),
+            arepo_path: Utf8Path::new(&expanduser(&self.arepo_path)?).to_owned(),
+            default_systype: self.default_systype.clone(),
         })
     }
 }
