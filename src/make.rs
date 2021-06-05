@@ -49,7 +49,7 @@ fn write_systype_file(config_file: &ConfigFile, systype: &Option<Systype>) -> Re
             Systype::Gprof => format!("{}{}", config_file.default_systype, "Gprof"),
         },
     };
-    let contents = format!("SYSTYPE={}", contents);
+    let contents = format!("SYSTYPE=\"{}\"", contents);
     write_file(&systype_file, &contents)
 }
 
