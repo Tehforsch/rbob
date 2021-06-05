@@ -108,19 +108,6 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
     })))
 }
 
-fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec<Utf8PathBuf> {
-    let has_postprocessing_type_snapshots = files.iter().any(|snap| snap.as_str().contains("1000"));
-    if has_postprocessing_type_snapshots {
-        files
-            .iter()
-            .filter(move |file| file.file_name().unwrap() != "snap_000.hdf5")
-            .map(|pb| pb.to_owned())
-            .collect()
-    } else {
-        files
-    }
-}
-
 pub fn get_source_file(sim: &SimParams) -> Result<SourceFile> {
     match sim.get("SX_SOURCES").unwrap().unwrap_i64() {
         10 => {
