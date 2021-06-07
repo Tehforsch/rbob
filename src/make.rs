@@ -42,15 +42,20 @@ fn build_sim(
 
 fn write_systype_file(config_file: &ConfigFile, systype: &Option<Systype>) -> Result<()> {
     let systype_file = config_file.arepo_path.join("Makefile.systype");
-    let contents = match systype {
+    let current_contents = read_file_contents(&systype_file)?;
+    let new_contents = match systype {
         None => config_file.default_systype.clone(),
         Some(option) => match option {
             Systype::Asan => format!("{}{}", config_file.default_systype, "Asan"),
             Systype::Gprof => format!("{}{}", config_file.default_systype, "Gprof"),
         },
     };
-    let contents = format!("SYSTYPE=\"{}\"", contents);
-    write_file(&systype_file, &contents)
+    let new_contents = format!("SYSTYPE=\"{}\"", new_contents);
+    if current_contents != new_contents {
+        write_file(&systype_file, &new_contents)
+    } else {
+        Ok(())
+    }
 }
 
 fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<()> {
