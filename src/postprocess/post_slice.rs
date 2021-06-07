@@ -77,10 +77,10 @@ pub fn get_slice_result(
     let mut params = PlotParams::default();
     let default_length_unit = Length::new::<parsec>(1.0);
     let length_factor = (snap.sim.units.length / default_length_unit).value;
-    params.add("minX", min_extent[0] * length_factor);
-    params.add("maxX", max_extent[0] * length_factor);
-    params.add("minY", min_extent[1] * length_factor);
-    params.add("maxY", max_extent[1] * length_factor);
+    params.add("minX", (min_extent[0] - center[0]) * length_factor);
+    params.add("maxX", (max_extent[0] - center[0]) * length_factor);
+    params.add("minY", (min_extent[1] - center[1]) * length_factor);
+    params.add("maxY", (max_extent[1] - center[1]) * length_factor);
     params.add("minC", *data.min().unwrap());
     params.add("maxC", *data.max().unwrap());
     Ok(PostResult::new(
