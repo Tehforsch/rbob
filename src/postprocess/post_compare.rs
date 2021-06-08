@@ -14,12 +14,13 @@ use itertools::Itertools;
 use ndarray::{Array, Array1};
 use ordered_float::OrderedFloat;
 
-static EPSILON: f64 = 1e-10;
 static MIN_VAL: f64 = 1e-24;
+static EPSILON: f64 = 1e-9;
 
 #[derive(Clap, Debug)]
 pub struct CompareFn {
     pub reference: Utf8PathBuf,
+    pub mean_error_treshold: Option<f64>,
 }
 
 impl PostFn for &CompareFn {
@@ -45,7 +46,7 @@ impl PostFn for &CompareFn {
         for either_or_both in sim_set.iter().zip_longest(reference_sim_set.iter()) {
             match either_or_both {
                 itertools::EitherOrBoth::Both(sim, sim_reference) => {
-                    CompareFn::compare_sims(sim, sim_reference)?;
+                    self.compare_sims(sim, sim_reference)?;
                 }
                 itertools::EitherOrBoth::Left(sim) => {
                     panic!(
@@ -66,7 +67,7 @@ impl PostFn for &CompareFn {
 }
 
 impl CompareFn {
-    fn compare_sims(sim: &SimParams, sim_reference: &SimParams) -> Result<()> {
+    fn compare_sims(&self, sim: &SimParams, sim_reference: &SimParams) -> Result<()> {
         println!(
             "Comparing sim {} to {}",
             sim.get_name(),
@@ -80,7 +81,7 @@ impl CompareFn {
                 itertools::EitherOrBoth::Both(snap, snap_reference) => {
                     let snap = snap?;
                     let snap_reference = snap_reference?;
-                    CompareFn::compare_snaps(&snap, &snap_reference)?;
+                    self.compare_snaps(&snap, &snap_reference)?;
                 }
                 itertools::EitherOrBoth::Left(snap) => {
                     panic!(
@@ -99,30 +100,40 @@ impl CompareFn {
         Ok(())
     }
 
-    fn compare_snaps(snap1: &Snapshot, snap2: &Snapshot) -> Result<()> {
+    fn compare_snaps(&self, snap1: &Snapshot, snap2: &Snapshot) -> Result<()> {
         println!("  Comparing snap {} to {}", snap1, snap2,);
-        check_is_close(snap1.coordinates()?, snap2.coordinates()?)?;
-        check_is_close(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?)?;
+        self.check_is_close(snap1.coordinates()?, snap2.coordinates()?)?;
+        self.check_is_close(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?)?;
         Ok(())
     }
-}
 
-fn check_is_close<D>(arr1: Array<f64, D>, arr2: Array<f64, D>) -> Result<()>
-where
-    D: ndarray::Dimension,
-{
-    if !is_close(&arr1, &arr2) {
-        let mean_diff = get_mean_relative_difference(&arr1, &arr2);
-        let (val1, val2, diff) = get_max_relative_difference(arr1, arr2);
-        return Err(anyhow!(
-            "Relative difference too high: mean diff: {}\nmax difference between \n{}\n{}\n={}",
-            mean_diff,
-            val1,
-            val2,
-            diff
-        ));
+    fn check_is_close<D>(&self, arr1: Array<f64, D>, arr2: Array<f64, D>) -> Result<()>
+    where
+        D: ndarray::Dimension,
+    {
+        if !is_close(&arr1, &arr2) {
+            let mean_diff = get_mean_relative_difference(&arr1, &arr2);
+            let (val1, val2, diff) = get_max_relative_difference(arr1, arr2);
+            if let Some(mean_error_treshold) = self.mean_error_treshold {
+                if mean_diff < mean_error_treshold {
+                    println!(
+                        "    Found large errors:\n    Mean difference: {}\n    Max difference:{}",
+                        mean_diff, diff
+                    );
+                    println!("    Ignoring these errors because they are below the given mean error treshold {}", mean_error_treshold);
+                    return Ok(());
+                }
+            }
+            return Err(anyhow!(
+                "Relative difference too high:\nMean difference: {}\nMax difference between \n{}\n{}\n={}",
+                mean_diff,
+                val1,
+                val2,
+                diff
+            ));
+        }
+        Ok(())
     }
-    Ok(())
 }
 
 fn is_close<D>(arr1: &Array<f64, D>, arr2: &Array<f64, D>) -> bool
@@ -163,5 +174,5 @@ where
 }
 
 pub fn get_relative_difference(val1: f64, val2: f64) -> f64 {
-    (val1 - val2) / (val1.abs() + val2.abs() + MIN_VAL)
+    (val1 - val2).abs() / (val1.abs() + val2.abs() + MIN_VAL)
 }
