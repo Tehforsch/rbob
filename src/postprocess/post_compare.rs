@@ -7,11 +7,11 @@ use super::{
 };
 use super::{post_fn::PostFnKind, snapshot::Snapshot};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use camino::Utf8PathBuf;
 use clap::Clap;
 use itertools::Itertools;
-use ndarray::Array;
+use ndarray::{Array, Array1};
 use ordered_float::OrderedFloat;
 
 static EPSILON: f64 = 1e-10;
@@ -101,20 +101,31 @@ impl CompareFn {
 
     fn compare_snaps(snap1: &Snapshot, snap2: &Snapshot) -> Result<()> {
         println!("  Comparing snap {} to {}", snap1, snap2,);
-        assert!(is_close(snap1.coordinates()?, snap2.coordinates()?));
-        if !is_close(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?) {
-            let (val1, val2, diff) =
-                get_max_relative_difference(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?);
-            panic!(
-                "Relative difference too high: max difference between \n{}\n{}\n={}",
-                val1, val2, diff
-            );
-        }
+        check_is_close(snap1.coordinates()?, snap2.coordinates()?)?;
+        check_is_close(snap1.h_plus_abundance()?, snap2.h_plus_abundance()?)?;
         Ok(())
     }
 }
 
-fn is_close<D>(arr1: Array<f64, D>, arr2: Array<f64, D>) -> bool
+fn check_is_close<D>(arr1: Array<f64, D>, arr2: Array<f64, D>) -> Result<()>
+where
+    D: ndarray::Dimension,
+{
+    if !is_close(&arr1, &arr2) {
+        let mean_diff = get_mean_relative_difference(&arr1, &arr2);
+        let (val1, val2, diff) = get_max_relative_difference(arr1, arr2);
+        return Err(anyhow!(
+            "Relative difference too high: mean diff: {}\nmax difference between \n{}\n{}\n={}",
+            mean_diff,
+            val1,
+            val2,
+            diff
+        ));
+    }
+    Ok(())
+}
+
+fn is_close<D>(arr1: &Array<f64, D>, arr2: &Array<f64, D>) -> bool
 where
     D: ndarray::Dimension,
 {
@@ -124,6 +135,18 @@ where
             let relative_difference = get_relative_difference(*value1, *value2);
             indices1 == indices2 && relative_difference < EPSILON
         })
+}
+
+fn get_mean_relative_difference<D>(arr1: &Array<f64, D>, arr2: &Array<f64, D>) -> f64
+where
+    D: ndarray::Dimension,
+{
+    arr1.iter()
+        .zip(arr2.iter())
+        .map(|(value1, value2)| get_relative_difference(*value1, *value2))
+        .collect::<Array1<f64>>()
+        .mean()
+        .unwrap()
 }
 
 fn get_max_relative_difference<D>(arr1: Array<f64, D>, arr2: Array<f64, D>) -> (f64, f64, f64)
