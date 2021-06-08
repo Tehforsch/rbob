@@ -826,9 +826,8 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SX_CLEAR_PHOTONS_BEFORE_RUN",
     "SX_LOAD_BALANCE",
     "SX_DISPLAY_LOAD",
-    "SX_SWEEP",
-    "SX_SWEEP_PERIODIC",
-    "SX_SWEEP_MOST_STRAIGHTFORWARD",
+    "SWEEP",
+    "SWEEP_PERIODIC",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[
