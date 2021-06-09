@@ -54,7 +54,7 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 pub static DEFAULT_LOG_FILE: &str = "stdout.log";
 pub static DEFAULT_JOB_NAME: &str = "arepoTest";
-pub static DEFAULT_WALL_TIME: &str = "3:00:00";
+pub static DEFAULT_WALL_TIME: &str = "23:00:00";
 pub static DEFAULT_PARTITION: &str = "single";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_PARAMS: &str = &"0";
