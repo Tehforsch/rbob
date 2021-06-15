@@ -2,7 +2,7 @@ use super::{
     post_compare::CompareFn,
     post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
     post_fn::PostFn,
-    post_scaling::{StrongScalingFn, WeakScalingFn},
+    post_scaling::{StrongScalingFn, StrongScalingRuntimeFn, WeakScalingFn, WeakScalingRuntimeFn},
     post_shadowing::ShadowingFn,
     post_slice::SliceFn,
 };
@@ -15,6 +15,8 @@ pub enum PostFnName {
     Slice(SliceFn),
     StrongScaling(StrongScalingFn),
     WeakScaling(WeakScalingFn),
+    StrongScalingRuntime(StrongScalingRuntimeFn),
+    WeakScalingRuntime(WeakScalingRuntimeFn),
     Compare(CompareFn),
     Shadowing(ShadowingFn),
 }
@@ -24,6 +26,8 @@ impl PostFnName {
         match self {
             Self::StrongScaling(s) => Box::new(s),
             Self::WeakScaling(s) => Box::new(s),
+            Self::StrongScalingRuntime(s) => Box::new(s),
+            Self::WeakScalingRuntime(s) => Box::new(s),
             Self::Slice(s) => Box::new(s),
             Self::Compare(s) => Box::new(s),
             Self::RType(s) => Box::new(s),
