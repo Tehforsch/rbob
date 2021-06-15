@@ -77,6 +77,58 @@ impl PostFn for &StrongScalingFn {
     }
 }
 
+#[derive(Clap, Debug)]
+pub struct StrongScalingRuntimeFn {}
+
+impl PostFn for &StrongScalingRuntimeFn {
+    fn kind(&self) -> PostFnKind {
+        PostFnKind::Set
+    }
+
+    fn name(&self) -> &'static str {
+        "strong_scaling_runtime"
+    }
+
+    fn qualified_name(&self) -> String {
+        self.name().to_string()
+    }
+
+    fn post(
+        &self,
+        sim_set: &SimSet,
+        _sim: Option<&SimParams>,
+        _snap: Option<&Snapshot>,
+    ) -> Result<PostResult> {
+        get_scaling_data(sim_set)
+    }
+}
+
+#[derive(Clap, Debug)]
+pub struct WeakScalingRuntimeFn {}
+
+impl PostFn for &WeakScalingRuntimeFn {
+    fn kind(&self) -> PostFnKind {
+        PostFnKind::Set
+    }
+
+    fn name(&self) -> &'static str {
+        "weak_scaling_runtime"
+    }
+
+    fn qualified_name(&self) -> String {
+        self.name().to_string()
+    }
+
+    fn post(
+        &self,
+        sim_set: &SimSet,
+        _sim: Option<&SimParams>,
+        _snap: Option<&Snapshot>,
+    ) -> Result<PostResult> {
+        get_scaling_data(sim_set)
+    }
+}
+
 fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
     let mut results = vec![];
     for sub_sim_set in sim_set.quotient("SX_SWEEP") {
