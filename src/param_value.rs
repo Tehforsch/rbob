@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use ordered_float::OrderedFloat;
 use serde_yaml::Value;
 
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, Ord, PartialOrd)]
 pub enum ParamValue {
     Str(String),
     Int(i64),

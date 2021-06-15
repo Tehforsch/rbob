@@ -121,6 +121,7 @@ impl SimSet {
                     .collect(),
             });
         }
+        sub_sim_sets.sort_by_key(|sim_set| sim_set.iter().next().unwrap()[param].clone());
         sub_sim_sets
     }
 }

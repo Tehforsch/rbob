@@ -131,7 +131,8 @@ impl PostFn for &WeakScalingRuntimeFn {
 
 fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
     let mut results = vec![];
-    for sub_sim_set in sim_set.quotient("SX_SWEEP") {
+    let sub_sim_sets = sim_set.quotient("SWEEP");
+    for sub_sim_set in sub_sim_sets {
         let mut res = FArray2::zeros((sub_sim_set.len(), 2));
         for (i, sim) in sub_sim_set.enumerate() {
             res[[*i, 0]] = sim.get_num_cores()? as f64;
