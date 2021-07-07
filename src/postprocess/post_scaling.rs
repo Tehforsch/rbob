@@ -116,7 +116,6 @@ fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
     let first_sim = sim_set.iter().next().unwrap();
     let sub_sim_sets = sim_set.quotient("SWEEP");
     for sub_sim_set in sub_sim_sets {
-        println!("{}", sub_sim_set.iter().next().unwrap()["SX_SWEEP"]);
         let mut res = FArray2::zeros((sub_sim_set.len(), 2));
         for (i, sim) in sub_sim_set.enumerate() {
             res[[*i, 0]] = sim.get_num_cores()? as f64;
