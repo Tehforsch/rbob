@@ -36,7 +36,7 @@ impl PostFn for &ShadowingFn {
     ) -> Result<PostResult> {
         let mut results = vec![];
         let kiloyear = Time::new::<year>(1e3);
-        let times = [6.4 * kiloyear, 32.0 * kiloyear, 64.0 * kiloyear];
+        let times = [6.4 * kiloyear, 32.0 * kiloyear, 48.0 * kiloyear];
         for sim in sim_set.iter() {
             let snaps = find_snaps_at_times(sim, &times)?;
             for snap in snaps {
