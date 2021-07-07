@@ -38,15 +38,14 @@ fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
     let sub_sim_sets = sim_set.quotient("SWEEP_NO_WARMSTARTING");
     for sub_sim_set in sub_sim_sets {
         let sim = sub_sim_set.iter().next().unwrap();
-        dbg!(&sim["SWEEP_NO_WARMSTARTING"]);
         let error_result = sim.get_log_file().get_convergence_errors()?;
-        for (i, errors) in error_result.iter().enumerate() {
+        for errors in error_result.iter() {
             let mut res = FArray2::zeros((50, 2));
             for (j, error) in errors.iter().enumerate() {
                 res[[j, 0]] = j as f64;
                 res[[j, 1]] = *error;
             }
-            let mut params = PlotParams::default();
+            let params = PlotParams::default();
             results.push(PostResult::new(params, vec![res]));
         }
     }
