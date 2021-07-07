@@ -35,9 +35,17 @@ fn build_sim(
 ) -> Result<()> {
     write_systype_file(config_file, systype)?;
     copy_config_file(&config_file.arepo_path, sim)?;
+    if let Some(commit) = sim.get("arepoCommit") {
+        checkout_arepo_commit(&config_file.arepo_path, commit.unwrap_string());
+    }
     build_arepo(&config_file.arepo_path, verbose)?;
     copy_arepo_file(&config_file.arepo_path, sim)?;
     Ok(())
+}
+
+fn checkout_arepo_commit(arepo_path: &Utf8Path, commit: &str) -> () {
+    let out = get_shell_command_output("git", &[&"checkout", &commit], Some(arepo_path), false);
+    assert!(out.success);
 }
 
 fn write_systype_file(config_file: &ConfigFile, systype: &Option<Systype>) -> Result<()> {

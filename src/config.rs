@@ -74,6 +74,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "executableName",
     "paramFile",
     "initialSnap",
+    "arepoCommit",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
