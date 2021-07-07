@@ -35,6 +35,23 @@ impl ArepoLogFile {
             .context("Failed to parse run time string in log file")
     }
 
+    pub fn get_convergence_errors(&self) -> Result<Vec<Vec<f64>>> {
+        let re = Regex::new("Sweep PBC iteration (\\d+),\\s*Mean error: ([0-9]+\\.[0-9]+e-[0-9]+)")
+            .unwrap();
+        let contents = self.get_contents()?;
+        let captures = re.captures_iter(&contents);
+        let mut result = vec![];
+        for cap in captures {
+            let iteration_num: i64 = cap.get(1).unwrap().as_str().parse()?;
+            let error: f64 = cap.get(2).unwrap().as_str().parse()?;
+            if iteration_num == 1 {
+                result.push(vec![]);
+            }
+            result.last_mut().unwrap().push(error);
+        }
+        Ok(result)
+    }
+
     pub fn get_first_capture_string(&self, re: &Regex) -> Result<String> {
         let contents = self.get_contents()?;
         let mut captures = re.captures_iter(&contents);

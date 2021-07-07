@@ -194,7 +194,7 @@ impl SimParams {
         JobParams::new(self)
     }
 
-    fn get_log_file(&self) -> ArepoLogFile {
+    pub fn get_log_file(&self) -> ArepoLogFile {
         ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
     }
 

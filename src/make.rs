@@ -70,7 +70,6 @@ fn build_arepo(arepo_path: &Utf8Path, verbose: bool) -> Result<()> {
     let out = get_shell_command_output(
         "make",
         &[
-            &"build",
             &"-j",
             &config::DEFAULT_NUM_CORES_TO_COMPILE.to_string().as_ref(),
         ],

@@ -20,6 +20,7 @@ pub mod plot_info_file_contents;
 pub mod plot_params;
 pub mod plot_template;
 pub mod post_compare;
+pub mod post_convergence;
 pub mod post_expansion;
 pub mod post_fn;
 pub mod post_fn_name;

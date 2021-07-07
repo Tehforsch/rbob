@@ -6,24 +6,6 @@ use super::{
 use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
 use anyhow::Result;
 use clap::Clap;
-use serde::{Deserialize, Serialize};
-
-// #[derive(Serialize, Deserialize, Debug)]
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ScalingDataPoint {
-    num_cores: f64,
-    run_time: f64,
-}
-
-impl ScalingDataPoint {
-    pub fn from_sim(sim: &SimParams) -> Result<ScalingDataPoint> {
-        Ok(ScalingDataPoint {
-            num_cores: sim.get_num_cores()? as f64,
-            run_time: sim.get_run_time()?,
-        })
-    }
-}
 
 #[derive(Clap, Debug)]
 pub struct WeakScalingFn {}
@@ -131,7 +113,11 @@ impl PostFn for &WeakScalingRuntimeFn {
 
 fn get_scaling_data(sim_set: &SimSet) -> Result<PostResult> {
     let mut results = vec![];
-    let sub_sim_sets = sim_set.quotient("SWEEP");
+    let first_sim = sim_set.iter().next().unwrap();
+    let sub_sim_sets = match first_sim.get("SWEEP").is_none() {
+        true => vec![(*sim_set).clone()],
+        false => sim_set.quotient("SWEEP"),
+    };
     for sub_sim_set in sub_sim_sets {
         let mut res = FArray2::zeros((sub_sim_set.len(), 2));
         for (i, sim) in sub_sim_set.enumerate() {

@@ -39,6 +39,7 @@ impl SimSetConfig {
     }
 }
 
+#[derive(Clone)]
 pub struct SimSet {
     // config: SimSetConfig,
     simulations: Vec<(usize, SimParams)>,

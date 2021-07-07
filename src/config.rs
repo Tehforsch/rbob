@@ -828,6 +828,7 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SX_DISPLAY_LOAD",
     "SWEEP",
     "SWEEP_PERIODIC",
+    "SWEEP_NO_WARMSTARTING",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[

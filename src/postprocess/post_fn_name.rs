@@ -1,5 +1,6 @@
 use super::{
     post_compare::CompareFn,
+    post_convergence::ConvergenceFn,
     post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
     post_fn::PostFn,
     post_scaling::{StrongScalingFn, StrongScalingRuntimeFn, WeakScalingFn, WeakScalingRuntimeFn},
@@ -19,6 +20,7 @@ pub enum PostFnName {
     WeakScalingRuntime(WeakScalingRuntimeFn),
     Compare(CompareFn),
     Shadowing(ShadowingFn),
+    Convergence(ConvergenceFn),
 }
 
 impl PostFnName {
@@ -33,6 +35,7 @@ impl PostFnName {
             Self::RType(s) => Box::new(s),
             Self::DType(s) => Box::new(s),
             Self::Shadowing(s) => Box::new(s),
+            Self::Convergence(s) => Box::new(s),
         }
     }
 }
