@@ -74,7 +74,11 @@ impl CompareFn {
             sim_reference.get_name()
         );
         for (key, _value) in sim.iter() {
-            assert_eq!(sim[key], sim_reference[key]);
+            assert_eq!(
+                sim[key], sim_reference[key],
+                "Parameter values differ for {}",
+                key
+            );
         }
         for either_or_both in get_snapshots(sim)?.zip_longest(get_snapshots(sim_reference)?) {
             match either_or_both {
