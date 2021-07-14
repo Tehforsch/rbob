@@ -952,6 +952,7 @@ pub static PARAM_FILE_PARAMS: &[&str] = &[
     "TestSrcFile",
     "TestSrcFile",
     "TestSrcFile",
+    "SweepConvergenceTreshold",
     "TimeBegin",
     "TimeBetSnapshot",
     "TimeBetStatistics",
