@@ -52,19 +52,27 @@ pub trait PostFn {
         snap: Option<&Snapshot>,
     ) -> Result<PostResult>;
 
-    fn run_post(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+    fn run_post(
+        &self,
+        sim_set: &SimSet,
+        plot_template_name: Option<&str>,
+    ) -> Result<Vec<DataPlotInfo>> {
         match self.kind() {
-            PostFnKind::Set => self.run_on_sim_set(sim_set),
-            PostFnKind::Sim => self.run_on_every_sim(sim_set),
-            PostFnKind::Snap => self.run_on_every_sim_and_snap(sim_set),
+            PostFnKind::Set => self.run_on_sim_set(sim_set, plot_template_name),
+            PostFnKind::Sim => self.run_on_every_sim(sim_set, plot_template_name),
+            PostFnKind::Snap => self.run_on_every_sim_and_snap(sim_set, plot_template_name),
             PostFnKind::NoPlotSet => self.run_on_sim_set_no_plot(sim_set),
         }
     }
 
-    fn run_on_sim_set(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+    fn run_on_sim_set(
+        &self,
+        sim_set: &SimSet,
+        plot_template_name: Option<&str>,
+    ) -> Result<Vec<DataPlotInfo>> {
         let post_result = self.post(sim_set, None, None)?;
         Ok(vec![DataPlotInfo::new(
-            self.get_plot_info(sim_set, None, None)?,
+            self.get_plot_info(sim_set, None, None, plot_template_name)?,
             post_result,
         )])
     }
@@ -74,27 +82,40 @@ pub trait PostFn {
         Ok(vec![])
     }
 
-    fn run_on_every_sim(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+    fn run_on_every_sim(
+        &self,
+        sim_set: &SimSet,
+        plot_template_name: Option<&str>,
+    ) -> Result<Vec<DataPlotInfo>> {
         sim_set
             .iter()
             .map(|sim| {
                 let post_result = self.post(sim_set, Some(sim), None)?;
                 Ok(DataPlotInfo::new(
-                    self.get_plot_info(sim_set, Some(sim), None)?,
+                    self.get_plot_info(sim_set, Some(sim), None, plot_template_name)?,
                     post_result,
                 ))
             })
             .collect()
     }
 
-    fn run_on_every_sim_and_snap(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
+    fn run_on_every_sim_and_snap(
+        &self,
+        sim_set: &SimSet,
+        plot_template_name: Option<&str>,
+    ) -> Result<Vec<DataPlotInfo>> {
         sim_set
             .iter()
             .map(|sim| {
                 get_snapshots(sim)?
                     .map(|snap| {
                         let snap = snap?;
-                        self.get_data_plot_info_for_sim_snap(sim_set, sim, &snap)
+                        self.get_data_plot_info_for_sim_snap(
+                            sim_set,
+                            sim,
+                            &snap,
+                            plot_template_name,
+                        )
                     })
                     .collect::<Result<Vec<DataPlotInfo>>>()
             })
@@ -110,10 +131,11 @@ pub trait PostFn {
         sim_set: &SimSet,
         sim: &SimParams,
         snap: &Snapshot,
+        plot_template_name: Option<&str>,
     ) -> Result<DataPlotInfo> {
         let res = self.post(sim_set, Some(sim), Some(&snap))?;
         Ok(DataPlotInfo::new(
-            self.get_plot_info(sim_set, Some(sim), Some(&snap))?,
+            self.get_plot_info(sim_set, Some(sim), Some(&snap), plot_template_name)?,
             res,
         ))
     }
@@ -123,11 +145,20 @@ pub trait PostFn {
         sim_set: &SimSet,
         sim: Option<&SimParams>,
         snap: Option<&Snapshot>,
+        plot_template_name: Option<&str>,
     ) -> Result<PlotInfo> {
+        let name = match plot_template_name {
+            None => self.name().into(),
+            Some(name) => format!("{}_{}", self.name(), name),
+        };
+        let qualified_name = match plot_template_name {
+            None => self.qualified_name().into(),
+            Some(name) => format!("{}_{}", self.qualified_name(), name),
+        };
         Ok(PlotInfo::new(
             &sim_set.get_folder()?,
-            &self.name(),
-            &self.qualified_name(),
+            &name,
+            &qualified_name,
             sim,
             snap,
         ))

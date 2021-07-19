@@ -7,6 +7,7 @@ use crate::{
     util::{read_file_contents, write_file},
 };
 
+#[derive(Debug)]
 pub struct PlotTemplate {
     path: Utf8PathBuf,
 }

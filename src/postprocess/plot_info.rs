@@ -44,7 +44,7 @@ impl PlotInfo {
     }
 
     pub fn get_plot_folder(&self) -> Utf8PathBuf {
-        self.pic_folder.join(&self.plot_name)
+        self.pic_folder.join(&self.name)
     }
 
     pub fn get_data_folder(&self) -> Utf8PathBuf {
@@ -69,7 +69,7 @@ impl PlotInfo {
     }
 
     pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {
-        let basename = self.plot_name.to_string();
+        let basename = self.name.clone();
         let potential_extensions = ["pdf", "png"];
         let plot_folder = self.get_plot_folder();
         for extension in potential_extensions.iter() {
