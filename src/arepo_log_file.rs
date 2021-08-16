@@ -34,7 +34,7 @@ impl ArepoLogFile {
         for cap in re.captures_iter(&contents) {
             let run_time_string = cap.get(1).unwrap().as_str();
             let run_time: f64 = run_time_string.parse()?;
-            total_run_time += dbg!(run_time);
+            total_run_time += run_time;
         }
         Ok(total_run_time)
     }
