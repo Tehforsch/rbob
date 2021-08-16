@@ -28,11 +28,15 @@ impl ArepoLogFile {
     }
 
     pub fn get_run_time(&self) -> Result<f64> {
-        let re = Regex::new("Code run for ([0-9.]+) seconds!").unwrap();
-        let num_cores_string = self.get_first_capture_string(&re)?;
-        num_cores_string
-            .parse()
-            .context("Failed to parse run time string in log file")
+        let re = Regex::new("Finished sweep in ([0-9.]+)s").unwrap();
+        let contents = self.get_contents()?;
+        let mut total_run_time = 0.0;
+        for cap in re.captures_iter(&contents) {
+            let run_time_string = cap.get(1).unwrap().as_str();
+            let run_time: f64 = run_time_string.parse()?;
+            total_run_time += dbg!(run_time);
+        }
+        Ok(total_run_time)
     }
 
     pub fn get_convergence_errors(&self) -> Result<Vec<Vec<f64>>> {
