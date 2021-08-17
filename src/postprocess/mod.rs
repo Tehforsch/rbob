@@ -31,6 +31,7 @@ pub mod postprocess_args;
 pub mod read_hdf5;
 pub mod replot_args;
 pub mod snapshot;
+pub mod swedule;
 
 pub fn postprocess_sim_set(
     create_plot: bool,
