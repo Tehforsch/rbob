@@ -7,55 +7,55 @@ use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
 use crate::{config, util::read_file_contents};
 use crate::{
-    config_file::ConfigFile, sim_params::get_config_file_path, systype::Systype, util::write_file,
+    config::{AREPO_PATH,DEFAULT_SYSTYPE},
+    sim_params::get_config_file_path, systype::Systype, util::write_file,
 };
 
 pub fn build_sim_set(
-    config_file: &ConfigFile,
     sim_set: &SimSet,
     verbose: bool,
     systype: &Option<Systype>,
 ) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
-        build_sim(config_file, sim, verbose, systype)?;
+        build_sim(sim, verbose, systype)?;
     }
     copy_source_code_to_output(
-        &config_file.arepo_path,
+        &config::AREPO_PATH,
         &sim_set.iter().next().unwrap().folder,
     )?;
     Ok(())
 }
 
 fn build_sim(
-    config_file: &ConfigFile,
     sim: &SimParams,
     verbose: bool,
     systype: &Option<Systype>,
 ) -> Result<()> {
-    write_systype_file(config_file, systype)?;
-    copy_config_file(&config_file.arepo_path, sim)?;
+    write_systype_file(systype)?;
+    copy_config_file(sim)?;
     if let Some(commit) = sim.get("arepoCommit") {
-        checkout_arepo_commit(&config_file.arepo_path, commit.unwrap_string());
+        checkout_arepo_commit(commit.unwrap_string());
     }
-    build_arepo(&config_file.arepo_path, verbose)?;
-    copy_arepo_file(&config_file.arepo_path, sim)?;
+    build_arepo(verbose)?;
+    copy_arepo_file(sim)?;
     Ok(())
 }
 
-fn checkout_arepo_commit(arepo_path: &Utf8Path, commit: &str) -> () {
-    let out = get_shell_command_output("git", &[&"checkout", &commit], Some(arepo_path), false);
+fn checkout_arepo_commit(commit: &str) -> () {
+    let out = get_shell_command_output("git", &[&"checkout", &commit], Some(&config::AREPO_PATH), false);
     assert!(out.success);
 }
 
-fn write_systype_file(config_file: &ConfigFile, systype: &Option<Systype>) -> Result<()> {
-    let systype_file = config_file.arepo_path.join("Makefile.systype");
+fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
+    let systype_file = &AREPO_PATH.join("Makefile.systype");
     let current_contents = read_file_contents(&systype_file)?;
+    let default_systype = DEFAULT_SYSTYPE.clone();
     let new_contents = match systype {
-        None => config_file.default_systype.clone(),
+        None => DEFAULT_SYSTYPE.clone(),
         Some(option) => match option {
-            Systype::Asan => format!("{}{}", config_file.default_systype, "Asan"),
-            Systype::Gprof => format!("{}{}", config_file.default_systype, "Gprof"),
+            Systype::Asan => format!("{}{}", &default_systype, "Asan"),
+            Systype::Gprof => format!("{}{}", &default_systype, "Gprof"),
         },
     };
     let new_contents = format!("SYSTYPE=\"{}\"", new_contents);
@@ -73,15 +73,15 @@ fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<
     )
 }
 
-fn build_arepo(arepo_path: &Utf8Path, verbose: bool) -> Result<()> {
-    delete_arepoconfig_header_file_if_present(arepo_path)?;
+fn build_arepo(verbose: bool) -> Result<()> {
+    delete_arepoconfig_header_file_if_present(&AREPO_PATH)?;
     let out = get_shell_command_output(
         "make",
         &[
             &"-j",
             &config::DEFAULT_NUM_CORES_TO_COMPILE.to_string().as_ref(),
         ],
-        Some(arepo_path),
+        Some(&AREPO_PATH),
         verbose,
     );
     if !out.success {
@@ -89,7 +89,7 @@ fn build_arepo(arepo_path: &Utf8Path, verbose: bool) -> Result<()> {
         println!("{}", out.stderr);
         return Err(anyhow!("Arepo compilation failed!"));
     }
-    copy_arepoconfig_header_file(arepo_path) // For clang to make sense of the situation
+    copy_arepoconfig_header_file(&AREPO_PATH) // For clang to make sense of the situation
 }
 
 fn delete_arepoconfig_header_file_if_present(arepo_path: &Utf8Path) -> Result<()> {
@@ -111,9 +111,9 @@ fn copy_arepoconfig_header_file(arepo_path: &Utf8Path) -> Result<()> {
     copy_file(source, target)
 }
 
-fn copy_config_file(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
+fn copy_config_file(sim: &SimParams) -> Result<()> {
     let source = get_config_file_path(&sim.folder);
-    let target = arepo_path.join(config::DEFAULT_CONFIG_FILE_NAME);
+    let target = AREPO_PATH.join(config::DEFAULT_CONFIG_FILE_NAME);
     if config_files_differ(&source, &target)? {
         copy_file(source, target)
     } else {
@@ -133,8 +133,8 @@ fn config_files_differ(source: &Utf8Path, target: &Utf8Path) -> Result<bool> {
     Ok(true)
 }
 
-fn copy_arepo_file(arepo_path: &Utf8Path, sim: &SimParams) -> Result<()> {
-    let source = arepo_path.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
+fn copy_arepo_file(sim: &SimParams) -> Result<()> {
+    let source = AREPO_PATH.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
     let target = sim.folder.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
     copy_file(source, target)
 }

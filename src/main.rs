@@ -3,7 +3,7 @@ use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 use bob::{config, diff, param_value::ParamValue, unit_utils::nice_time};
-use bob::{config::DEFAULT_BOB_CONFIG_NAME, config_file::ConfigFile};
+use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::{copy::copy_sim_set, postprocess::plot::replot};
 
 use anyhow::{anyhow, Result};
@@ -18,7 +18,6 @@ pub mod args;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
-    let config_file = ConfigFile::read()?.expanduser()?;
     match a.subcmd {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set_from_input(&l.folder)?;
@@ -37,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&config_file, &sim_set, a.verbose, &l.systype)?;
+            build_sim_set(&sim_set, a.verbose, &l.systype)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -45,25 +44,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            start_sim_set(&config_file, sim_set, &l, a.verbose)?;
+            start_sim_set(sim_set, &l, a.verbose)?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            postprocess_sim_set(false, &config_file, &sim_set, &l)?;
+            postprocess_sim_set(false, &sim_set, &l)?;
         }
         SubCommand::Plot(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            postprocess_sim_set(true, &config_file, &sim_set, &l)?;
+            postprocess_sim_set(true, &sim_set, &l)?;
         }
         SubCommand::Replot(l) => {
-            replot(&config_file, &l)?;
+            replot(&l)?;
         }
     }
     Ok(())
 }
 
 fn start_sim_set(
-    config_file: &ConfigFile,
     sim_set: SimSet,
     args: &StartSimulation,
     verbose: bool,
@@ -74,7 +72,7 @@ fn start_sim_set(
         &args.output_folder,
         args.delete,
     )?;
-    build_sim_set(&config_file, &output_sim_set, verbose, &args.systype)?;
+    build_sim_set(&output_sim_set, verbose, &args.systype)?;
     run_sim_set(&output_sim_set, verbose)
 }
 

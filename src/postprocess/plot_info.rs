@@ -1,5 +1,5 @@
 use super::{plot_template::PlotTemplate, snapshot::Snapshot};
-use crate::{config_file::ConfigFile, sim_params::SimParams, util::copy_file};
+use crate::{sim_params::SimParams, util::copy_file};
 
 use anyhow::{anyhow, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -64,9 +64,8 @@ impl PlotInfo {
 
     pub fn get_plot_template(
         &self,
-        config_file: &ConfigFile,
     ) -> Result<PlotTemplate> {
-        PlotTemplate::new(config_file, &self.plot_template_name)
+        PlotTemplate::new(&self.plot_template_name)
     }
 
     pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {

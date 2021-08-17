@@ -7,8 +7,7 @@ use super::{
     plot_info::PlotInfo, plot_info_file_contents::PlotInfoFileContents, replot_args::ReplotArgs,
 };
 use crate::{
-    config,
-    config_file::ConfigFile,
+    config::{DEFAULT_PLOT_CONFIG_FOLDER_NAME, PLOT_TEMPLATE_FOLDER, DEFAULT_PLOT_EXTENSION, DEFAULT_PLOT_FILE_NAME, DEFAULT_PLOT_INFO_FILE_NAME},
     util::{
         copy_recursive, get_files, get_folders, get_relative_path, get_shell_command_output,
         read_file_contents, write_file,
@@ -17,7 +16,6 @@ use crate::{
 
 pub fn run_plot(
     create_plot: bool,
-    config_file: &ConfigFile,
     info: &PlotInfo,
     filenames: &[Utf8PathBuf],
     special_replacements: &HashMap<String, String>,
@@ -27,9 +25,9 @@ pub fn run_plot(
         replacements.insert(k.to_string(), v.to_string());
     }
     let plot_param_file = write_plot_param_file(info, filenames, &replacements)?;
-    let plot_template = copy_plot_template(config_file, info)?;
+    let plot_template = copy_plot_template(info)?;
     let main_plot_file = write_main_plot_file(info, vec![&plot_param_file, &plot_template])?;
-    copy_plot_config_folder(config_file, info)?;
+    copy_plot_config_folder(info)?;
     write_plot_info_file(info, &replacements)?;
     if create_plot {
         run_gnuplot_command(info, &main_plot_file)?;
@@ -42,14 +40,13 @@ pub fn run_plot(
     }
 }
 
-pub fn replot(config_file: &ConfigFile, args: &ReplotArgs) -> Result<()> {
+pub fn replot(args: &ReplotArgs) -> Result<()> {
     let pic_folder = args.folder.join("pics");
     for folder in get_folders(&pic_folder)? {
-        let plot_info_file = folder.join(config::DEFAULT_PLOT_INFO_FILE_NAME);
+        let plot_info_file = folder.join(DEFAULT_PLOT_INFO_FILE_NAME);
         let plot_info = read_plot_info_file(&plot_info_file)?;
         run_plot(
             true,
-            config_file,
             &plot_info.info,
             &[],
             &plot_info.replacements,
@@ -65,7 +62,7 @@ fn write_plot_info_file(info: &PlotInfo, replacements: &HashMap<String, String>)
     })?;
     let info_file_name = info
         .get_plot_folder()
-        .join(config::DEFAULT_PLOT_INFO_FILE_NAME);
+        .join(DEFAULT_PLOT_INFO_FILE_NAME);
     write_file(&info_file_name, &contents)?;
     Ok(())
 }
@@ -75,13 +72,12 @@ fn read_plot_info_file(path: &Utf8Path) -> Result<PlotInfoFileContents> {
     serde_yaml::from_str(&contents).context("While reading plot info file")
 }
 
-fn copy_plot_config_folder(config_file: &ConfigFile, info: &PlotInfo) -> Result<()> {
-    let source = config_file
-        .plot_template_folder
-        .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+fn copy_plot_config_folder(info: &PlotInfo) -> Result<()> {
+    let source = PLOT_TEMPLATE_FOLDER
+        .join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
     let target = info
         .get_plot_folder()
-        .join(config::DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+        .join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
     copy_recursive(source, target)
 }
 
@@ -104,19 +100,18 @@ fn in_quotes(s: &str) -> String {
 }
 
 fn copy_plot_template(
-    config_file: &ConfigFile,
     info: &PlotInfo,
 ) -> Result<Utf8PathBuf> {
-    let plot_template = info.get_plot_template(config_file)?;
+    let plot_template = info.get_plot_template()?;
     let plot_file =
         info.get_plot_folder()
-            .join(format!("{}.{}", &info.name, config::DEFAULT_PLOT_EXTENSION));
+            .join(format!("{}.{}", &info.name, DEFAULT_PLOT_EXTENSION));
     plot_template.write_to(&plot_file)?;
     Ok(plot_file)
 }
 
 fn write_main_plot_file(info: &PlotInfo, files_to_load: Vec<&Utf8Path>) -> Result<Utf8PathBuf> {
-    let path = info.get_plot_folder().join(config::DEFAULT_PLOT_FILE_NAME);
+    let path = info.get_plot_folder().join(DEFAULT_PLOT_FILE_NAME);
     let contents = files_to_load
         .iter()
         .map(|file| format!("load \"{}\"", file.file_name().unwrap()))

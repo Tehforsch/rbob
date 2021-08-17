@@ -2,8 +2,7 @@ use anyhow::{Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 
 use crate::{
-    config,
-    config_file::ConfigFile,
+    config::{PLOT_TEMPLATE_FOLDER, DEFAULT_PLOT_EXTENSION},
     util::{read_file_contents, write_file},
 };
 
@@ -13,11 +12,11 @@ pub struct PlotTemplate {
 }
 
 impl PlotTemplate {
-    pub fn new(config_file: &ConfigFile, name: &str) -> Result<PlotTemplate> {
-        let path = &config_file.plot_template_folder.join(format!(
+    pub fn new(name: &str) -> Result<PlotTemplate> {
+        let path = PLOT_TEMPLATE_FOLDER.join(format!(
             "{}.{}",
             name,
-            config::DEFAULT_PLOT_EXTENSION
+            DEFAULT_PLOT_EXTENSION
         ));
         Ok(PlotTemplate {
             path: path.to_owned(),

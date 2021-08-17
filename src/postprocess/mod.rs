@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 
 use crate::util::get_files;
-use crate::{config_file::ConfigFile, sim_params::SimParams};
+use crate::sim_params::SimParams;
 use crate::{sim_set::SimSet, util::get_shell_command_output};
 use crate::{source_file::SourceFile, util::write_file};
 
@@ -35,7 +35,6 @@ pub mod swedule;
 
 pub fn postprocess_sim_set(
     create_plot: bool,
-    config_file: &ConfigFile,
     sim_set: &SimSet,
     args: &PostprocessArgs,
 ) -> Result<()> {
@@ -46,7 +45,6 @@ pub fn postprocess_sim_set(
         let filenames = write_results(&data_plot_info)?;
         let image_file = plot::run_plot(
             create_plot,
-            config_file,
             &data_plot_info.info,
             &filenames,
             &data_plot_info.replacements,

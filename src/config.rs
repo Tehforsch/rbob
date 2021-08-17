@@ -1,4 +1,13 @@
-use crate::job_params::SystemConfiguration;
+use crate::{config_file::ConfigFile, job_params::SystemConfiguration};
+use camino::Utf8PathBuf;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub static ref CONFIG_FILE: ConfigFile = ConfigFile::read().unwrap().expanduser().unwrap();
+    pub static ref AREPO_PATH: Utf8PathBuf = CONFIG_FILE.arepo_path.clone();
+    pub static ref PLOT_TEMPLATE_FOLDER: Utf8PathBuf = CONFIG_FILE.plot_template_folder.clone();
+    pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
+}
 
 pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
 pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
