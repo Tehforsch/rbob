@@ -12,6 +12,7 @@ pub struct PlotInfo {
     pub plot_name: String,
     pub name: String,
     pub qualified_name: String,
+    pub plot_template_name: String,
 }
 
 impl PlotInfo {
@@ -19,9 +20,13 @@ impl PlotInfo {
         sim_set_folder: &Utf8Path,
         name: &str,
         qualified_name: &str,
+        plot_template_name: Option<&str>,
         mb_sim: Option<&SimParams>,
         mb_snap: Option<&Snapshot>,
     ) -> PlotInfo {
+        let plot_template_name = plot_template_name.unwrap_or(name).into();
+        let name = format!("{}_{}", name, &plot_template_name);
+        let qualified_name = format!("{}_{}", &qualified_name, &plot_template_name);
         let plot_name = match mb_sim {
             Some(sim) => {
                 let sim_name = sim.folder.file_name().unwrap();
@@ -32,12 +37,13 @@ impl PlotInfo {
                     }
                 }
             }
-            None => qualified_name.into(),
+            None => qualified_name.clone(),
         };
         let pic_folder = sim_set_folder.join("pics");
         PlotInfo {
             pic_folder,
             plot_name,
+            plot_template_name,
             name: name.into(),
             qualified_name: qualified_name.into(),
         }
@@ -59,13 +65,8 @@ impl PlotInfo {
     pub fn get_plot_template(
         &self,
         config_file: &ConfigFile,
-        plot_template_name: Option<&str>,
     ) -> Result<PlotTemplate> {
-        let plot_template_name = match plot_template_name {
-            Some(name) => name,
-            None => &self.name,
-        };
-        PlotTemplate::new(config_file, plot_template_name)
+        PlotTemplate::new(config_file, &self.plot_template_name)
     }
 
     pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {
