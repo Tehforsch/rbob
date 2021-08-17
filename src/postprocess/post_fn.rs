@@ -147,18 +147,11 @@ pub trait PostFn {
         snap: Option<&Snapshot>,
         plot_template_name: Option<&str>,
     ) -> Result<PlotInfo> {
-        let name = match plot_template_name {
-            None => self.name().into(),
-            Some(name) => format!("{}_{}", self.name(), name),
-        };
-        let qualified_name = match plot_template_name {
-            None => self.qualified_name().into(),
-            Some(name) => format!("{}_{}", self.qualified_name(), name),
-        };
         Ok(PlotInfo::new(
             &sim_set.get_folder()?,
-            &name,
-            &qualified_name,
+            &self.name(),
+            &self.qualified_name(),
+            plot_template_name,
             sim,
             snap,
         ))
