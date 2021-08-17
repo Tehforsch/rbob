@@ -1,7 +1,7 @@
 use crate::array_utils::{FArray1, FArray2};
 use crate::sim_params::SimParams;
 use anyhow::Result;
-use camino::Utf8Path;
+use camino::{Utf8Path, Utf8PathBuf};
 use ndarray::{array, s};
 use uom::si::f64::Time;
 
@@ -10,6 +10,7 @@ use super::read_hdf5::get_header_attribute;
 #[derive(Debug)]
 pub struct Snapshot<'a> {
     file: hdf5::File,
+    pub path: Utf8PathBuf,
     pub sim: &'a SimParams,
     pub time: Time,
 }
@@ -72,6 +73,7 @@ impl<'a> Snapshot<'a> {
         let time = get_header_attribute(&h5file, "Time", sim.units.time)?;
         Ok(Snapshot {
             file: h5file,
+            path: file.to_owned(),
             time,
             sim,
         })
