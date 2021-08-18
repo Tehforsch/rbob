@@ -62,9 +62,7 @@ impl PlotInfo {
         create_folder_if_nonexistent(&self.get_data_folder())
     }
 
-    pub fn get_plot_template(
-        &self,
-    ) -> Result<PlotTemplate> {
+    pub fn get_plot_template(&self) -> Result<PlotTemplate> {
         PlotTemplate::new(&self.plot_template_name)
     }
 

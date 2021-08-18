@@ -7,7 +7,10 @@ use super::{
     plot_info::PlotInfo, plot_info_file_contents::PlotInfoFileContents, replot_args::ReplotArgs,
 };
 use crate::{
-    config::{DEFAULT_PLOT_CONFIG_FOLDER_NAME, PLOT_TEMPLATE_FOLDER, DEFAULT_PLOT_EXTENSION, DEFAULT_PLOT_FILE_NAME, DEFAULT_PLOT_INFO_FILE_NAME},
+    config::{
+        DEFAULT_PLOT_CONFIG_FOLDER_NAME, DEFAULT_PLOT_EXTENSION, DEFAULT_PLOT_FILE_NAME,
+        DEFAULT_PLOT_INFO_FILE_NAME, PLOT_TEMPLATE_FOLDER,
+    },
     util::{
         copy_recursive, get_files, get_folders, get_relative_path, get_shell_command_output,
         read_file_contents, write_file,
@@ -45,12 +48,7 @@ pub fn replot(args: &ReplotArgs) -> Result<()> {
     for folder in get_folders(&pic_folder)? {
         let plot_info_file = folder.join(DEFAULT_PLOT_INFO_FILE_NAME);
         let plot_info = read_plot_info_file(&plot_info_file)?;
-        run_plot(
-            true,
-            &plot_info.info,
-            &[],
-            &plot_info.replacements,
-        )?;
+        run_plot(true, &plot_info.info, &[], &plot_info.replacements)?;
     }
     Ok(())
 }
@@ -60,9 +58,7 @@ fn write_plot_info_file(info: &PlotInfo, replacements: &HashMap<String, String>)
         info: info.clone(),
         replacements: replacements.clone(),
     })?;
-    let info_file_name = info
-        .get_plot_folder()
-        .join(DEFAULT_PLOT_INFO_FILE_NAME);
+    let info_file_name = info.get_plot_folder().join(DEFAULT_PLOT_INFO_FILE_NAME);
     write_file(&info_file_name, &contents)?;
     Ok(())
 }
@@ -73,11 +69,8 @@ fn read_plot_info_file(path: &Utf8Path) -> Result<PlotInfoFileContents> {
 }
 
 fn copy_plot_config_folder(info: &PlotInfo) -> Result<()> {
-    let source = PLOT_TEMPLATE_FOLDER
-        .join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
-    let target = info
-        .get_plot_folder()
-        .join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+    let source = PLOT_TEMPLATE_FOLDER.join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
+    let target = info.get_plot_folder().join(DEFAULT_PLOT_CONFIG_FOLDER_NAME);
     copy_recursive(source, target)
 }
 
@@ -99,13 +92,11 @@ fn in_quotes(s: &str) -> String {
     format!("\"{}\"", s)
 }
 
-fn copy_plot_template(
-    info: &PlotInfo,
-) -> Result<Utf8PathBuf> {
+fn copy_plot_template(info: &PlotInfo) -> Result<Utf8PathBuf> {
     let plot_template = info.get_plot_template()?;
-    let plot_file =
-        info.get_plot_folder()
-            .join(format!("{}.{}", &info.name, DEFAULT_PLOT_EXTENSION));
+    let plot_file = info
+        .get_plot_folder()
+        .join(format!("{}.{}", &info.name, DEFAULT_PLOT_EXTENSION));
     plot_template.write_to(&plot_file)?;
     Ok(plot_file)
 }

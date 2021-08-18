@@ -1,10 +1,10 @@
 use self::args::Opts;
+use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::get_data::get_data;
 use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 use bob::{config, diff, param_value::ParamValue, unit_utils::nice_time};
-use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::{copy::copy_sim_set, postprocess::plot::replot};
 
 use anyhow::{anyhow, Result};
@@ -65,11 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn start_sim_set(
-    sim_set: SimSet,
-    args: &StartSimulation,
-    verbose: bool,
-) -> Result<()> {
+fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Result<()> {
     let output_sim_set = copy_sim_set(
         &sim_set,
         &args.input_folder,

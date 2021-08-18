@@ -7,31 +7,22 @@ use crate::sim_set::SimSet;
 use crate::util::{copy_file, copy_recursive, get_shell_command_output};
 use crate::{config, util::read_file_contents};
 use crate::{
-    config::{AREPO_PATH,DEFAULT_SYSTYPE},
-    sim_params::get_config_file_path, systype::Systype, util::write_file,
+    config::{AREPO_PATH, DEFAULT_SYSTYPE},
+    sim_params::get_config_file_path,
+    systype::Systype,
+    util::write_file,
 };
 
-pub fn build_sim_set(
-    sim_set: &SimSet,
-    verbose: bool,
-    systype: &Option<Systype>,
-) -> Result<()> {
+pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
         build_sim(sim, verbose, systype)?;
     }
-    copy_source_code_to_output(
-        &config::AREPO_PATH,
-        &sim_set.iter().next().unwrap().folder,
-    )?;
+    copy_source_code_to_output(&config::AREPO_PATH, &sim_set.iter().next().unwrap().folder)?;
     Ok(())
 }
 
-fn build_sim(
-    sim: &SimParams,
-    verbose: bool,
-    systype: &Option<Systype>,
-) -> Result<()> {
+fn build_sim(sim: &SimParams, verbose: bool, systype: &Option<Systype>) -> Result<()> {
     write_systype_file(systype)?;
     copy_config_file(sim)?;
     if let Some(commit) = sim.get("arepoCommit") {
@@ -43,7 +34,12 @@ fn build_sim(
 }
 
 fn checkout_arepo_commit(commit: &str) -> () {
-    let out = get_shell_command_output("git", &[&"checkout", &commit], Some(&config::AREPO_PATH), false);
+    let out = get_shell_command_output(
+        "git",
+        &[&"checkout", &commit],
+        Some(&config::AREPO_PATH),
+        false,
+    );
     assert!(out.success);
 }
 

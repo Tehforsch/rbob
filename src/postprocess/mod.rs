@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 
-use crate::util::get_files;
 use crate::sim_params::SimParams;
+use crate::util::get_files;
 use crate::{sim_set::SimSet, util::get_shell_command_output};
 use crate::{source_file::SourceFile, util::write_file};
 

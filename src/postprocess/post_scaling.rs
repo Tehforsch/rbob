@@ -3,7 +3,10 @@ use super::{
     post_fn::{PostFn, PostFnKind, PostResult},
     snapshot::Snapshot,
 };
-use crate::{array_utils::FArray2, postprocess::swedule::simulate_run_time, sim_params::SimParams, sim_set::SimSet};
+use crate::{
+    array_utils::FArray2, postprocess::swedule::simulate_run_time, sim_params::SimParams,
+    sim_set::SimSet,
+};
 use anyhow::Result;
 use clap::Clap;
 
