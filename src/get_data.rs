@@ -1,10 +1,7 @@
 use anyhow::Result;
 use camino::{Utf8Path, Utf8PathBuf};
 
-use crate::{
-    config::{DEFAULT_CONFIG_FILE_NAME, DEFAULT_JOB_FILE_NAME, DEFAULT_PARAM_FILE_NAME},
-    util::{copy_file, get_files, get_folders},
-};
+use crate::{config::{DEFAULT_CONFIG_FILE_NAME, DEFAULT_JOB_FILE_NAME, DEFAULT_LOG_FILE, DEFAULT_PARAM_FILE_NAME}, util::{copy_file, get_files, get_folders}};
 
 pub fn get_data(source: &Utf8Path, target: &Utf8Path) -> Result<()> {
     for sim_folder in get_folders(source)? {
@@ -20,6 +17,7 @@ fn get_files_for_sim(source_sim_folder: &Utf8Path, target_sim_folder: &Utf8Path)
     copy_file_relative(DEFAULT_PARAM_FILE_NAME)?;
     copy_file_relative(DEFAULT_CONFIG_FILE_NAME)?;
     copy_file_relative(DEFAULT_JOB_FILE_NAME)?;
+    copy_file_relative(DEFAULT_LOG_FILE)?;
     for snapshot in get_snapshot_filenames(source_sim_folder)?.iter() {
         copy_file_relative(&snapshot)?;
     }
