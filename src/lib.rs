@@ -4,6 +4,7 @@ pub mod config;
 pub mod config_file;
 pub mod copy;
 pub mod diff;
+pub mod get_data;
 pub mod job_params;
 pub mod make;
 pub mod param_value;

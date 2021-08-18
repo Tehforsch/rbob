@@ -28,6 +28,7 @@ pub enum SubCommand {
     Post(PostprocessArgs),
     Plot(PostprocessArgs),
     Replot(ReplotArgs),
+    GetData(GetData),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -83,4 +84,11 @@ pub struct StartSimulation {
     #[clap(short, long)]
     pub delete: bool,
     pub systype: Option<Systype>,
+}
+
+/// Copy all the relevant files (snapshots and parameter files) from a simulation to another dir
+#[derive(Clap, Debug)]
+pub struct GetData {
+    pub source_folder: Utf8PathBuf,
+    pub target_folder: Utf8PathBuf,
 }

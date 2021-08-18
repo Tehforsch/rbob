@@ -1,4 +1,5 @@
 use self::args::Opts;
+use bob::get_data::get_data;
 use bob::make::build_sim_set;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
@@ -45,6 +46,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             start_sim_set(sim_set, &l, a.verbose)?;
+        }
+        SubCommand::GetData(l) => {
+            get_data(&l.source_folder, &l.target_folder)?;
         }
         SubCommand::Post(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
