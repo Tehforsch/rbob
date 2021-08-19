@@ -1,5 +1,7 @@
+use std::fs;
+
 use anyhow::Result;
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
 
 use crate::{
     config::{
@@ -11,6 +13,7 @@ use crate::{
 pub fn get_data(source: &Utf8Path, target: &Utf8Path) -> Result<()> {
     for sim_folder in get_folders(source)? {
         let target_sim_folder = target.join(sim_folder.file_name().unwrap());
+        fs::create_dir_all(&target_sim_folder)?;
         get_files_for_sim(&sim_folder, &target_sim_folder)?;
     }
     Ok(())
