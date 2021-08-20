@@ -62,7 +62,7 @@ pub fn get_slice_result(
     let max_extent = snap.max_extent();
     let center = snap.center();
     let mut result = FArray2::zeros((NX_SLICE, NY_SLICE));
-    let grid = get_slice_grid(&axis, &center, &min_extent, &max_extent, NX_SLICE, NY_SLICE);
+    let grid = get_slice_grid(axis, &center, &min_extent, &max_extent, NX_SLICE, NY_SLICE);
     let mut tree = KdTree::new(3);
     let coords_iter = coords.outer_iter().map(|x| [x[0], x[1], x[2]]);
     for (i, coord) in coords_iter.enumerate() {

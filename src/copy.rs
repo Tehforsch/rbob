@@ -27,7 +27,7 @@ pub fn copy_sim_set<U: AsRef<Utf8Path>>(
             let sim_output_folder = output_folder.join(i.to_string());
             Ok((
                 *i,
-                copy_sim(sim, &input_folder.as_ref(), &sim_output_folder)
+                copy_sim(sim, input_folder.as_ref(), &sim_output_folder)
                     .with_context(|| format!("When copying simulation {}", i))?,
             ))
         })

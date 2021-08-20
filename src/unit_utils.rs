@@ -8,7 +8,7 @@ pub fn nice_time(time: Time) -> String {
     let units_to_try = [("yr", one_year), ("kyr", kiloyear), ("Myr", megayear)];
     for (name, unit) in units_to_try.iter() {
         let value: f64 = (time / *unit).value;
-        if value >= 1.0 && value < 1000.0 {
+        if (1.0..1000.0).contains(&value) {
             return format!("{} {}", value, name);
         }
     }

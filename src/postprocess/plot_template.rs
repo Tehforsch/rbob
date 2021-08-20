@@ -15,7 +15,7 @@ impl PlotTemplate {
     pub fn new(name: &str) -> Result<PlotTemplate> {
         let path = PLOT_TEMPLATE_FOLDER.join(format!("{}.{}", name, DEFAULT_PLOT_EXTENSION));
         Ok(PlotTemplate {
-            path: path.to_owned(),
+            path,
         })
     }
 

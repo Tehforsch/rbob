@@ -31,7 +31,7 @@ pub mod postprocess_args;
 pub mod read_hdf5;
 pub mod replot_args;
 pub mod snapshot;
-pub mod swedule;
+pub mod voronoi_swim;
 
 pub fn postprocess_sim_set(
     create_plot: bool,
@@ -42,7 +42,7 @@ pub fn postprocess_sim_set(
     let data_plot_info_list = function.run_post(sim_set, args.plot_template.as_deref())?;
     for data_plot_info in data_plot_info_list.iter() {
         data_plot_info.info.create_folders_if_nonexistent()?;
-        let filenames = write_results(&data_plot_info)?;
+        let filenames = write_results(data_plot_info)?;
         let image_file = plot::run_plot(
             create_plot,
             &data_plot_info.info,

@@ -199,7 +199,7 @@ fn get_substitutions_cartesian(
         .iter()
         .map(|group| {
             count_length_or_singular(Box::new(
-                substitutions.iter().filter(|(k, _)| group.contains(&k)),
+                substitutions.iter().filter(|(k, _)| group.contains(k)),
             ))
         })
         .collect::<Result<Vec<usize>>>()?;

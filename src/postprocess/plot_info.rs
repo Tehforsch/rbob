@@ -44,8 +44,8 @@ impl PlotInfo {
             pic_folder,
             plot_name,
             plot_template_name,
-            name: name.into(),
-            qualified_name: qualified_name.into(),
+            name,
+            qualified_name,
         }
     }
 

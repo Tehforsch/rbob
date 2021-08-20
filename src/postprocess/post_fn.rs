@@ -133,9 +133,9 @@ pub trait PostFn {
         snap: &Snapshot,
         plot_template_name: Option<&str>,
     ) -> Result<DataPlotInfo> {
-        let res = self.post(sim_set, Some(sim), Some(&snap))?;
+        let res = self.post(sim_set, Some(sim), Some(snap))?;
         Ok(DataPlotInfo::new(
-            self.get_plot_info(sim_set, Some(sim), Some(&snap), plot_template_name)?,
+            self.get_plot_info(sim_set, Some(sim), Some(snap), plot_template_name)?,
             res,
         ))
     }
@@ -149,7 +149,7 @@ pub trait PostFn {
     ) -> Result<PlotInfo> {
         Ok(PlotInfo::new(
             &sim_set.get_folder()?,
-            &self.name(),
+            self.name(),
             &self.qualified_name(),
             plot_template_name,
             sim,

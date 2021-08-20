@@ -4,7 +4,7 @@ use super::{
     snapshot::Snapshot,
 };
 use crate::{
-    array_utils::FArray2, postprocess::swedule::simulate_run_time, sim_params::SimParams,
+    array_utils::FArray2, postprocess::voronoi_swim::simulate_run_time, sim_params::SimParams,
     sim_set::SimSet,
 };
 use anyhow::Result;
@@ -14,7 +14,7 @@ use clap::Clap;
 pub struct ScalingFn {
     quotient_parameter: Option<String>,
     #[clap(long)]
-    swedule: bool,
+    voronoi_swim: bool,
 }
 
 impl PostFn for &ScalingFn {

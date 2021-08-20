@@ -93,7 +93,7 @@ where
     Ok(dir_entries?
         .into_iter()
         .map(|entry| entry.path())
-        .filter(move |path| predicate(&path))
+        .filter(move |path| predicate(path))
         .map(|path| Utf8Path::from_path(&path).unwrap().to_owned()))
 }
 

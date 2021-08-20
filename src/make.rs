@@ -33,7 +33,7 @@ fn build_sim(sim: &SimParams, verbose: bool, systype: &Option<Systype>) -> Resul
     Ok(())
 }
 
-fn checkout_arepo_commit(commit: &str) -> () {
+fn checkout_arepo_commit(commit: &str) {
     let out = get_shell_command_output(
         "git",
         &[&"checkout", &commit],
@@ -45,7 +45,7 @@ fn checkout_arepo_commit(commit: &str) -> () {
 
 fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
     let systype_file = &AREPO_PATH.join("Makefile.systype");
-    let current_contents = read_file_contents(&systype_file)?;
+    let current_contents = read_file_contents(systype_file)?;
     let default_systype = DEFAULT_SYSTYPE.clone();
     let new_contents = match systype {
         None => DEFAULT_SYSTYPE.clone(),
@@ -56,7 +56,7 @@ fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
     };
     let new_contents = format!("SYSTYPE=\"{}\"", new_contents);
     if current_contents != new_contents {
-        write_file(&systype_file, &new_contents)
+        write_file(systype_file, &new_contents)
     } else {
         Ok(())
     }

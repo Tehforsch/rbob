@@ -26,8 +26,12 @@ fn get_files_for_sim(source_sim_folder: &Utf8Path, target_sim_folder: &Utf8Path)
     copy_file_relative(DEFAULT_CONFIG_FILE_NAME)?;
     copy_file_relative(DEFAULT_JOB_FILE_NAME)?;
     copy_file_relative(DEFAULT_LOG_FILE)?;
-    for snapshot in get_snapshot_filenames(source_sim_folder)?.iter() {
-        copy_file_relative(&snapshot)?;
+    fs::create_dir_all(&target_sim_folder)?;
+    let source_output_folder = source_sim_folder.join("output");
+    let target_output_folder = target_sim_folder.join("output");
+    fs::create_dir_all(&target_output_folder)?;
+    for snapshot in get_snapshot_filenames(&source_output_folder)?.iter() {
+        copy_file_relative(snapshot)?;
     }
     Ok(())
 }
@@ -43,15 +47,14 @@ fn copy_file_by_name(
     copy_file(source, target)
 }
 
-fn get_snapshot_filenames(source_sim_folder: &Utf8Path) -> Result<Vec<String>> {
-    let output_folder = "output";
-    Ok(get_files(&source_sim_folder.join(output_folder))?
+fn get_snapshot_filenames(output_folder: &Utf8Path) -> Result<Vec<String>> {
+    Ok(get_files(output_folder)?
         .iter()
         .filter(|file| {
             file.extension()
                 .map(|extension| extension == "hdf5")
                 .unwrap_or(false)
         })
-        .map(|path| format!("{}/{}", output_folder, path.file_name().unwrap()))
+        .map(|path| format!("{}/{}", output_folder.file_name().unwrap(), path.file_name().unwrap()))
         .collect())
 }
