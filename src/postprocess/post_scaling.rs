@@ -48,7 +48,10 @@ impl ScalingFn {
             None => vec![sim_set.clone()],
         };
         for sub_sim_set in sub_sim_sets {
-            let mut res = FArray2::zeros((sub_sim_set.len(), 3));
+            let mut res = match self.voronoi_swim {
+                true => FArray2::zeros((sub_sim_set.len(), 3)),
+                false => FArray2::zeros((sub_sim_set.len(), 2)),
+            };
             for (i, sim) in sub_sim_set.enumerate() {
                 res[[*i, 0]] = sim.get_num_cores()? as f64;
                 res[[*i, 1]] = sim.get_run_time()?;
