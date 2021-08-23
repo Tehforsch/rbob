@@ -58,6 +58,9 @@ impl ScalingFn {
             params
                 .0
                 .insert("referenceTime".into(), res[[0, 1]].to_string());
+            params
+                .0
+                .insert("referenceCores".into(), res[[0, 0]].to_string());
             results.push(PostResult::new(params, vec![res]));
         }
         Ok(PostResult::join(results))
