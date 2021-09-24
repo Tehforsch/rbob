@@ -186,11 +186,15 @@ impl SimParams {
 
     fn get_job_file_contents(&self) -> Result<String> {
         let job_params = self.get_job_params()?;
+        self.get_job_file_contents_from_job_params(&job_params)
+    }
+
+    pub fn get_job_file_contents_from_job_params(&self, job_params: &JobParams) -> Result<String> {
         let replacements = job_params.to_hashmap();
         strfmt_anyhow(config::JOB_FILE_TEMPLATE, replacements)
     }
 
-    fn get_job_params(&self) -> Result<JobParams> {
+    pub fn get_job_params(&self) -> Result<JobParams> {
         JobParams::new(self)
     }
 

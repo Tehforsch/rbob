@@ -6,16 +6,16 @@ use crate::config;
 use crate::sim_params::SimParams;
 
 pub struct JobParams {
-    num_nodes: i64,
-    num_cores: i64,
-    num_cores_per_node: i64,
-    partition: String,
-    wall_time: String,
-    job_name: String,
-    log_file: String,
-    run_params: String,
-    executable_name: String,
-    param_file: String,
+    pub num_nodes: i64,
+    pub num_cores: i64,
+    pub num_cores_per_node: i64,
+    pub partition: String,
+    pub wall_time: String,
+    pub job_name: String,
+    pub log_file: String,
+    pub run_params: String,
+    pub executable_name: String,
+    pub param_file: String,
 }
 
 impl JobParams {
@@ -38,7 +38,7 @@ impl JobParams {
         })
     }
 
-    fn get_core_distribution(
+    pub fn get_core_distribution(
         num_cores: i64,
         system_conf: &SystemConfiguration,
     ) -> (i64, i64, String) {

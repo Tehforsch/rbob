@@ -13,8 +13,10 @@ pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
 pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
 pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
+pub static DEFAULT_GRID_JOB_FILE_NAME: &str = "gridJob";
+pub static DEFAULT_GRID_FILE_NAME: &str = "grid.dat";
 
-pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "Arepo";
+pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "./Arepo";
 pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
 pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";
 pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
@@ -36,7 +38,7 @@ module load numlib/gsl/2.2.1-intel-16.0
 module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
 module load lib/hdf5/1.8-intel-16.0
 module load devel/python_intel/3.6
-startexe=\"mpirun ./{executableName} {paramFile} {runParams}\"
+startexe=\"mpirun {executableName} {paramFile} {runParams}\"
 exec $startexe";
 
 #[cfg(feature = "bwfor")]
@@ -50,7 +52,7 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-mpirun -n {numCores} ./{executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
+mpirun -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
 
 #[cfg(not(feature = "bwfor"))]
 pub static RUN_COMMAND: &str = "bash";
