@@ -27,8 +27,11 @@ impl ArepoLogFile {
             .context("Failed to parse number of cores in log file")
     }
 
-    pub fn get_run_time(&self) -> Result<f64> {
-        let re = Regex::new("Finished sweep in ([0-9.]+)s").unwrap();
+    pub fn get_run_time(&self, sweep: bool) -> Result<f64> {
+        let re = match sweep {
+            true => Regex::new("Finished sweep in ([0-9.]+)s").unwrap(),
+            false => Regex::new("SX: RUN [0-9]+ took ([0-9.]+)s").unwrap(),
+        };
         let contents = self.get_contents()?;
         let mut total_run_time = 0.0;
         for cap in re.captures_iter(&contents) {

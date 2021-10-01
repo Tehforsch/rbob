@@ -2,7 +2,13 @@ use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use regex::Regex;
 
-use crate::{config, job_params::JobParams, run::run_job_file, sim_params::SimParams, util::{get_shell_command_output, write_file}};
+use crate::{
+    config,
+    job_params::JobParams,
+    run::run_job_file,
+    sim_params::SimParams,
+    util::{get_shell_command_output, write_file},
+};
 
 pub fn simulate_run_time(sim: &SimParams) -> Result<f64> {
     let snap = get_grid_file(sim)?;
@@ -14,8 +20,7 @@ fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     let grid_file = if grid_file.is_file() {
         println!("Reusing existing grid file: {}", grid_file);
         grid_file
-    }
-    else {
+    } else {
         get_grid_file_from_arepo(sim)?
     };
     Ok(grid_file)
@@ -23,11 +28,7 @@ fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
 
 fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
     let job_file = write_grid_job_file(sim)?;
-    run_job_file(
-        sim,
-        &job_file,
-        false,
-    )?;
+    run_job_file(sim, &job_file, false)?;
     Ok(sim.folder.join(config::DEFAULT_GRID_FILE_NAME))
 }
 

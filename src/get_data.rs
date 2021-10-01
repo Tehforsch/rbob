@@ -55,6 +55,12 @@ fn get_snapshot_filenames(output_folder: &Utf8Path) -> Result<Vec<String>> {
                 .map(|extension| extension == "hdf5")
                 .unwrap_or(false)
         })
-        .map(|path| format!("{}/{}", output_folder.file_name().unwrap(), path.file_name().unwrap()))
+        .map(|path| {
+            format!(
+                "{}/{}",
+                output_folder.file_name().unwrap(),
+                path.file_name().unwrap()
+            )
+        })
         .collect())
 }

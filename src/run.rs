@@ -20,7 +20,11 @@ fn run_sim(sim: &SimParams, verbose: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn run_job_file(sim: &SimParams, job_file_name: &camino::Utf8PathBuf, verbose: bool) -> Result<()> {
+pub fn run_job_file(
+    sim: &SimParams,
+    job_file_name: &camino::Utf8PathBuf,
+    verbose: bool,
+) -> Result<()> {
     let args: &[&str] = &[job_file_name.file_name().unwrap()];
     let out = get_shell_command_output(config::RUN_COMMAND, args, Some(&sim.folder), verbose);
     match out.success {

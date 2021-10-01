@@ -212,9 +212,13 @@ impl SimParams {
         }
     }
 
-    pub fn get_run_time(&self) -> Result<f64> {
+    pub fn get_rt_run_time(&self) -> Result<f64> {
         assert_eq!(self.kind, SimParamsKind::Output);
-        self.get_log_file().get_run_time()
+        self.get_log_file().get_run_time(
+            self.get("SWEEP")
+                .unwrap_or(&ParamValue::Bool(false))
+                .unwrap_bool(),
+        )
     }
 }
 pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path) -> Utf8PathBuf {
