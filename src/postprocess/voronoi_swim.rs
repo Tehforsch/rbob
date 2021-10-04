@@ -1,3 +1,6 @@
+use std::thread;
+use std::time::Duration;
+
 use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use regex::Regex;
@@ -29,7 +32,15 @@ fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
 fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
     let job_file = write_grid_job_file(sim)?;
     run_job_file(sim, &job_file, false)?;
-    Ok(sim.folder.join(config::DEFAULT_GRID_FILE_NAME))
+    let grid_file = sim.folder.join(config::DEFAULT_GRID_FILE_NAME);
+    wait_for_grid_file(&grid_file);
+    Ok(grid_file)
+}
+
+fn wait_for_grid_file(grid_file: &Utf8Path) {
+    while !grid_file.is_file() {
+        thread::sleep(Duration::from_millis(100));
+    }
 }
 
 fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
