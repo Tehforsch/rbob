@@ -69,6 +69,13 @@ impl ParamValue {
             _ => panic!("Tried to read value {} as string.", self),
         }
     }
+
+    pub fn unwrap_bool(&self) -> bool {
+        match self {
+            ParamValue::Bool(s) => *s,
+            _ => panic!("Tried to read value {} as bool.", self),
+        }
+    }
 }
 
 impl FromStr for ParamValue {

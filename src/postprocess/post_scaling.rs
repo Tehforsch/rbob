@@ -4,7 +4,9 @@ use super::{
     snapshot::Snapshot,
 };
 use crate::{
-    array_utils::FArray2, postprocess::voronoi_swim::simulate_run_time, sim_params::SimParams,
+    array_utils::FArray2,
+    postprocess::voronoi_swim::{generate_all_grid_files, simulate_run_time},
+    sim_params::SimParams,
     sim_set::SimSet,
 };
 use anyhow::Result;
@@ -47,6 +49,9 @@ impl ScalingFn {
             Some(ref param) => sim_set.quotient(param),
             None => vec![sim_set.clone()],
         };
+        if self.voronoi_swim {
+            generate_all_grid_files(sim_set)?;
+        }
         for sub_sim_set in sub_sim_sets {
             let mut res = match self.voronoi_swim {
                 true => FArray2::zeros((sub_sim_set.len(), 3)),
@@ -54,7 +59,7 @@ impl ScalingFn {
             };
             for (i, sim) in sub_sim_set.enumerate() {
                 res[[*i, 0]] = sim.get_num_cores()? as f64;
-                res[[*i, 1]] = sim.get_run_time()?;
+                res[[*i, 1]] = sim.get_rt_run_time()?;
                 if self.voronoi_swim {
                     res[[*i, 2]] = simulate_run_time(sim)? * sim.get_num_sweep_runs()? as f64;
                 }
