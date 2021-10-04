@@ -56,7 +56,7 @@ impl ScalingFn {
                 res[[*i, 0]] = sim.get_num_cores()? as f64;
                 res[[*i, 1]] = sim.get_run_time()?;
                 if self.voronoi_swim {
-                    res[[*i, 2]] = simulate_run_time(sim)?;
+                    res[[*i, 2]] = simulate_run_time(sim)? * sim.get_num_sweep_runs()? as f64;
                 }
             }
             let mut params = PlotParams::default();

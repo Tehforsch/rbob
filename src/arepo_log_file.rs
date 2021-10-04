@@ -39,6 +39,12 @@ impl ArepoLogFile {
         Ok(total_run_time)
     }
 
+    pub fn get_num_sweep_runs(&self) -> Result<usize> {
+        let re = Regex::new("Finished sweep in ([0-9.]+)s").unwrap();
+        let contents = self.get_contents()?;
+        Ok(re.captures_iter(&contents).map(|_| 1).sum())
+    }
+
     pub fn get_convergence_errors(&self) -> Result<Vec<Vec<f64>>> {
         let re = Regex::new("Sweep PBC iteration (\\d+),\\s*Mean error: ([0-9]+\\.[0-9]+e-[0-9]+)")
             .unwrap();

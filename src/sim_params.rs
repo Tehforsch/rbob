@@ -216,6 +216,10 @@ impl SimParams {
         assert_eq!(self.kind, SimParamsKind::Output);
         self.get_log_file().get_run_time()
     }
+
+    pub fn get_num_sweep_runs(&self) -> Result<usize> {
+        self.get_log_file().get_num_sweep_runs()
+    }
 }
 pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path) -> Utf8PathBuf {
     sim_folder.join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
