@@ -10,6 +10,7 @@ use crate::{
     job_params::JobParams,
     run::run_job_file,
     sim_params::SimParams,
+    sim_set::SimSet,
     util::{get_shell_command_output, write_file},
 };
 
@@ -18,29 +19,48 @@ pub fn simulate_run_time(sim: &SimParams) -> Result<f64> {
     run_voronoi_swim(&snap)
 }
 
+fn get_grid_file_path(sim: &SimParams) -> Utf8PathBuf {
+    sim.folder.join(config::DEFAULT_GRID_FILE_NAME)
+}
+
+pub fn generate_all_grid_files(sim_set: &SimSet) -> Result<()> {
+    println!("Generating grid files for all sims.");
+    for sim in sim_set.iter() {
+        let grid_file = get_grid_file_path(sim);
+        if !grid_file.is_file() {
+            get_grid_file_from_arepo(sim)?;
+        }
+    }
+    Ok(())
+}
+
 fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
-    let grid_file = sim.folder.join("grid.dat");
+    let grid_file = get_grid_file_path(sim);
     let grid_file = if grid_file.is_file() {
         println!("Reusing existing grid file: {}", grid_file);
         grid_file
     } else {
-        get_grid_file_from_arepo(sim)?
+        wait_for_grid_file(sim)
     };
     Ok(grid_file)
 }
 
 fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
+    let grid_file = get_grid_file_path(sim);
     let job_file = write_grid_job_file(sim)?;
     run_job_file(sim, &job_file, false)?;
-    let grid_file = sim.folder.join(config::DEFAULT_GRID_FILE_NAME);
-    wait_for_grid_file(&grid_file);
     Ok(grid_file)
 }
 
-fn wait_for_grid_file(grid_file: &Utf8Path) {
+fn wait_for_grid_file(sim: &SimParams) -> Utf8PathBuf {
+    let grid_file = get_grid_file_path(sim);
+    if !grid_file.is_file() {
+        println!("Waiting for grid job to finish.");
+    }
     while !grid_file.is_file() {
         thread::sleep(Duration::from_millis(100));
     }
+    grid_file
 }
 
 fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
