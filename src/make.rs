@@ -1,17 +1,21 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 use camino::Utf8Path;
 use std::fs;
 
+use crate::config;
+use crate::config::AREPO_PATH;
+use crate::config::DEFAULT_SYSTYPE;
+use crate::sim_params::get_config_file_path;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use crate::util::{copy_file, copy_recursive, get_shell_command_output};
-use crate::{config, util::read_file_contents};
-use crate::{
-    config::{AREPO_PATH, DEFAULT_SYSTYPE},
-    sim_params::get_config_file_path,
-    systype::Systype,
-    util::write_file,
-};
+use crate::systype::Systype;
+use crate::util::copy_file;
+use crate::util::copy_recursive;
+use crate::util::get_shell_command_output;
+use crate::util::read_file_contents;
+use crate::util::write_file;
 
 pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {

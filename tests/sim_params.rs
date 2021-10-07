@@ -1,9 +1,11 @@
 mod setup;
-use setup::TestArg::{NormalArg, RelativePath};
+use setup::TestArg::NormalArg;
+use setup::TestArg::RelativePath;
 pub use setup::*;
 
 use anyhow::Result;
-use std::{fs, path::Path};
+use std::fs;
+use std::path::Path;
 
 #[test]
 fn different_param_files() -> Result<()> {

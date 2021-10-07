@@ -1,14 +1,13 @@
-use super::{
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostFnKind, PostResult},
-    snapshot::Snapshot,
-};
-use crate::{
-    array_utils::FArray2,
-    postprocess::voronoi_swim::{generate_all_grid_files, simulate_run_time},
-    sim_params::SimParams,
-    sim_set::SimSet,
-};
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
+use crate::array_utils::FArray2;
+use crate::postprocess::voronoi_swim::generate_all_grid_files;
+use crate::postprocess::voronoi_swim::simulate_run_time;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 use anyhow::Result;
 use clap::Clap;
 

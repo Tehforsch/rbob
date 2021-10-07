@@ -1,18 +1,20 @@
 use std::thread;
 use std::time::Duration;
 
-use anyhow::{anyhow, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use regex::Regex;
 
-use crate::{
-    config,
-    job_params::JobParams,
-    run::run_job_file,
-    sim_params::SimParams,
-    sim_set::SimSet,
-    util::{get_shell_command_output, write_file},
-};
+use crate::config;
+use crate::job_params::JobParams;
+use crate::run::run_job_file;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
+use crate::util::get_shell_command_output;
+use crate::util::write_file;
 
 pub fn simulate_run_time(sim: &SimParams) -> Result<f64> {
     let snap = get_grid_file(sim)?;

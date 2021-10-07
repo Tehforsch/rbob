@@ -1,4 +1,8 @@
-use uom::si::f64::{Length, Mass, MassDensity, Time, Velocity};
+use uom::si::f64::Length;
+use uom::si::f64::Mass;
+use uom::si::f64::MassDensity;
+use uom::si::f64::Time;
+use uom::si::f64::Velocity;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SimUnits {

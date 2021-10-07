@@ -1,21 +1,26 @@
-use anyhow::{anyhow, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use itertools::Itertools;
 use std::collections::HashMap;
 
-use super::{
-    plot_info::PlotInfo, plot_info_file_contents::PlotInfoFileContents, replot_args::ReplotArgs,
-};
-use crate::{
-    config::{
-        DEFAULT_PLOT_CONFIG_FOLDER_NAME, DEFAULT_PLOT_EXTENSION, DEFAULT_PLOT_FILE_NAME,
-        DEFAULT_PLOT_INFO_FILE_NAME, PLOT_TEMPLATE_FOLDER,
-    },
-    util::{
-        copy_recursive, get_files, get_folders, get_relative_path, get_shell_command_output,
-        read_file_contents, write_file,
-    },
-};
+use super::plot_info::PlotInfo;
+use super::plot_info_file_contents::PlotInfoFileContents;
+use super::replot_args::ReplotArgs;
+use crate::config::DEFAULT_PLOT_CONFIG_FOLDER_NAME;
+use crate::config::DEFAULT_PLOT_EXTENSION;
+use crate::config::DEFAULT_PLOT_FILE_NAME;
+use crate::config::DEFAULT_PLOT_INFO_FILE_NAME;
+use crate::config::PLOT_TEMPLATE_FOLDER;
+use crate::util::copy_recursive;
+use crate::util::get_files;
+use crate::util::get_folders;
+use crate::util::get_relative_path;
+use crate::util::get_shell_command_output;
+use crate::util::read_file_contents;
+use crate::util::write_file;
 
 pub fn run_plot(
     create_plot: bool,

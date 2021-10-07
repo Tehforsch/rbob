@@ -1,9 +1,14 @@
-use super::{plot_template::PlotTemplate, snapshot::Snapshot};
-use crate::{sim_params::SimParams, util::copy_file};
+use super::plot_template::PlotTemplate;
+use super::snapshot::Snapshot;
+use crate::sim_params::SimParams;
+use crate::util::copy_file;
 
-use anyhow::{anyhow, Result};
-use camino::{Utf8Path, Utf8PathBuf};
-use serde::{Deserialize, Serialize};
+use anyhow::anyhow;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use serde::Deserialize;
+use serde::Serialize;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

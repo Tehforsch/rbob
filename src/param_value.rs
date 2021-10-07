@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use ordered_float::OrderedFloat;
 use serde_yaml::Value;
 

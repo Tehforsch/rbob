@@ -1,9 +1,14 @@
-use anyhow::{Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
-use serde::{Deserialize, Serialize};
-use std::{fs, path::Path};
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use serde::Deserialize;
+use serde::Serialize;
+use std::fs;
+use std::path::Path;
 
-use crate::{config, util::expanduser};
+use crate::config;
+use crate::util::expanduser;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {

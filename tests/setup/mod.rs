@@ -1,17 +1,19 @@
 pub mod dir_diff;
 
 use std::env;
+use std::fmt::Debug;
+use std::path::Path;
+use std::path::PathBuf;
 use std::str;
-use std::{
-    fmt::Debug,
-    path::{Path, PathBuf},
-};
 
 use anyhow::Result;
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use tempdir::TempDir;
 
-use bob::util::{copy_recursive, get_shell_command_output, ShellCommandOutput};
+use bob::util::copy_recursive;
+use bob::util::get_shell_command_output;
+use bob::util::ShellCommandOutput;
 use dir_diff::get_first_difference;
 
 pub static TEST_STAGE_PATH: &str = "bobTest";

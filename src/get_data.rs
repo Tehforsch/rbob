@@ -3,12 +3,13 @@ use std::fs;
 use anyhow::Result;
 use camino::Utf8Path;
 
-use crate::{
-    config::{
-        DEFAULT_CONFIG_FILE_NAME, DEFAULT_JOB_FILE_NAME, DEFAULT_LOG_FILE, DEFAULT_PARAM_FILE_NAME,
-    },
-    util::{copy_file, get_files, get_folders},
-};
+use crate::config::DEFAULT_CONFIG_FILE_NAME;
+use crate::config::DEFAULT_JOB_FILE_NAME;
+use crate::config::DEFAULT_LOG_FILE;
+use crate::config::DEFAULT_PARAM_FILE_NAME;
+use crate::util::copy_file;
+use crate::util::get_files;
+use crate::util::get_folders;
 
 pub fn get_data(source: &Utf8Path, target: &Utf8Path) -> Result<()> {
     for sim_folder in get_folders(source)? {

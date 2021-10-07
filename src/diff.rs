@@ -1,10 +1,9 @@
 use anyhow::Result;
 use camino::Utf8Path;
 
-use crate::{
-    param_value::ParamValue,
-    sim_params::{SimParams, SimParamsKind},
-};
+use crate::param_value::ParamValue;
+use crate::sim_params::SimParams;
+use crate::sim_params::SimParamsKind;
 
 enum ParamDiff {
     Same,

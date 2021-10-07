@@ -1,7 +1,9 @@
 mod setup;
-use bob::util::{get_files, read_file_contents};
+use bob::util::get_files;
+use bob::util::read_file_contents;
 
-use setup::TestArg::{NormalArg, RelativePath};
+use setup::TestArg::NormalArg;
+use setup::TestArg::RelativePath;
 pub use setup::*;
 
 #[test]

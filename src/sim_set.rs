@@ -1,20 +1,24 @@
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    iter::FromIterator,
-    slice::Iter,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fs;
+use std::iter::FromIterator;
+use std::slice::Iter;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use serde_yaml::Value;
 
+use crate::config;
+use crate::param_value::ParamValue;
+use crate::sim_params::SimParams;
+use crate::sim_params::SimParamsKind;
 use crate::util::get_folders;
-use crate::{config, sim_params::SimParams};
-use crate::{param_value::ParamValue, sim_params::SimParamsKind};
 
 #[derive(Serialize, Deserialize)]
 enum CartesianType {

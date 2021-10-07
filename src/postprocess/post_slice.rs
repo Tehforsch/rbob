@@ -1,16 +1,17 @@
-use super::{
-    axis::Axis,
-    field_identifier::FieldIdentifier,
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostResult},
-};
-use super::{post_fn::PostFnKind, snapshot::Snapshot};
-use crate::{
-    array_utils::{convert_heatmap_to_gnuplot_format, get_slice_grid, FArray2},
-    config::{NX_SLICE, NY_SLICE},
-    sim_params::SimParams,
-    sim_set::SimSet,
-};
+use super::axis::Axis;
+use super::field_identifier::FieldIdentifier;
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
+use crate::array_utils::convert_heatmap_to_gnuplot_format;
+use crate::array_utils::get_slice_grid;
+use crate::array_utils::FArray2;
+use crate::config::NX_SLICE;
+use crate::config::NY_SLICE;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 use anyhow::Result;
 use clap::Clap;
 use kdtree::distance::squared_euclidean;

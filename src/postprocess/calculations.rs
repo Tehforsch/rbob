@@ -1,14 +1,14 @@
 use std::f64::consts::PI;
 
-use uom::{
-    si::{
-        f64::{Frequency, Length, Mass, Time},
-        length::centimeter,
-        mass::gram,
-        time::second,
-    },
-    typenum::{P2, P3},
-};
+use uom::si::f64::Frequency;
+use uom::si::f64::Length;
+use uom::si::f64::Mass;
+use uom::si::f64::Time;
+use uom::si::length::centimeter;
+use uom::si::mass::gram;
+use uom::si::time::second;
+use uom::typenum::P2;
+use uom::typenum::P3;
 
 use anyhow::Result;
 

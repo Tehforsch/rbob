@@ -1,6 +1,8 @@
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use std::collections::HashMap;
-use strfmt::{strfmt, FmtError};
+use strfmt::strfmt;
+use strfmt::FmtError;
 
 pub fn strfmt_anyhow(contents: &str, replacements: HashMap<String, String>) -> Result<String> {
     strfmt(

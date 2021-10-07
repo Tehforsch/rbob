@@ -1,5 +1,6 @@
 use uom::si::f64::Time;
-use uom::si::time::{second, year};
+use uom::si::time::second;
+use uom::si::time::year;
 
 pub fn nice_time(time: Time) -> String {
     let one_year = Time::new::<year>(1.0);

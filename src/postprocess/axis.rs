@@ -1,8 +1,10 @@
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use std::str::FromStr;
 
 use clap::Clap;
-use ndarray::{array, Array1};
+use ndarray::array;
+use ndarray::Array1;
 
 #[derive(Clap, Debug)]
 pub enum Axis {

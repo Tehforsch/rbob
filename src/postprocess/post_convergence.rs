@@ -1,9 +1,11 @@
-use super::{
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostFnKind, PostResult},
-    snapshot::Snapshot,
-};
-use crate::{array_utils::FArray2, sim_params::SimParams, sim_set::SimSet};
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
+use crate::array_utils::FArray2;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 use anyhow::Result;
 use clap::Clap;
 

@@ -1,12 +1,11 @@
-use super::{
-    post_compare::CompareFn,
-    post_convergence::ConvergenceFn,
-    post_expansion::{DTypeExpansionFn, RTypeExpansionFn},
-    post_fn::PostFn,
-    post_scaling::ScalingFn,
-    post_shadowing::ShadowingFn,
-    post_slice::SliceFn,
-};
+use super::post_compare::CompareFn;
+use super::post_convergence::ConvergenceFn;
+use super::post_expansion::DTypeExpansionFn;
+use super::post_expansion::RTypeExpansionFn;
+use super::post_fn::PostFn;
+use super::post_scaling::ScalingFn;
+use super::post_shadowing::ShadowingFn;
+use super::post_slice::SliceFn;
 use clap::Clap;
 
 #[derive(Clap, Debug)]

@@ -1,14 +1,20 @@
 use self::args::Opts;
+use bob::config;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
+use bob::copy::copy_sim_set;
+use bob::diff;
 use bob::get_data::get_data;
 use bob::make::build_sim_set;
+use bob::param_value::ParamValue;
+use bob::postprocess::plot::replot;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
-use bob::{config, diff, param_value::ParamValue, unit_utils::nice_time};
-use bob::{copy::copy_sim_set, postprocess::plot::replot};
+use bob::unit_utils::nice_time;
 
-use anyhow::{anyhow, Result};
-use args::{StartSimulation, SubCommand};
+use anyhow::anyhow;
+use anyhow::Result;
+use args::StartSimulation;
+use args::SubCommand;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use camino::Utf8Path;

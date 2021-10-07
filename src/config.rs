@@ -1,4 +1,5 @@
-use crate::{config_file::ConfigFile, job_params::SystemConfiguration};
+use crate::config_file::ConfigFile;
+use crate::job_params::SystemConfiguration;
 use camino::Utf8PathBuf;
 use lazy_static::lazy_static;
 

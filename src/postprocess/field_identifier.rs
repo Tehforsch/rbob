@@ -1,4 +1,5 @@
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use clap::Clap;
 use std::str::FromStr;
 

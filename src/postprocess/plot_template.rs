@@ -1,10 +1,12 @@
-use anyhow::{Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 
-use crate::{
-    config::{DEFAULT_PLOT_EXTENSION, PLOT_TEMPLATE_FOLDER},
-    util::{read_file_contents, write_file},
-};
+use crate::config::DEFAULT_PLOT_EXTENSION;
+use crate::config::PLOT_TEMPLATE_FOLDER;
+use crate::util::read_file_contents;
+use crate::util::write_file;
 
 #[derive(Debug)]
 pub struct PlotTemplate {

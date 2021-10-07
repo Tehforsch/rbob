@@ -4,12 +4,15 @@
 
 use itertools::Itertools;
 
+use std::cmp::Ordering;
+use std::fmt::Display;
+use std::fs;
+use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::{cmp::Ordering, fs};
-use std::{fmt::Display, fs::File};
 
-use walkdir::{DirEntry, WalkDir};
+use walkdir::DirEntry;
+use walkdir::WalkDir;
 
 use dissimilar::diff;
 

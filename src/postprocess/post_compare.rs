@@ -1,17 +1,20 @@
-use crate::{sim_params::SimParams, sim_set::SimSet};
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 
-use super::{
-    get_snapshots,
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostResult},
-};
-use super::{post_fn::PostFnKind, snapshot::Snapshot};
+use super::get_snapshots;
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Clap;
 use itertools::Itertools;
-use ndarray::{Array, Array1};
+use ndarray::Array;
+use ndarray::Array1;
 use ordered_float::OrderedFloat;
 
 static MIN_VAL: f64 = 1e-24;

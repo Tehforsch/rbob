@@ -1,12 +1,18 @@
-use anyhow::{anyhow, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use pathdiff::diff_paths;
+use std::ffi::OsStr;
+use std::fmt::Display;
 use std::fs;
 use std::fs::DirEntry;
-use std::process::{Command, Stdio};
+use std::path::Path;
+use std::path::PathBuf;
+use std::process::Command;
+use std::process::Stdio;
 use std::str;
-use std::{ffi::OsStr, path::Path};
-use std::{fmt::Display, path::PathBuf};
 
 pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
     fs::read_to_string(path).with_context(|| format!("While reading file {}", path))

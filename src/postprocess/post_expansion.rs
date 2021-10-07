@@ -1,19 +1,21 @@
-use super::{
-    calculations::{get_recombination_time, get_stroemgren_radius},
-    get_snapshots, get_source_file,
-    plot_params::PlotParams,
-    post_fn::{PostFn, PostResult},
-};
-use super::{post_fn::PostFnKind, snapshot::Snapshot};
-use crate::{
-    array_utils::{FArray1, FArray2},
-    config,
-    sim_params::SimParams,
-    sim_set::SimSet,
-};
+use super::calculations::get_recombination_time;
+use super::calculations::get_stroemgren_radius;
+use super::get_snapshots;
+use super::get_source_file;
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
+use crate::array_utils::FArray1;
+use crate::array_utils::FArray2;
+use crate::config;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 use anyhow::Result;
 use clap::Clap;
-use uom::si::f64::{Length, Time};
+use uom::si::f64::Length;
+use uom::si::f64::Time;
 use uom::si::length::parsec;
 use uom::si::time::year;
 

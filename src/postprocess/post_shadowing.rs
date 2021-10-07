@@ -1,13 +1,16 @@
-use super::{
-    axis::Axis,
-    field_identifier::FieldIdentifier,
-    get_snapshots,
-    post_fn::{PostFn, PostResult},
-    post_slice::get_slice_result,
-};
-use super::{post_fn::PostFnKind, snapshot::Snapshot};
-use crate::{sim_params::SimParams, sim_set::SimSet, unit_utils::nice_time};
-use anyhow::{anyhow, Result};
+use super::axis::Axis;
+use super::field_identifier::FieldIdentifier;
+use super::get_snapshots;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::post_slice::get_slice_result;
+use super::snapshot::Snapshot;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
+use crate::unit_utils::nice_time;
+use anyhow::anyhow;
+use anyhow::Result;
 use clap::Clap;
 use uom::si::f64::Time;
 use uom::si::time::year;

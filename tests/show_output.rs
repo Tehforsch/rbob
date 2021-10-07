@@ -1,6 +1,7 @@
 mod setup;
 use setup::run_bob_on_setup;
-use setup::TestArg::{NormalArg, RelativePath};
+use setup::TestArg::NormalArg;
+use setup::TestArg::RelativePath;
 pub use setup::*;
 
 #[test]

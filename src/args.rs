@@ -1,7 +1,6 @@
-use bob::{
-    postprocess::{postprocess_args::PostprocessArgs, replot_args::ReplotArgs},
-    systype::Systype,
-};
+use bob::postprocess::postprocess_args::PostprocessArgs;
+use bob::postprocess::replot_args::ReplotArgs;
+use bob::systype::Systype;
 use camino::Utf8PathBuf;
 use clap::Clap;
 

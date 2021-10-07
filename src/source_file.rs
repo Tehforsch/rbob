@@ -1,12 +1,12 @@
-use std::{
-    fs::{self},
-    io::Cursor,
-};
+use std::fs::{self};
+use std::io::Cursor;
 
 use anyhow::Result;
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::LittleEndian;
+use byteorder::ReadBytesExt;
 use camino::Utf8Path;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use uom::si::f64::Frequency;
 use uom::si::frequency::hertz;
 

@@ -1,9 +1,14 @@
-use crate::{
-    config::{NX_SLICE, NY_SLICE},
-    postprocess::axis::Axis,
-};
+use crate::config::NX_SLICE;
+use crate::config::NY_SLICE;
+use crate::postprocess::axis::Axis;
 
-use ndarray::{array, s, Array1, Array2, Array3, Array4, ArrayView};
+use ndarray::array;
+use ndarray::s;
+use ndarray::Array1;
+use ndarray::Array2;
+use ndarray::Array3;
+use ndarray::Array4;
+use ndarray::ArrayView;
 
 pub type Float = f64;
 pub type FArray1 = Array1<Float>;
