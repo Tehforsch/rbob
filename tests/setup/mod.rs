@@ -7,14 +7,13 @@ use std::path::PathBuf;
 use std::str;
 
 use anyhow::Result;
-use camino::Utf8Path;
-use camino::Utf8PathBuf;
-use tempdir::TempDir;
-
 use bob::util::copy_recursive;
 use bob::util::get_shell_command_output;
 use bob::util::ShellCommandOutput;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use dir_diff::get_first_difference;
+use tempdir::TempDir;
 
 pub static TEST_STAGE_PATH: &str = "bobTest";
 pub static TEST_SETUPS_PATH: &str = "testSetups";

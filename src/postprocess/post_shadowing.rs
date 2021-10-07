@@ -1,3 +1,9 @@
+use anyhow::anyhow;
+use anyhow::Result;
+use clap::Clap;
+use uom::si::f64::Time;
+use uom::si::time::year;
+
 use super::axis::Axis;
 use super::field_identifier::FieldIdentifier;
 use super::get_snapshots;
@@ -9,11 +15,6 @@ use super::snapshot::Snapshot;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::unit_utils::nice_time;
-use anyhow::anyhow;
-use anyhow::Result;
-use clap::Clap;
-use uom::si::f64::Time;
-use uom::si::time::year;
 
 #[derive(Clap, Debug)]
 pub struct ShadowingFn {}

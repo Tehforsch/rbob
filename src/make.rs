@@ -1,8 +1,9 @@
+use std::fs;
+
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
-use std::fs;
 
 use crate::config;
 use crate::config::AREPO_PATH;

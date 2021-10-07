@@ -1,8 +1,8 @@
-use camino::Utf8Path;
 use std::fs;
 
 use anyhow::Context;
 use anyhow::Result;
+use camino::Utf8Path;
 
 use crate::config;
 use crate::sim_params::SimParams;

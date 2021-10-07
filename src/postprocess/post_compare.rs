@@ -1,13 +1,3 @@
-use crate::sim_params::SimParams;
-use crate::sim_set::SimSet;
-
-use super::get_snapshots;
-use super::plot_params::PlotParams;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
-use super::post_fn::PostResult;
-use super::snapshot::Snapshot;
-
 use anyhow::anyhow;
 use anyhow::Result;
 use camino::Utf8PathBuf;
@@ -16,6 +6,15 @@ use itertools::Itertools;
 use ndarray::Array;
 use ndarray::Array1;
 use ordered_float::OrderedFloat;
+
+use super::get_snapshots;
+use super::plot_params::PlotParams;
+use super::post_fn::PostFn;
+use super::post_fn::PostFnKind;
+use super::post_fn::PostResult;
+use super::snapshot::Snapshot;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
 
 static MIN_VAL: f64 = 1e-24;
 static EPSILON: f64 = 1e-9;

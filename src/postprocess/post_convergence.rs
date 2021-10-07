@@ -1,3 +1,6 @@
+use anyhow::Result;
+use clap::Clap;
+
 use super::plot_params::PlotParams;
 use super::post_fn::PostFn;
 use super::post_fn::PostFnKind;
@@ -6,8 +9,6 @@ use super::snapshot::Snapshot;
 use crate::array_utils::FArray2;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use anyhow::Result;
-use clap::Clap;
 
 #[derive(Clap, Debug)]
 pub struct ConvergenceFn {}

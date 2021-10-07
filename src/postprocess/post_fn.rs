@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use super::data_plot_info::DataPlotInfo;
 use super::get_snapshots;
 use super::plot_info::PlotInfo;
@@ -6,7 +8,6 @@ use super::snapshot::Snapshot;
 use crate::array_utils::FArray2;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use anyhow::Result;
 
 pub enum PostFnKind {
     Snap,

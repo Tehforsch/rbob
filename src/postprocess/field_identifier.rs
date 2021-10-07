@@ -1,7 +1,8 @@
+use std::str::FromStr;
+
 use anyhow::anyhow;
 use anyhow::Result;
 use clap::Clap;
-use std::str::FromStr;
 
 #[derive(Clap, Debug)]
 pub enum FieldIdentifier {

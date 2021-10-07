@@ -1,19 +1,17 @@
 use anyhow::Context;
 use anyhow::Result;
-
-use crate::sim_params::SimParams;
-use crate::sim_set::SimSet;
-use crate::source_file::SourceFile;
-use crate::util::get_files;
-use crate::util::get_shell_command_output;
-use crate::util::write_file;
-
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use snapshot::Snapshot;
 
 use self::data_plot_info::DataPlotInfo;
 use self::postprocess_args::PostprocessArgs;
+use crate::sim_params::SimParams;
+use crate::sim_set::SimSet;
+use crate::source_file::SourceFile;
+use crate::util::get_files;
+use crate::util::get_shell_command_output;
+use crate::util::write_file;
 
 pub mod axis;
 pub mod calculations;

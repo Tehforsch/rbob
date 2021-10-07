@@ -1,9 +1,10 @@
+use anyhow::anyhow;
+use anyhow::Result;
+
 use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::get_shell_command_output;
-use anyhow::anyhow;
-use anyhow::Result;
 
 pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
     for (i, sim) in sim_set.iter().enumerate() {

@@ -1,14 +1,3 @@
-use crate::arepo_log_file::ArepoLogFile;
-use crate::config;
-use crate::sim_units::SimUnits;
-use crate::strfmt_utils::strfmt_anyhow;
-use crate::util::copy_file;
-use anyhow::anyhow;
-use anyhow::Context;
-use anyhow::Result;
-use camino::Utf8Path;
-use camino::Utf8PathBuf;
-use itertools::Itertools;
 use std::collections::hash_map::Iter;
 use std::collections::hash_map::Keys;
 use std::collections::HashMap;
@@ -16,11 +5,12 @@ use std::fs;
 use std::ops::Index;
 use std::str::FromStr;
 
-use crate::job_params::JobParams;
-use crate::param_value::ParamValue;
-use crate::util::read_file_contents;
-use crate::util::write_file;
-
+use anyhow::anyhow;
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use itertools::Itertools;
 use regex::Regex;
 use uom::si::f64::Length;
 use uom::si::f64::Mass;
@@ -30,6 +20,16 @@ use uom::si::length::centimeter;
 use uom::si::mass::gram;
 use uom::si::time::second;
 use uom::si::velocity::centimeter_per_second;
+
+use crate::arepo_log_file::ArepoLogFile;
+use crate::config;
+use crate::job_params::JobParams;
+use crate::param_value::ParamValue;
+use crate::sim_units::SimUnits;
+use crate::strfmt_utils::strfmt_anyhow;
+use crate::util::copy_file;
+use crate::util::read_file_contents;
+use crate::util::write_file;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SimParamsKind {

@@ -1,7 +1,4 @@
-use super::plot_template::PlotTemplate;
-use super::snapshot::Snapshot;
-use crate::sim_params::SimParams;
-use crate::util::copy_file;
+use std::fs;
 
 use anyhow::anyhow;
 use anyhow::Result;
@@ -9,7 +6,11 @@ use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fs;
+
+use super::plot_template::PlotTemplate;
+use super::snapshot::Snapshot;
+use crate::sim_params::SimParams;
+use crate::util::copy_file;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PlotInfo {

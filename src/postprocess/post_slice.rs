@@ -1,3 +1,11 @@
+use anyhow::Result;
+use clap::Clap;
+use kdtree::distance::squared_euclidean;
+use kdtree::KdTree;
+use ndarray_stats::QuantileExt;
+use uom::si::f64::Length;
+use uom::si::length::parsec;
+
 use super::axis::Axis;
 use super::field_identifier::FieldIdentifier;
 use super::plot_params::PlotParams;
@@ -12,13 +20,6 @@ use crate::config::NX_SLICE;
 use crate::config::NY_SLICE;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use anyhow::Result;
-use clap::Clap;
-use kdtree::distance::squared_euclidean;
-use kdtree::KdTree;
-use ndarray_stats::QuantileExt;
-use uom::si::f64::Length;
-use uom::si::length::parsec;
 
 #[derive(Clap, Debug)]
 pub struct SliceFn {

@@ -1,8 +1,8 @@
-use anyhow::Result;
 use std::collections::HashMap;
 
-use crate::config;
+use anyhow::Result;
 
+use crate::config;
 use crate::sim_params::SimParams;
 
 pub struct JobParams {

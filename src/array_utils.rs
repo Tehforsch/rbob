@@ -1,7 +1,3 @@
-use crate::config::NX_SLICE;
-use crate::config::NY_SLICE;
-use crate::postprocess::axis::Axis;
-
 use ndarray::array;
 use ndarray::s;
 use ndarray::Array1;
@@ -9,6 +5,10 @@ use ndarray::Array2;
 use ndarray::Array3;
 use ndarray::Array4;
 use ndarray::ArrayView;
+
+use crate::config::NX_SLICE;
+use crate::config::NY_SLICE;
+use crate::postprocess::axis::Axis;
 
 pub type Float = f64;
 pub type FArray1 = Array1<Float>;
@@ -81,8 +81,9 @@ pub fn meshgrid2(min: &FArray1, max: &FArray1, n0: usize, n1: usize) -> FArray3 
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use anyhow::Result;
+
+    use super::*;
     #[test]
     fn test_slice_grid() -> Result<()> {
         let center = array![2., 2., 2.];

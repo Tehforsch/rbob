@@ -1,6 +1,3 @@
-use crate::array_utils::FArray1;
-use crate::array_utils::FArray2;
-use crate::sim_params::SimParams;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
@@ -9,6 +6,9 @@ use ndarray::s;
 use uom::si::f64::Time;
 
 use super::read_hdf5::get_header_attribute;
+use crate::array_utils::FArray1;
+use crate::array_utils::FArray2;
+use crate::sim_params::SimParams;
 
 #[derive(Debug)]
 pub struct Snapshot<'a> {

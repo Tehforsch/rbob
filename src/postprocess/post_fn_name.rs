@@ -1,3 +1,5 @@
+use clap::Clap;
+
 use super::post_compare::CompareFn;
 use super::post_convergence::ConvergenceFn;
 use super::post_expansion::DTypeExpansionFn;
@@ -6,7 +8,6 @@ use super::post_fn::PostFn;
 use super::post_scaling::ScalingFn;
 use super::post_shadowing::ShadowingFn;
 use super::post_slice::SliceFn;
-use clap::Clap;
 
 #[derive(Clap, Debug)]
 pub enum PostFnName {

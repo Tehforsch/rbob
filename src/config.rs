@@ -1,7 +1,8 @@
-use crate::config_file::ConfigFile;
-use crate::job_params::SystemConfiguration;
 use camino::Utf8PathBuf;
 use lazy_static::lazy_static;
+
+use crate::config_file::ConfigFile;
+use crate::job_params::SystemConfiguration;
 
 lazy_static! {
     pub static ref CONFIG_FILE: ConfigFile = ConfigFile::read().unwrap().expanduser().unwrap();

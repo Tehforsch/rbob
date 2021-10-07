@@ -2,8 +2,6 @@
 // https://github.com/assert-rs/dir-diff/blob/master/src/lib.rs
 // and modified because i need some output about where the difference is.
 
-use itertools::Itertools;
-
 use std::cmp::Ordering;
 use std::fmt::Display;
 use std::fs;
@@ -11,10 +9,10 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
+use dissimilar::diff;
+use itertools::Itertools;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
-
-use dissimilar::diff;
 
 /// The various errors that can happen when diffing two directories
 #[derive(Debug)]

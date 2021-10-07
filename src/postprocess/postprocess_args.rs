@@ -1,7 +1,7 @@
+use camino::Utf8PathBuf;
 use clap::Clap;
 
 use super::post_fn_name::PostFnName;
-use camino::Utf8PathBuf;
 
 /// Run the postprocessing scripts
 #[derive(Clap, Debug)]

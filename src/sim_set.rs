@@ -1,5 +1,3 @@
-use camino::Utf8Path;
-use camino::Utf8PathBuf;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
@@ -9,6 +7,8 @@ use std::slice::Iter;
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use itertools::Itertools;
 use serde::Deserialize;
 use serde::Serialize;
@@ -267,8 +267,9 @@ fn count_length_or_singular<'a>(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_yaml::to_value;
+
+    use super::*;
     #[test]
     fn normal_sim_set() -> Result<()> {
         let mut substitutions = HashMap::new();

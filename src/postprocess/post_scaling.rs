@@ -1,3 +1,6 @@
+use anyhow::Result;
+use clap::Clap;
+
 use super::plot_params::PlotParams;
 use super::post_fn::PostFn;
 use super::post_fn::PostFnKind;
@@ -8,8 +11,6 @@ use crate::postprocess::voronoi_swim::generate_all_grid_files;
 use crate::postprocess::voronoi_swim::simulate_run_time;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use anyhow::Result;
-use clap::Clap;
 
 #[derive(Clap, Debug)]
 pub struct ScalingFn {

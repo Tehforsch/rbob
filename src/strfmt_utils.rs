@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use anyhow::anyhow;
 use anyhow::Result;
-use std::collections::HashMap;
 use strfmt::strfmt;
 use strfmt::FmtError;
 

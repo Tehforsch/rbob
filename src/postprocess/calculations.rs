@@ -1,5 +1,6 @@
 use std::f64::consts::PI;
 
+use anyhow::Result;
 use uom::si::f64::Frequency;
 use uom::si::f64::Length;
 use uom::si::f64::Mass;
@@ -9,8 +10,6 @@ use uom::si::mass::gram;
 use uom::si::time::second;
 use uom::typenum::P2;
 use uom::typenum::P3;
-
-use anyhow::Result;
 
 use super::snapshot::Snapshot;
 

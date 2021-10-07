@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use crate::array_utils::FArray2;
-
 use super::plot_info::PlotInfo;
 use super::post_fn::PostResult;
+use crate::array_utils::FArray2;
 
 pub struct DataPlotInfo {
     pub info: PlotInfo,

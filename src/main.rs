@@ -1,4 +1,9 @@
-use self::args::Opts;
+use std::error::Error;
+
+use anyhow::anyhow;
+use anyhow::Result;
+use args::StartSimulation;
+use args::SubCommand;
 use bob::config;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::copy::copy_sim_set;
@@ -9,17 +14,13 @@ use bob::param_value::ParamValue;
 use bob::postprocess::plot::replot;
 use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
-use bob::unit_utils::nice_time;
-
-use anyhow::anyhow;
-use anyhow::Result;
-use args::StartSimulation;
-use args::SubCommand;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
+use bob::unit_utils::nice_time;
 use camino::Utf8Path;
 use clap::Clap;
-use std::error::Error;
+
+use self::args::Opts;
 
 pub mod args;
 

@@ -1,10 +1,11 @@
+use std::collections::HashMap;
+
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use itertools::Itertools;
-use std::collections::HashMap;
 
 use super::plot_info::PlotInfo;
 use super::plot_info_file_contents::PlotInfoFileContents;

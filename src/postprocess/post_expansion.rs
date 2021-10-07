@@ -1,3 +1,10 @@
+use anyhow::Result;
+use clap::Clap;
+use uom::si::f64::Length;
+use uom::si::f64::Time;
+use uom::si::length::parsec;
+use uom::si::time::year;
+
 use super::calculations::get_recombination_time;
 use super::calculations::get_stroemgren_radius;
 use super::get_snapshots;
@@ -12,12 +19,6 @@ use crate::array_utils::FArray2;
 use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use anyhow::Result;
-use clap::Clap;
-use uom::si::f64::Length;
-use uom::si::f64::Time;
-use uom::si::length::parsec;
-use uom::si::time::year;
 
 #[derive(Clap, Debug)]
 pub struct RTypeExpansionFn {}
