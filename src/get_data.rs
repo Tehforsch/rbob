@@ -7,6 +7,7 @@ use crate::config::DEFAULT_CONFIG_FILE_NAME;
 use crate::config::DEFAULT_JOB_FILE_NAME;
 use crate::config::DEFAULT_LOG_FILE;
 use crate::config::DEFAULT_PARAM_FILE_NAME;
+use crate::config::DEFAULT_PIC_FOLDER;
 use crate::util::copy_file;
 use crate::util::get_files;
 use crate::util::get_folders;
@@ -15,7 +16,9 @@ pub fn get_data(source: &Utf8Path, target: &Utf8Path) -> Result<()> {
     for sim_folder in get_folders(source)? {
         let target_sim_folder = target.join(sim_folder.file_name().unwrap());
         fs::create_dir_all(&target_sim_folder)?;
-        get_files_for_sim(&sim_folder, &target_sim_folder)?;
+        if sim_folder.file_name().unwrap() != DEFAULT_PIC_FOLDER {
+            get_files_for_sim(&sim_folder, &target_sim_folder)?;
+        }
     }
     Ok(())
 }

@@ -9,6 +9,7 @@ use serde::Serialize;
 
 use super::plot_template::PlotTemplate;
 use super::snapshot::Snapshot;
+use crate::config::DEFAULT_PIC_FOLDER;
 use crate::sim_params::SimParams;
 use crate::util::copy_file;
 
@@ -45,7 +46,7 @@ impl PlotInfo {
             }
             None => qualified_name.clone(),
         };
-        let pic_folder = sim_set_folder.join("pics");
+        let pic_folder = sim_set_folder.join(DEFAULT_PIC_FOLDER);
         PlotInfo {
             pic_folder,
             plot_name,

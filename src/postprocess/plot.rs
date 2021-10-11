@@ -10,6 +10,7 @@ use itertools::Itertools;
 use super::plot_info::PlotInfo;
 use super::plot_info_file_contents::PlotInfoFileContents;
 use super::replot_args::ReplotArgs;
+use crate::config::DEFAULT_PIC_FOLDER;
 use crate::config::DEFAULT_PLOT_CONFIG_FOLDER_NAME;
 use crate::config::DEFAULT_PLOT_EXTENSION;
 use crate::config::DEFAULT_PLOT_FILE_NAME;
@@ -50,7 +51,7 @@ pub fn run_plot(
 }
 
 pub fn replot(args: &ReplotArgs) -> Result<()> {
-    let pic_folder = args.folder.join("pics");
+    let pic_folder = args.folder.join(DEFAULT_PIC_FOLDER);
     for folder in get_folders(&pic_folder)? {
         let plot_info_file = folder.join(DEFAULT_PLOT_INFO_FILE_NAME);
         let plot_info = read_plot_info_file(&plot_info_file)?;

@@ -23,6 +23,8 @@ pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
 pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";
 pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
 
+pub static DEFAULT_PIC_FOLDER: &str = "pics";
+
 pub static CONFIG_FILE_NAME: &str = "config.yaml";
 
 #[cfg(feature = "bwfor")]
