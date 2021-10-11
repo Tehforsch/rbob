@@ -1,24 +1,22 @@
 use std::thread;
 use std::time::Duration;
 
-use anyhow::anyhow;
-use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use regex::Regex;
+use voronoi_swim::run::simulate_grid;
 
 use crate::config;
 use crate::job_params::JobParams;
 use crate::run::run_job_file;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
-use crate::util::get_shell_command_output;
 use crate::util::write_file;
 
 pub fn simulate_run_time(sim: &SimParams, voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
-    let snap = get_grid_file(sim)?;
-    run_voronoi_swim(&snap, voronoi_swim_param_file)
+    let grid_file = get_grid_file(sim)?;
+    let result = simulate_grid(&voronoi_swim_param_file, &vec![grid_file]);
+    Ok(result?[0].time)
 }
 
 fn get_grid_file_path(sim: &SimParams) -> Utf8PathBuf {
@@ -83,21 +81,3 @@ fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     Ok(job_file)
 }
 
-fn run_voronoi_swim(snap: &Utf8Path, voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
-    let out = get_shell_command_output("voronoi_swim", &[voronoi_swim_param_file, &snap], None, false);
-    if !out.success {
-        return Err(anyhow!("voronoiSwim failed with error: {}", &out.stderr));
-    }
-    get_runtime_from_voronoi_swim_output(&out.stdout)
-}
-
-fn get_runtime_from_voronoi_swim_output(stdout: &str) -> Result<f64> {
-    let re = Regex::new("[0-9]+ ([.0-9]+) ").unwrap();
-    let first_capture = re.captures_iter(stdout).next().unwrap();
-    first_capture
-        .get(1)
-        .unwrap()
-        .as_str()
-        .parse()
-        .context("While reading runtime from output")
-}

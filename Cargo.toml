@@ -31,6 +31,7 @@ camino = { version = "1.0.2", features =["serde1"] }
 kdtree = "0.6.0"
 byteorder = "1.4.3"
 lazy_static = "1.4.0"
+voronoi_swim = { path = "../voronoiSwim" }
 
 [dev-dependencies]
 tempdir = "0.3.7"
