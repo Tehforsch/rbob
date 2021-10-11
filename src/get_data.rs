@@ -1,6 +1,6 @@
 use std::fs;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use camino::Utf8Path;
 
 use crate::config::DEFAULT_CONFIG_FILE_NAME;
@@ -34,6 +34,7 @@ fn get_files_for_sim(source_sim_folder: &Utf8Path, target_sim_folder: &Utf8Path)
     let source_output_folder = source_sim_folder.join("output");
     let target_output_folder = target_sim_folder.join("output");
     fs::create_dir_all(&target_output_folder)?;
+    let _ = copy_file_relative("grid.dat");
     for snapshot in get_snapshot_filenames(&source_output_folder)?.iter() {
         copy_file_relative(snapshot)?;
     }
@@ -47,8 +48,17 @@ fn copy_file_by_name(
 ) -> Result<()> {
     let source = source_sim_folder.join(filename);
     let target = target_sim_folder.join(filename);
-    println!("Copying {} -> {}", source, target);
-    copy_file(source, target)
+    if !source.is_file() {
+        return Err(anyhow!("No grid file for sim: {}"))
+    }
+    if !target.is_file() {
+        println!("Copying {} -> {}", source, target);
+        copy_file(source, target)
+    }
+    else {
+        println!("Skipping {} -> {}", source, target);
+        Ok(())
+    }
 }
 
 fn get_snapshot_filenames(output_folder: &Utf8Path) -> Result<Vec<String>> {
