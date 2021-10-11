@@ -1,6 +1,7 @@
 use std::fs;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use camino::Utf8Path;
 
 use crate::config::DEFAULT_CONFIG_FILE_NAME;
@@ -49,13 +50,12 @@ fn copy_file_by_name(
     let source = source_sim_folder.join(filename);
     let target = target_sim_folder.join(filename);
     if !source.is_file() {
-        return Err(anyhow!("No grid file for sim: {}"))
+        return Err(anyhow!("No grid file for sim: {}"));
     }
     if !target.is_file() {
         println!("Copying {} -> {}", source, target);
         copy_file(source, target)
-    }
-    else {
+    } else {
         println!("Skipping {} -> {}", source, target);
         Ok(())
     }

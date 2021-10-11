@@ -3,8 +3,9 @@ use std::str::FromStr;
 use anyhow::anyhow;
 use anyhow::Result;
 use ordered_float::OrderedFloat;
+use serde::Deserialize;
+use serde::Serialize;
 use serde_yaml::Value;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Clone, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum ParamValue {

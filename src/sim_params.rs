@@ -56,8 +56,12 @@ impl SimParams {
             update_from(
                 &mut params,
                 read_bob_param_file(&bob_param_file_path).with_context(|| {
-                    format!("While reading bob parameter file at {:?}", bob_param_file_path)
-                })?)?;
+                    format!(
+                        "While reading bob parameter file at {:?}",
+                        bob_param_file_path
+                    )
+                })?,
+            )?;
         }
 
         update_from(
@@ -285,7 +289,10 @@ fn update_from(
     for (key, value) in new_params.into_iter() {
         if let Some(previous_value) = params.insert(key.clone(), value.clone()) {
             if previous_value != value {
-                eprintln!("Differing values of parameter: {}: {} {}", key, value, previous_value);
+                eprintln!(
+                    "Differing values of parameter: {}: {} {}",
+                    key, value, previous_value
+                );
             }
         }
     }

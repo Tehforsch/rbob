@@ -80,4 +80,3 @@ fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     write_file(&job_file, &contents)?;
     Ok(job_file)
 }
-

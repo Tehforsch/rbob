@@ -80,13 +80,17 @@ impl ScalingFn {
         if !self.voronoi_swim.is_empty() {
             generate_all_grid_files(&sub_sim_set)?;
         }
-        self.voronoi_swim.iter().map(|voronoi_swim_param_file| {
-            let mut res = FArray2::zeros((sub_sim_set.len(), 2));
-            for (i, sim) in sub_sim_set.enumerate() {
-                res[[*i, 0]] = sim.get_num_cores()? as f64;
-                res[[*i, 1]] = simulate_run_time(sim, voronoi_swim_param_file)? * sim.get_num_sweep_runs()? as f64;
-            }
-            Ok(res)
-        }).collect::<Result<Vec<_>>>()
+        self.voronoi_swim
+            .iter()
+            .map(|voronoi_swim_param_file| {
+                let mut res = FArray2::zeros((sub_sim_set.len(), 2));
+                for (i, sim) in sub_sim_set.enumerate() {
+                    res[[*i, 0]] = sim.get_num_cores()? as f64;
+                    res[[*i, 1]] = simulate_run_time(sim, voronoi_swim_param_file)?
+                        * sim.get_num_sweep_runs()? as f64;
+                }
+                Ok(res)
+            })
+            .collect::<Result<Vec<_>>>()
     }
 }
