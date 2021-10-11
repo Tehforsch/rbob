@@ -1,4 +1,5 @@
 use anyhow::Result;
+use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use clap::Clap;
 
@@ -8,10 +9,12 @@ use super::post_fn::PostFnKind;
 use super::post_fn::PostResult;
 use super::snapshot::Snapshot;
 use crate::array_utils::FArray2;
+use crate::config;
 use crate::postprocess::voronoi_swim::generate_all_grid_files;
 use crate::postprocess::voronoi_swim::simulate_run_time;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
+use crate::thread_pool::ThreadPool;
 
 #[derive(Clap, Debug)]
 pub struct ScalingFn {
@@ -82,15 +85,29 @@ impl ScalingFn {
         }
         self.voronoi_swim
             .iter()
-            .map(|voronoi_swim_param_file| {
-                let mut res = FArray2::zeros((sub_sim_set.len(), 2));
-                for (i, sim) in sub_sim_set.enumerate() {
-                    res[[*i, 0]] = sim.get_num_cores()? as f64;
-                    res[[*i, 1]] = simulate_run_time(sim, voronoi_swim_param_file)?
-                        * sim.get_num_sweep_runs()? as f64;
-                }
-                Ok(res)
-            })
+            .map(|param_file| get_voronoi_swim_result(sub_sim_set, param_file))
             .collect::<Result<Vec<_>>>()
     }
+}
+
+fn get_voronoi_swim_result(
+    sub_sim_set: &SimSet,
+    voronoi_swim_param_file: &Utf8Path,
+) -> Result<FArray2> {
+    let mut pool = ThreadPool::new(config::MAX_NUM_VORONOI_SWIM_THREADS);
+    let mut res = FArray2::zeros((sub_sim_set.len(), 2));
+    for sim in sub_sim_set.iter() {
+        let cloned_sim = sim.clone();
+        let cloned_voronoi_swim_param_file = voronoi_swim_param_file.to_owned();
+        pool.add_job(move || simulate_run_time(&cloned_sim, &cloned_voronoi_swim_param_file));
+    }
+    let run_times = pool
+        .get_results()
+        .into_iter()
+        .collect::<Result<Vec<f64>>>()?;
+    for (i, sim) in sub_sim_set.enumerate() {
+        res[[*i, 0]] = sim.get_num_cores()? as f64;
+        res[[*i, 1]] = run_times[*i] * sim.get_num_sweep_runs()? as f64;
+    }
+    Ok(res)
 }
