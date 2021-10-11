@@ -49,8 +49,15 @@ pub struct SimParams {
 impl SimParams {
     pub fn from_folder<U: AsRef<Utf8Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let mut params = HashMap::new();
+        let bob_param_file_path = get_bob_param_file_path(&folder);
         let param_file_path = get_param_file_path(&folder);
         let config_file_path = get_config_file_path(&folder);
+        update_from(
+            &mut params,
+            read_bob_param_file(&bob_param_file_path).with_context(|| {
+                format!("While reading bob parameter file at {:?}", bob_param_file_path)
+            })?)?;
+
         update_from(
             &mut params,
             read_param_file(&param_file_path).with_context(|| {
@@ -206,6 +213,11 @@ impl SimParams {
         JobParams::new(self)
     }
 
+    pub fn write_bob_param_file(&self, path: &Utf8Path) -> Result<()> {
+        let contents = serde_yaml::to_string(&self.params)?;
+        write_file(&path, &contents)
+    }
+
     pub fn get_log_file(&self) -> ArepoLogFile {
         ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
     }
@@ -237,6 +249,10 @@ pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path)
     sim_folder.join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
 }
 
+pub fn get_bob_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
+    folder.as_ref().join(config::DEFAULT_BOB_PARAM_FILE_NAME)
+}
+
 pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME)
 }
@@ -265,13 +281,11 @@ fn update_from(
     new_params: HashMap<String, ParamValue>,
 ) -> Result<()> {
     for (key, value) in new_params.into_iter() {
-        if params.contains_key(&key) {
-            return Err(anyhow!(format!(
-                "Key {} is present in multiple files.",
-                key
-            )));
+        if let Some(previous_value) = params.insert(key.clone(), value.clone()) {
+            if previous_value != value {
+                eprintln!("Differing values of parameter: {}: {} {}", key, value, previous_value);
+            }
         }
-        params.insert(key, value);
     }
     Ok(())
 }
@@ -365,6 +379,11 @@ fn read_parameter_lines(
             )
         })
         .collect()
+}
+
+fn read_bob_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
+    let contents = read_file_contents(path)?;
+    serde_yaml::from_str(&contents).context("While reading plot info file")
 }
 
 impl Index<&str> for SimParams {

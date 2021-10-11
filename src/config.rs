@@ -17,6 +17,7 @@ pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 pub static DEFAULT_GRID_JOB_FILE_NAME: &str = "gridJob";
 pub static DEFAULT_GRID_FILE_NAME: &str = "grid.dat";
+pub static DEFAULT_BOB_PARAM_FILE_NAME: &str = "bobParams.yaml";
 
 pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "./Arepo";
 pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";

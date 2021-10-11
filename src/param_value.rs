@@ -4,8 +4,9 @@ use anyhow::anyhow;
 use anyhow::Result;
 use ordered_float::OrderedFloat;
 use serde_yaml::Value;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, PartialEq, Clone, Eq, Hash, Ord, PartialOrd)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum ParamValue {
     Str(String),
     Int(i64),
