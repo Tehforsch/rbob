@@ -52,11 +52,13 @@ impl SimParams {
         let bob_param_file_path = get_bob_param_file_path(&folder);
         let param_file_path = get_param_file_path(&folder);
         let config_file_path = get_config_file_path(&folder);
-        update_from(
-            &mut params,
-            read_bob_param_file(&bob_param_file_path).with_context(|| {
-                format!("While reading bob parameter file at {:?}", bob_param_file_path)
-            })?)?;
+        if bob_param_file_path.is_file() {
+            update_from(
+                &mut params,
+                read_bob_param_file(&bob_param_file_path).with_context(|| {
+                    format!("While reading bob parameter file at {:?}", bob_param_file_path)
+                })?)?;
+        }
 
         update_from(
             &mut params,
