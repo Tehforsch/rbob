@@ -1,4 +1,5 @@
 use anyhow::Result;
+use camino::Utf8PathBuf;
 use clap::Clap;
 
 use super::plot_params::PlotParams;
@@ -16,7 +17,7 @@ use crate::sim_set::SimSet;
 pub struct ScalingFn {
     quotient_parameter: Option<String>,
     #[clap(long)]
-    voronoi_swim: bool,
+    voronoi_swim: Option<Utf8PathBuf>,
 }
 
 impl PostFn for &ScalingFn {
@@ -49,19 +50,19 @@ impl ScalingFn {
             Some(ref param) => sim_set.quotient(param),
             None => vec![sim_set.clone()],
         };
-        if self.voronoi_swim {
+        if self.voronoi_swim.is_some() {
             generate_all_grid_files(sim_set)?;
         }
         for sub_sim_set in sub_sim_sets {
-            let mut res = match self.voronoi_swim {
+            let mut res = match self.voronoi_swim.is_some() {
                 true => FArray2::zeros((sub_sim_set.len(), 3)),
                 false => FArray2::zeros((sub_sim_set.len(), 2)),
             };
             for (i, sim) in sub_sim_set.enumerate() {
                 res[[*i, 0]] = sim.get_num_cores()? as f64;
                 res[[*i, 1]] = sim.get_rt_run_time()?;
-                if self.voronoi_swim {
-                    res[[*i, 2]] = simulate_run_time(sim)? * sim.get_num_sweep_runs()? as f64;
+                if let Some(ref voronoi_swim_param_file) = self.voronoi_swim {
+                    res[[*i, 2]] = simulate_run_time(sim, voronoi_swim_param_file)? * sim.get_num_sweep_runs()? as f64;
                 }
             }
             let mut params = PlotParams::default();

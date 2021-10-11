@@ -16,9 +16,9 @@ use crate::sim_set::SimSet;
 use crate::util::get_shell_command_output;
 use crate::util::write_file;
 
-pub fn simulate_run_time(sim: &SimParams) -> Result<f64> {
+pub fn simulate_run_time(sim: &SimParams, voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
     let snap = get_grid_file(sim)?;
-    run_voronoi_swim(&snap)
+    run_voronoi_swim(&snap, voronoi_swim_param_file)
 }
 
 fn get_grid_file_path(sim: &SimParams) -> Utf8PathBuf {
@@ -26,10 +26,10 @@ fn get_grid_file_path(sim: &SimParams) -> Utf8PathBuf {
 }
 
 pub fn generate_all_grid_files(sim_set: &SimSet) -> Result<()> {
-    println!("Generating grid files for all sims.");
     for sim in sim_set.iter() {
         let grid_file = get_grid_file_path(sim);
         if !grid_file.is_file() {
+            println!("Generating grid file for sim: {}", sim.folder);
             get_grid_file_from_arepo(sim)?;
         }
     }
@@ -83,8 +83,8 @@ fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     Ok(job_file)
 }
 
-fn run_voronoi_swim(snap: &Utf8Path) -> Result<f64> {
-    let out = get_shell_command_output("voronoi_swim", &[&snap], None, false);
+fn run_voronoi_swim(snap: &Utf8Path, voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
+    let out = get_shell_command_output("voronoi_swim", &[voronoi_swim_param_file, &snap], None, false);
     if !out.success {
         return Err(anyhow!("voronoiSwim failed with error: {}", &out.stderr));
     }
