@@ -57,7 +57,7 @@ impl PlotInfo {
     }
 
     pub fn get_plot_folder(&self) -> Utf8PathBuf {
-        self.pic_folder.join(&self.name)
+        self.pic_folder.join(&self.plot_name)
     }
 
     pub fn get_data_folder(&self) -> Utf8PathBuf {
