@@ -87,7 +87,7 @@ fn get_default_replacements(
 ) -> Result<HashMap<String, String>> {
     let mut result = HashMap::new();
     result.insert("numFiles".into(), filenames.len().to_string());
-    result.insert("picFile".into(), in_quotes(&info.name));
+    result.insert("picFile".into(), in_quotes(&info.plot_name));
     result.insert(
         "files".into(),
         in_quotes(&get_joined_filenames(info, filenames)?),
