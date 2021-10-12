@@ -16,6 +16,7 @@ pub struct Snapshot<'a> {
     pub path: Utf8PathBuf,
     pub sim: &'a SimParams,
     pub time: Time,
+    size: f64,
 }
 
 impl<'a> std::fmt::Display for Snapshot<'a> {
@@ -30,7 +31,7 @@ impl<'a> Snapshot<'a> {
     }
 
     pub fn max_extent(&self) -> FArray1 {
-        array![1., 1., 1.]
+        array![self.size, self.size, self.size]
     }
 
     pub fn center(&self) -> FArray1 {
@@ -77,6 +78,7 @@ impl<'a> Snapshot<'a> {
         Ok(Snapshot {
             file: h5file,
             path: file.to_owned(),
+            size: sim["BoxSize"].unwrap_f64(),
             time,
             sim,
         })
