@@ -74,11 +74,11 @@ impl PlotInfo {
     }
 
     pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {
-        let basename = self.name.clone();
+        let basename = &self.plot_name;
         let potential_extensions = ["pdf", "png"];
         let plot_folder = self.get_plot_folder();
         for extension in potential_extensions.iter() {
-            let filename = format!("{}.{}", &basename, extension);
+            let filename = format!("{}.{}", basename, extension);
             let path = plot_folder.join(&filename);
             if path.is_file() {
                 let target = path.parent().unwrap().parent().unwrap().join(&filename);
