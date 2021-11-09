@@ -38,11 +38,12 @@ pub mod voronoi_swim;
 
 pub fn postprocess_sim_set(
     create_plot: bool,
-    sim_set: &SimSet,
+    sim_set: SimSet,
     args: &PostprocessArgs,
 ) -> Result<()> {
+    let sim_set = filter_sim_set(sim_set, args.select.as_ref());
     let function = args.function.get_function();
-    let data_plot_info_iter = function.run_post(sim_set, args.plot_template.as_deref());
+    let data_plot_info_iter = function.run_post(&sim_set, args.plot_template.as_deref());
     let mut first_element = None;
     for data_plot_info in data_plot_info_iter {
         let data_plot_info = data_plot_info?;
@@ -67,6 +68,17 @@ pub fn postprocess_sim_set(
         }
     }
     Ok(())
+}
+
+fn filter_sim_set(sim_set: SimSet, select: Option<&Vec<usize>>) -> SimSet {
+    if let Some(selected_sims) = select {
+        sim_set
+            .into_iter()
+            .filter(|(num, _)| selected_sims.contains(num))
+            .collect()
+    } else {
+        sim_set
+    }
 }
 
 pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> {

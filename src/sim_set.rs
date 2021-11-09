@@ -57,6 +57,14 @@ impl FromIterator<(usize, SimParams)> for SimSet {
     }
 }
 
+impl IntoIterator for SimSet {
+    type Item = (usize, SimParams);
+    type IntoIter = std::vec::IntoIter<(usize, SimParams)>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.simulations.into_iter()
+    }
+}
+
 impl SimSet {
     pub fn from_bob_file_and_input_folder<U: AsRef<Utf8Path>, V: AsRef<Utf8Path>>(
         config_file_path: U,
