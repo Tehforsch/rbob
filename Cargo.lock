@@ -855,12 +855,15 @@ name = "voronoi_swim"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "generational-arena",
+ "itertools 0.10.1",
  "ordered-float",
  "priority-queue",
  "regex",
  "serde",
  "serde_yaml",
+ "xdg",
 ]
 
 [[package]]

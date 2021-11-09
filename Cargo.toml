@@ -2,7 +2,7 @@
 name = "bob"
 version = "0.1.0"
 authors = ["tehforsch <Tonipeter92@googlemail.com>"]
-edition = "2018"
+edition = "2021"
 
 [features]
 bwfor = []
