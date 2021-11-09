@@ -1,3 +1,5 @@
+use std::iter::once;
+
 use anyhow::Result;
 
 use super::data_plot_info::DataPlotInfo;
@@ -56,11 +58,11 @@ pub trait PostFn {
         snap: Option<&Snapshot>,
     ) -> Result<PostResult>;
 
-    fn run_post(
-        &self,
-        sim_set: &SimSet,
-        plot_template_name: Option<&str>,
-    ) -> Result<Vec<DataPlotInfo>> {
+    fn run_post<'a>(
+        &'a self,
+        sim_set: &'a SimSet,
+        plot_template_name: Option<&'a str>,
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>> + 'a> {
         match self.kind() {
             PostFnKind::Set => self.run_on_sim_set(sim_set, plot_template_name),
             PostFnKind::Sim => self.run_on_every_sim(sim_set, plot_template_name),
@@ -73,61 +75,67 @@ pub trait PostFn {
         &self,
         sim_set: &SimSet,
         plot_template_name: Option<&str>,
-    ) -> Result<Vec<DataPlotInfo>> {
-        let post_result = self.post(sim_set, None, None)?;
-        Ok(vec![DataPlotInfo::new(
-            self.get_plot_info(sim_set, None, None, plot_template_name)?,
-            post_result,
-        )])
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>>> {
+        let get_result = || {
+            let data = self.post(sim_set, None, None)?;
+            let info = self.get_plot_info(sim_set, None, None, plot_template_name)?;
+            Ok(DataPlotInfo::new(info, data))
+        };
+        Box::new(once(get_result()))
     }
 
-    fn run_on_sim_set_no_plot(&self, sim_set: &SimSet) -> Result<Vec<DataPlotInfo>> {
-        self.post(sim_set, None, None)?;
-        Ok(vec![])
-    }
-
-    fn run_on_every_sim(
+    fn run_on_sim_set_no_plot(
         &self,
         sim_set: &SimSet,
-        plot_template_name: Option<&str>,
-    ) -> Result<Vec<DataPlotInfo>> {
-        sim_set
-            .iter()
-            .map(|sim| {
-                let post_result = self.post(sim_set, Some(sim), None)?;
-                Ok(DataPlotInfo::new(
-                    self.get_plot_info(sim_set, Some(sim), None, plot_template_name)?,
-                    post_result,
-                ))
-            })
-            .collect()
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>> + '_> {
+        let result = self.post(sim_set, None, None);
+        if result.is_err() {
+            Box::new(vec![Err(result.err().unwrap())].into_iter())
+        } else {
+            Box::new(vec![].into_iter())
+        }
     }
 
-    fn run_on_every_sim_and_snap(
-        &self,
-        sim_set: &SimSet,
-        plot_template_name: Option<&str>,
-    ) -> Result<Vec<DataPlotInfo>> {
-        sim_set
-            .iter()
-            .map(|sim| {
-                get_snapshots(sim)?
-                    .map(|snap| {
-                        let snap = snap?;
-                        self.get_data_plot_info_for_sim_snap(
-                            sim_set,
-                            sim,
-                            &snap,
-                            plot_template_name,
-                        )
-                    })
-                    .collect::<Result<Vec<DataPlotInfo>>>()
-            })
-            .flat_map(|res_vec| match res_vec {
-                Ok(vec) => vec.into_iter().map(Ok).collect(),
-                Err(err) => vec![Err(err)],
-            })
-            .collect()
+    fn run_on_every_sim<'a, 'b>(
+        &'a self,
+        sim_set: &'a SimSet,
+        plot_template_name: Option<&'a str>,
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>> + 'a> {
+        Box::new(sim_set.iter().map(move |sim| {
+            let post_result = self.post(sim_set, Some(sim), None)?;
+            Ok(DataPlotInfo::new(
+                self.get_plot_info(sim_set, Some(sim), None, plot_template_name)?,
+                post_result,
+            ))
+        }))
+    }
+
+    fn run_on_every_sim_and_snap<'a, 'b>(
+        &'a self,
+        sim_set: &'a SimSet,
+        plot_template_name: Option<&'a str>,
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>> + 'a> {
+        Box::new(
+            sim_set
+                .iter()
+                .map(move |sim| {
+                    get_snapshots(sim)?
+                        .map(|snap| {
+                            let snap = snap?;
+                            self.get_data_plot_info_for_sim_snap(
+                                sim_set,
+                                sim,
+                                &snap,
+                                plot_template_name,
+                            )
+                        })
+                        .collect::<Result<Vec<DataPlotInfo>>>()
+                })
+                .flat_map(|res_vec| match res_vec {
+                    Ok(vec) => vec.into_iter().map(Ok).collect(),
+                    Err(err) => vec![Err(err)],
+                }),
+        )
     }
 
     fn get_data_plot_info_for_sim_snap(

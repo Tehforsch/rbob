@@ -75,7 +75,7 @@ impl CompareFn {
             sim.get_name(),
             sim_reference.get_name()
         );
-        for (key, _value) in sim.iter() {
+        for (key, _value) in sim_reference.iter() {
             assert_eq!(
                 sim[key], sim_reference[key],
                 "Parameter values differ for {}",

@@ -399,6 +399,8 @@ impl Index<&str> for SimParams {
     type Output = ParamValue;
 
     fn index(&self, key: &str) -> &ParamValue {
-        &self.params[key]
+        self.params
+            .get(key)
+            .expect(&format!("Key not found in sim: {}", key))
     }
 }

@@ -42,10 +42,15 @@ pub fn postprocess_sim_set(
     args: &PostprocessArgs,
 ) -> Result<()> {
     let function = args.function.get_function();
-    let data_plot_info_list = function.run_post(sim_set, args.plot_template.as_deref())?;
-    for data_plot_info in data_plot_info_list.iter() {
+    let data_plot_info_iter = function.run_post(sim_set, args.plot_template.as_deref());
+    let mut first_element = None;
+    for data_plot_info in data_plot_info_iter {
+        let data_plot_info = data_plot_info?;
+        if first_element.is_none() {
+            first_element = Some(data_plot_info.info.clone());
+        }
         data_plot_info.info.create_folders_if_nonexistent()?;
-        let filenames = write_results(data_plot_info)?;
+        let filenames = write_results(&data_plot_info)?;
         let image_file = plot::run_plot(
             create_plot,
             &data_plot_info.info,
@@ -56,8 +61,10 @@ pub fn postprocess_sim_set(
             show_image(&image_file?);
         }
     }
-    if args.showall && !data_plot_info_list.is_empty() {
-        show_image_folder(&data_plot_info_list[0].info.pic_folder);
+    if args.showall {
+        if let Some(first_element) = first_element {
+            show_image_folder(&first_element.pic_folder);
+        }
     }
     Ok(())
 }
