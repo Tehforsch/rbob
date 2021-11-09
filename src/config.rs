@@ -53,7 +53,7 @@ pub static RUN_COMMAND: &str = "sbatch";
 
 #[cfg(feature = "bwfor")]
 pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
-    max_num_cores: 1024,
+    max_num_cores: 2048,
     max_num_cores_per_node: 16,
 };
 
@@ -66,7 +66,7 @@ pub static RUN_COMMAND: &str = "bash";
 
 #[cfg(not(feature = "bwfor"))]
 pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
-    max_num_cores: 1024,
+    max_num_cores: 2048,
     max_num_cores_per_node: 16,
 };
 
