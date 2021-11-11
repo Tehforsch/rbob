@@ -116,9 +116,15 @@ pub fn get_snapshots<'a>(
     })))
 }
 
-fn filter_first_snapshot_for_postprocessing_runs(files: Vec<Utf8PathBuf>) -> Vec<Utf8PathBuf> {
-    let has_postprocessing_type_snapshots = files.iter().any(|snap| snap.as_str().contains("1000"));
-    if has_postprocessing_type_snapshots {
+fn filter_first_snapshot_for_postprocessing_runs(
+    sim: &SimParams,
+    files: Vec<Utf8PathBuf>,
+) -> Vec<Utf8PathBuf> {
+    if sim
+        .get("runParams")
+        .map(|run_params| run_params.unwrap_string().contains("21"))
+        .unwrap_or(false)
+    {
         files
             .iter()
             .filter(move |file| file.file_name().unwrap() != "snap_000.hdf5")
@@ -135,7 +141,7 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
         sim.folder,
         sim.output_folder(),
     ))?;
-    files = filter_first_snapshot_for_postprocessing_runs(files);
+    files = filter_first_snapshot_for_postprocessing_runs(sim, files);
     files.sort_by_key(|snap_file| snap_file.file_name().unwrap().to_owned());
     Ok(Box::new(files.into_iter().filter(|f| {
         f.extension().map(|ext| ext == "hdf5").unwrap_or(false)
