@@ -16,11 +16,7 @@ pub type FArray2 = Array2<Float>;
 pub type FArray3 = Array3<Float>;
 pub type FArray4 = Array4<Float>;
 
-pub fn convert_heatmap_to_gnuplot_format(
-    heatmap: FArray2,
-    center: FArray1,
-    length_factor: f64,
-) -> FArray2 {
+pub fn convert_heatmap_to_gnuplot_format(heatmap: FArray2, length_factor: f64) -> FArray2 {
     let shape = heatmap.shape();
     let mut result = FArray2::zeros((shape[0] * shape[1], 3));
     for ((i0, i1), v) in heatmap.indexed_iter() {

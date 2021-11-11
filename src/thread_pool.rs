@@ -3,7 +3,7 @@ use std::thread::{self};
 
 pub struct ThreadPool<T> {
     handles: Vec<JoinHandle<T>>,
-    max_num_threads: usize,
+    _max_num_threads: usize,
 }
 
 impl<T> ThreadPool<T>
@@ -13,7 +13,7 @@ where
     pub fn new(max_num_threads: usize) -> Self {
         Self {
             handles: vec![],
-            max_num_threads,
+            _max_num_threads: max_num_threads,
         }
     }
 
