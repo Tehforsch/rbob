@@ -970,7 +970,7 @@ pub static PARAM_FILE_PARAMS: &[&str] = &[
     "TestSrcFile",
     "TestSrcFile",
     "TestSrcFile",
-    "SweepPeriodicConvergenceTreshold",
+    "SweepPeriodicConvergenceThreshold",
     "SweepNumPeriodicIterations",
     "TimeBegin",
     "TimeBetSnapshot",
