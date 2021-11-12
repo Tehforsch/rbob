@@ -13,6 +13,7 @@ pub enum ParamValue {
     Int(i64),
     Float(OrderedFloat<f64>, String), // Keep the original string representation to make sure we dont change anything
     Bool(bool),
+    None,
 }
 
 impl std::fmt::Display for ParamValue {
@@ -22,6 +23,7 @@ impl std::fmt::Display for ParamValue {
             ParamValue::Int(x) => write!(f, "{}", x),
             ParamValue::Float(_, s) => write!(f, "{}", s),
             ParamValue::Bool(x) => write!(f, "{}", x),
+            ParamValue::None => write!(f, "None"),
         }
     }
 }
@@ -45,7 +47,13 @@ impl ParamValue {
                     Err(anyhow!("Found invalid number type: {}", &x))
                 }
             }
-            Value::String(x) => Ok(ParamValue::Str(x.as_str().to_owned())),
+            Value::String(x) => {
+                if x == "None" {
+                    Ok(Self::None)
+                } else {
+                    Ok(ParamValue::Str(x.as_str().to_owned()))
+                }
+            }
             Value::Sequence(_) => Err(anyhow!("List in serde value - invalid bob file structure?")),
             Value::Mapping(_) => panic!("Mapping in serde value!"),
         }
@@ -77,6 +85,26 @@ impl ParamValue {
         match self {
             ParamValue::Bool(s) => *s,
             _ => panic!("Tried to read value {} as bool.", self),
+        }
+    }
+
+    pub fn as_option(&self) -> Option<&ParamValue> {
+        match self {
+            ParamValue::None => None,
+            ParamValue::Bool(_)
+            | ParamValue::Str(_)
+            | ParamValue::Int(_)
+            | ParamValue::Float(_, _) => Some(self),
+        }
+    }
+
+    pub fn into_option(self) -> Option<ParamValue> {
+        match self {
+            ParamValue::None => None,
+            ParamValue::Bool(_)
+            | ParamValue::Str(_)
+            | ParamValue::Int(_)
+            | ParamValue::Float(_, _) => Some(self),
         }
     }
 }

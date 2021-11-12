@@ -151,7 +151,11 @@ impl SimParams {
         sorted_keys
             .iter()
             .filter(|key| config::PARAM_FILE_PARAMS.contains(&key.as_str()))
-            .map(|key| format!("{}    {}", key, self[key]))
+            .filter_map(|key| {
+                self[key]
+                    .as_option()
+                    .map(|value| format!("{}    {}", key, value))
+            })
             .join("\n")
     }
 
@@ -343,7 +347,11 @@ fn read_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
     let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
     key_value_strings
         .into_iter()
-        .map(|(k, v)| ParamValue::from_str(&v).map(|x| (k, x)))
+        .filter_map(|(k, v)| {
+            ParamValue::from_str(&v)
+                .map(|x| x.into_option().map(|x| (k, x)))
+                .transpose()
+        })
         .collect()
 }
 
@@ -371,11 +379,6 @@ fn read_parameter_lines(
 ) -> Result<HashMap<String, String>> {
     get_nonempty_noncomment_lines(contents, comment_string)
         .map(|line| {
-            // let mut captures = pattern.captures_iter(line);
-            // for cap in captures {
-            //     dbg!("???{:?}???", &cap);
-            // }
-            // dbg!(&line);
             let mut captures = pattern.captures_iter(line);
             captures.next().filter(|cap| cap.len() == 3).map_or_else(
                 || {
