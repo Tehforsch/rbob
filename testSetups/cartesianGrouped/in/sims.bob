@@ -1,7 +1,0 @@
-cartesian_type:
-    Grouped:
-        [["SX_SWEEP", "SX_NUM_ROT"], ["MultipleDomains"]]
-substitutions:
-    MultipleDomains: [1, 2, 3]
-    SX_SWEEP: [true, false]
-    SX_NUM_ROT: [4,5]
