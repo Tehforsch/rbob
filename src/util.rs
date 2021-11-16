@@ -158,7 +158,7 @@ pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result
     fs::copy(&source, &target)
         .with_context(|| {
             format!(
-                "While copying file to the arepo folder ({:?} to {:?})",
+                "While copying file ({:?} to {:?})",
                 &source.as_ref(),
                 &target.as_ref()
             )

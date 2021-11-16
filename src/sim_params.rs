@@ -190,11 +190,7 @@ impl SimParams {
         Ok(())
     }
 
-    pub fn copy_initial_snapshot_if_needed(
-        &self,
-        source_folder: &Utf8Path,
-        target_folder: &Utf8Path,
-    ) -> Result<()> {
+    pub fn copy_ics(&self, source_folder: &Utf8Path, target_folder: &Utf8Path) -> Result<()> {
         if let Some(initial_snap_file_name) = self.get(config::INITIAL_SNAP_IDENTIFIER) {
             let initial_snap_file = source_folder.join(initial_snap_file_name.unwrap_string());
             let snap_file_base = self.get("SnapshotFileBase").unwrap();
@@ -205,6 +201,32 @@ impl SimParams {
                 snap_file_base = snap_file_base
             ));
             copy_file(initial_snap_file, target_file)?;
+        } else {
+            let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
+            let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
+            let ics_ending = match ics_format {
+                3 => "hdf5",
+                _ => unimplemented!(),
+            };
+            let ics_file_name = format!("{}.{}", ics_file_base, ics_ending);
+            copy_file(
+                source_folder.join(&ics_file_name),
+                target_folder.join(&ics_file_name),
+            )?;
+        }
+        Ok(())
+    }
+
+    pub fn copy_test_sources_file_if_exists(
+        &self,
+        source_folder: &Utf8Path,
+        target_folder: &Utf8Path,
+    ) -> Result<()> {
+        if let Some(sources_file_identifier) = self.get("TestSrcFile") {
+            let sources_file_name = sources_file_identifier.unwrap_string();
+            let sources_file = source_folder.join(&sources_file_name);
+            let output_sources_file = target_folder.join(&sources_file_name);
+            copy_file(sources_file, output_sources_file)?;
         }
         Ok(())
     }
