@@ -101,10 +101,7 @@ fn get_voronoi_swim_result(
         let cloned_voronoi_swim_param_file = voronoi_swim_param_file.to_owned();
         pool.add_job(move || simulate_run_time(&cloned_sim, &cloned_voronoi_swim_param_file));
     }
-    let run_times = pool
-        .get_results()
-        .into_iter()
-        .collect::<Result<Vec<f64>>>()?;
+    let run_times = pool.collect::<Result<Vec<f64>>>()?;
     for (i, sim) in sub_sim_set.enumerate() {
         res[[*i, 0]] = sim.get_num_cores()? as f64;
         res[[*i, 1]] = run_times[*i] * sim.get_num_sweep_runs()? as f64;
