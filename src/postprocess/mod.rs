@@ -6,9 +6,12 @@ use snapshot::Snapshot;
 
 use self::data_plot_info::DataPlotInfo;
 use self::postprocess_args::PostprocessArgs;
+use crate::config;
+use crate::config::DEFAULT_PIC_FOLDER;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::source_file::SourceFile;
+use crate::thread_pool::ThreadPool;
 use crate::util::get_files;
 use crate::util::get_shell_command_output;
 use crate::util::write_file;
@@ -44,26 +47,26 @@ pub fn postprocess_sim_set(
 ) -> Result<()> {
     let sim_set = filter_sim_set(sim_set, args.select.as_ref());
     let data_plot_info_iter = args.function.run(&sim_set, args.plot_template.as_deref());
-    let mut first_element = None;
+    let mut pool: ThreadPool<anyhow::Result<()>, _> = ThreadPool::new(config::MAX_NUM_POST_THREADS);
     for data_plot_info in data_plot_info_iter {
-        let data_plot_info = data_plot_info?;
-        if first_element.is_none() {
-            first_element = Some(data_plot_info.info.clone());
-        }
-        data_plot_info.info.create_folders_if_nonexistent()?;
-        let filenames = write_results(&data_plot_info)?;
-        plot::run_plot(
-            create_plot,
-            &data_plot_info.info,
-            &filenames,
-            &data_plot_info.replacements,
-        )
-        .unwrap();
+        pool.add_job(move || {
+            let data_plot_info = data_plot_info?;
+            data_plot_info.info.create_folders_if_nonexistent()?;
+            let filenames = write_results(&data_plot_info)?;
+            plot::run_plot(
+                create_plot,
+                &data_plot_info.info,
+                &filenames,
+                &data_plot_info.replacements,
+            )
+            .unwrap();
+            Ok(())
+        });
     }
+    let _: Vec<_> = pool.collect();
     if args.showall {
-        if let Some(first_element) = first_element {
-            show_image_folder(&first_element.pic_folder);
-        }
+        let pic_folder = sim_set.get_folder()?.join(DEFAULT_PIC_FOLDER);
+        show_image_folder(&pic_folder);
     }
     Ok(())
 }

@@ -50,7 +50,9 @@ macro_rules! snap_function {
                 }
             }
             infos.into_iter().zip(pool).map(|(info, result)|
-                result.map(|result| DataPlotInfo::new(info, result))
+                                            result.map(|result| {
+                                                DataPlotInfo::new(info, result)}
+                                            )
             ).collect()
         }
     }
