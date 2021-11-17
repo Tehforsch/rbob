@@ -1,38 +1,28 @@
 use anyhow::Result;
 use clap::Clap;
 
+use super::named::Named;
 use super::plot_params::PlotParams;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
 use super::post_fn::PostResult;
-use super::snapshot::Snapshot;
 use crate::array_utils::FArray2;
-use crate::sim_params::SimParams;
+use crate::postprocess::DataPlotInfo;
+use crate::set_function;
 use crate::sim_set::SimSet;
 
 #[derive(Clap, Debug)]
 pub struct ConvergenceFn {}
 
-impl PostFn for &ConvergenceFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::Set
-    }
+impl ConvergenceFn {
+    set_function!(convergence, { |sim_set| get_scaling_data(sim_set) });
+}
 
+impl Named for ConvergenceFn {
     fn name(&self) -> &'static str {
         "convergence"
     }
 
     fn qualified_name(&self) -> String {
         self.name().to_string()
-    }
-
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        get_scaling_data(sim_set)
     }
 }
 

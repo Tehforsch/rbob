@@ -8,11 +8,12 @@ use ndarray::Array1;
 use ordered_float::OrderedFloat;
 
 use super::get_snapshots;
-use super::plot_params::PlotParams;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
-use super::post_fn::PostResult;
+use super::named::Named;
 use super::snapshot::Snapshot;
+use crate::no_plot_set_function;
+use crate::postprocess::data_plot_info::DataPlotInfo;
+use crate::postprocess::plot_params::PlotParams;
+use crate::postprocess::post_fn::PostResult;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 
@@ -25,46 +26,41 @@ pub struct CompareFn {
     pub mean_error_treshold: Option<f64>,
 }
 
-impl PostFn for &CompareFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::NoPlotSet
-    }
+impl CompareFn {
+    no_plot_set_function!(post_fn, {
+        |sim_set: &SimSet| {
+            let reference_sim_set = SimSet::from_output_folder(&post_fn.reference)?;
+            for either_or_both in sim_set.iter().zip_longest(reference_sim_set.iter()) {
+                match either_or_both {
+                    itertools::EitherOrBoth::Both(sim, sim_reference) => {
+                        post_fn.compare_sims(sim, sim_reference)?;
+                    }
+                    itertools::EitherOrBoth::Left(sim) => {
+                        panic!(
+                            "Simulation {} available in new run but not in reference run!",
+                            sim.get_name()
+                        );
+                    }
+                    itertools::EitherOrBoth::Right(sim_reference) => {
+                        panic!(
+                            "Simulation {} available in reference run but not in new run!",
+                            sim_reference.get_name()
+                        );
+                    }
+                }
+            }
+            Ok(PostResult::new(PlotParams::default(), vec![]))
+        }
+    });
+}
 
+impl Named for CompareFn {
     fn name(&self) -> &'static str {
         "compare"
     }
 
     fn qualified_name(&self) -> String {
         self.name().to_string()
-    }
-
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        let reference_sim_set = SimSet::from_output_folder(&self.reference)?;
-        for either_or_both in sim_set.iter().zip_longest(reference_sim_set.iter()) {
-            match either_or_both {
-                itertools::EitherOrBoth::Both(sim, sim_reference) => {
-                    self.compare_sims(sim, sim_reference)?;
-                }
-                itertools::EitherOrBoth::Left(sim) => {
-                    panic!(
-                        "Simulation {} available in new run but not in reference run!",
-                        sim.get_name()
-                    );
-                }
-                itertools::EitherOrBoth::Right(sim_reference) => {
-                    panic!(
-                        "Simulation {} available in reference run but not in new run!",
-                        sim_reference.get_name()
-                    );
-                }
-            }
-        }
-        Ok(PostResult::new(PlotParams::default(), vec![]))
     }
 }
 

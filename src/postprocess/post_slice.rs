@@ -21,41 +21,13 @@ use crate::config::MAX_NUM_POST_THREADS;
 use crate::config::NX_SLICE;
 use crate::config::NY_SLICE;
 use crate::sim_set::SimSet;
+use crate::snap_function;
 use crate::thread_pool::ThreadPool;
 
 #[derive(Clap, Debug, Clone)]
 pub struct SliceFn {
     pub field: FieldIdentifier,
     pub axis: Axis,
-}
-
-macro_rules! snap_function {
-    ($i:ident, $code:block) => {
-        pub fn run($i: &Self, sim_set: &SimSet, plot_template: Option<&str>) -> Vec<Result<DataPlotInfo>>  {
-            let mut pool = ThreadPool::new(MAX_NUM_POST_THREADS);
-            let mut infos = vec![];
-            for sim in sim_set.iter() {
-                for snap_path in get_snapshot_files(sim).unwrap() {
-                    let sim_set = sim_set.clone();
-                    let snap=Snapshot::from_file(&sim, &snap_path).unwrap();
-                    let info = $i.get_plot_info(&sim_set, Some(&sim), Some(&snap), plot_template).unwrap();
-                    let sim = sim.clone();
-                    let cloned = $i.clone();
-                    infos.push(info);
-                    pool.add_job(move || {
-                        let snap=Snapshot::from_file(&sim, &snap_path).unwrap();
-                        let closure = $code;
-                        closure(cloned, snap)
-                    });
-                }
-            }
-            infos.into_iter().zip(pool).map(|(info, result)|
-                                            result.map(|result| {
-                                                DataPlotInfo::new(info, result)}
-                                            )
-            ).collect()
-        }
-    }
 }
 
 impl SliceFn {

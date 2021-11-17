@@ -9,70 +9,39 @@ use super::calculations::get_recombination_time;
 use super::calculations::get_stroemgren_radius;
 use super::get_snapshots;
 use super::get_source_file;
+use super::named::Named;
 use super::plot_params::PlotParams;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
 use super::post_fn::PostResult;
 use super::snapshot::Snapshot;
 use crate::array_utils::FArray1;
 use crate::array_utils::FArray2;
 use crate::config;
-use crate::sim_params::SimParams;
+use crate::postprocess::data_plot_info::DataPlotInfo;
+use crate::set_function;
 use crate::sim_set::SimSet;
 
 #[derive(Clap, Debug)]
-pub struct RTypeExpansionFn {}
+pub struct ExpansionFn {}
 
-impl PostFn for &RTypeExpansionFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::Set
-    }
-
+impl Named for ExpansionFn {
     fn name(&self) -> &'static str {
-        "rtype"
+        "expansion"
     }
 
     fn qualified_name(&self) -> String {
         self.name().to_string()
-    }
-
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        get_expansion_data(sim_set)
     }
 }
 
-#[derive(Clap, Debug)]
-pub struct DTypeExpansionFn {}
-
-impl PostFn for &DTypeExpansionFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::Set
-    }
-
-    fn name(&self) -> &'static str {
-        "dtype"
-    }
-
-    fn qualified_name(&self) -> String {
-        self.name().to_string()
-    }
-
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        get_expansion_data(sim_set).map(|mut result| {
-            result.params.add("startTimeAnalytical", 1.0);
-            result
-        })
-    }
+impl ExpansionFn {
+    set_function!(expansion, {
+        |sim_set| {
+            get_expansion_data(sim_set).map(|mut result| {
+                result.params.add("startTimeAnalytical", 1.0);
+                result
+            })
+        }
+    });
 }
 
 fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {

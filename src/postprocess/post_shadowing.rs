@@ -4,14 +4,15 @@ use clap::Clap;
 use uom::si::f64::Time;
 use uom::si::time::year;
 
-use super::axis::Axis;
-use super::field_identifier::FieldIdentifier;
+use super::data_plot_info::DataPlotInfo;
 use super::get_snapshots;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
+use super::named::Named;
 use super::post_fn::PostResult;
-use super::post_slice::get_slice_result;
 use super::snapshot::Snapshot;
+use crate::postprocess::axis::Axis;
+use crate::postprocess::field_identifier::FieldIdentifier;
+use crate::postprocess::post_slice::get_slice_result;
+use crate::set_function;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::unit_utils::nice_time;
@@ -19,11 +20,7 @@ use crate::unit_utils::nice_time;
 #[derive(Clap, Debug)]
 pub struct ShadowingFn {}
 
-impl PostFn for &ShadowingFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::Set
-    }
-
+impl Named for ShadowingFn {
     fn name(&self) -> &'static str {
         "shadowing"
     }
@@ -31,28 +28,27 @@ impl PostFn for &ShadowingFn {
     fn qualified_name(&self) -> String {
         self.name().to_string()
     }
+}
 
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        let mut results = vec![];
-        let kiloyear = Time::new::<year>(1e3);
-        let times = [6.4 * kiloyear, 32.0 * kiloyear, 48.0 * kiloyear];
-        for sim in sim_set.iter() {
-            let snaps = find_snaps_at_times(sim, &times)?;
-            for snap in snaps {
-                results.push(get_slice_result(
-                    &snap,
-                    &Axis::Z,
-                    &FieldIdentifier::HpAbundance,
-                )?);
-            }
+impl ShadowingFn {
+    set_function!(shadowing, { move |sim_set| run(sim_set) });
+}
+
+fn run(sim_set: &SimSet) -> Result<PostResult> {
+    let mut results = vec![];
+    let kiloyear = Time::new::<year>(1e3);
+    let times = [6.4 * kiloyear, 32.0 * kiloyear, 48.0 * kiloyear];
+    for sim in sim_set.iter() {
+        let snaps = find_snaps_at_times(sim, &times)?;
+        for snap in snaps {
+            results.push(get_slice_result(
+                &snap,
+                &Axis::Z,
+                &FieldIdentifier::HpAbundance,
+            )?);
         }
-        Ok(PostResult::join(results))
     }
+    Ok(PostResult::join(results))
 }
 
 fn find_snaps_at_times<'a>(sim: &'a SimParams, times: &[Time]) -> Result<Vec<Snapshot<'a>>> {

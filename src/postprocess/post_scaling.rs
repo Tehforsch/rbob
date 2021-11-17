@@ -3,16 +3,15 @@ use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use clap::Clap;
 
+use super::data_plot_info::DataPlotInfo;
+use super::named::Named;
 use super::plot_params::PlotParams;
-use super::post_fn::PostFn;
-use super::post_fn::PostFnKind;
 use super::post_fn::PostResult;
-use super::snapshot::Snapshot;
 use crate::array_utils::FArray2;
 use crate::config;
 use crate::postprocess::voronoi_swim::generate_all_grid_files;
 use crate::postprocess::voronoi_swim::simulate_run_time;
-use crate::sim_params::SimParams;
+use crate::set_function;
 use crate::sim_set::SimSet;
 use crate::thread_pool::ThreadPool;
 
@@ -23,11 +22,7 @@ pub struct ScalingFn {
     voronoi_swim: Vec<Utf8PathBuf>,
 }
 
-impl PostFn for &ScalingFn {
-    fn kind(&self) -> PostFnKind {
-        PostFnKind::Set
-    }
-
+impl Named for ScalingFn {
     fn name(&self) -> &'static str {
         "scaling"
     }
@@ -35,15 +30,10 @@ impl PostFn for &ScalingFn {
     fn qualified_name(&self) -> String {
         self.name().to_string()
     }
+}
 
-    fn post(
-        &self,
-        sim_set: &SimSet,
-        _sim: Option<&SimParams>,
-        _snap: Option<&Snapshot>,
-    ) -> Result<PostResult> {
-        self.get_scaling_data(sim_set)
-    }
+impl ScalingFn {
+    set_function!(scaling, { |sim_set| scaling.get_scaling_data(sim_set) });
 }
 
 impl ScalingFn {
