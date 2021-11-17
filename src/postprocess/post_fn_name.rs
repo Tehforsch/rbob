@@ -1,13 +1,15 @@
+use anyhow::Result;
 use clap::Clap;
 
+use super::data_plot_info::DataPlotInfo;
 use super::post_compare::CompareFn;
 use super::post_convergence::ConvergenceFn;
 use super::post_expansion::DTypeExpansionFn;
 use super::post_expansion::RTypeExpansionFn;
-use super::post_fn::PostFn;
 use super::post_scaling::ScalingFn;
 use super::post_shadowing::ShadowingFn;
 use super::post_slice::SliceFn;
+use crate::sim_set::SimSet;
 
 #[derive(Clap, Debug)]
 pub enum PostFnName {
@@ -21,26 +23,10 @@ pub enum PostFnName {
 }
 
 impl PostFnName {
-    pub fn get_function<'a>(&'a self) -> Box<dyn PostFn + 'a> {
+    pub fn run(&self, sim_set: &SimSet, plot_template: Option<&str>) -> Vec<Result<DataPlotInfo>> {
         match self {
-            Self::Scaling(s) => Box::new(s),
-            Self::Slice(s) => Box::new(s),
-            Self::Compare(s) => Box::new(s),
-            Self::RType(s) => Box::new(s),
-            Self::DType(s) => Box::new(s),
-            Self::Shadowing(s) => Box::new(s),
-            Self::Convergence(s) => Box::new(s),
+            PostFnName::Slice(slice) => SliceFn::run(slice, sim_set, plot_template),
+            _ => unimplemented!(),
         }
     }
 }
-
-// impl std::fmt::Display for PostFnName {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         let name = match self {
-//             // Self::Expansion(_) => "expansion".to_owned(),
-//             // Self::Slice(s) => format!("slice_{}", s.axis),
-//             Self::Scaling(_s) => "scaling".to_owned(),
-//         };
-//         write!(f, "{}", name)
-//     }
-// }

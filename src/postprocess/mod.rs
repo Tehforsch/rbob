@@ -17,6 +17,7 @@ pub mod axis;
 pub mod calculations;
 pub mod data_plot_info;
 pub mod field_identifier;
+mod named;
 pub mod plot;
 pub mod plot_info;
 pub mod plot_info_file_contents;
@@ -42,8 +43,7 @@ pub fn postprocess_sim_set(
     args: &PostprocessArgs,
 ) -> Result<()> {
     let sim_set = filter_sim_set(sim_set, args.select.as_ref());
-    let function = args.function.get_function();
-    let data_plot_info_iter = function.run_post(&sim_set, args.plot_template.as_deref());
+    let data_plot_info_iter = args.function.run(&sim_set, args.plot_template.as_deref());
     let mut first_element = None;
     for data_plot_info in data_plot_info_iter {
         let data_plot_info = data_plot_info?;

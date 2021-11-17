@@ -6,7 +6,7 @@ use clap::Clap;
 use ndarray::array;
 use ndarray::Array1;
 
-#[derive(Clap, Debug)]
+#[derive(Clap, Debug, Clone)]
 pub enum Axis {
     X,
     Y,

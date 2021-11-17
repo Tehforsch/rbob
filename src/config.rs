@@ -29,6 +29,7 @@ pub static DEFAULT_PIC_FOLDER: &str = "pics";
 pub static CONFIG_FILE_NAME: &str = "config.yaml";
 
 pub static MAX_NUM_VORONOI_SWIM_THREADS: usize = 8;
+pub static MAX_NUM_POST_THREADS: usize = 8;
 
 #[cfg(feature = "bwfor")]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash

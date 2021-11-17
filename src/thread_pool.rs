@@ -58,6 +58,10 @@ where
         }
     }
 
+    fn is_finished(&self) -> bool {
+        matches!(self, Self::Finished(..))
+    }
+
     fn unwrap_result(self) -> T {
         match self {
             Self::Finished(result) => result,
@@ -102,14 +106,6 @@ where
             .filter(|thread| matches!(thread, ThreadState::Running(..)))
     }
 
-    fn get_finished_indices(&'_ self) -> impl Iterator<Item = usize> + '_ {
-        self.threads
-            .iter()
-            .enumerate()
-            .filter(|(_, thread)| matches!(thread, ThreadState::Finished(..)))
-            .map(|(num, _)| num)
-    }
-
     pub fn add_job(&mut self, closure: F)
     where
         F: std::ops::FnOnce() -> T + Send + 'static,
@@ -138,9 +134,17 @@ where
                 waiting_thread.set_running();
             }
         }
-        let index = self.get_finished_indices().next()?;
-        let finished_thread = self.threads.remove(index);
-        return Some(finished_thread.unwrap_result());
+        if self
+            .threads
+            .get(0)
+            .map(|thread| thread.is_finished())
+            .unwrap_or(false)
+        {
+            let finished_thread = self.threads.remove(0);
+            return Some(finished_thread.unwrap_result());
+        } else {
+            None
+        }
     }
 }
 

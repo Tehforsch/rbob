@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use clap::Clap;
 
-#[derive(Clap, Debug)]
+#[derive(Clap, Debug, Clone)]
 pub enum FieldIdentifier {
     HpAbundance,
     Density,
