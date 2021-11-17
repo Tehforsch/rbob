@@ -39,7 +39,7 @@ impl PostResult {
 #[macro_export]
 macro_rules! snap_function {
     ($i:ident, $code:block) => {
-        pub fn run($i: &Self, sim_set: &SimSet, plot_template: Option<&str>) -> Vec<Result<DataPlotInfo>>  {
+        pub fn run($i: &Self, sim_set: &SimSet, plot_template: Option<&str>) -> impl Iterator<Item=Result<DataPlotInfo>>  {
             use crate::postprocess::data_plot_info::DataPlotInfo;
             let mut pool = ThreadPool::new(MAX_NUM_POST_THREADS);
             let mut infos = vec![];
@@ -62,7 +62,7 @@ macro_rules! snap_function {
                                             result.map(|result| {
                                                 DataPlotInfo::new(info, result)}
                                             )
-            ).collect()
+            )
         }
     }
 }
@@ -70,13 +70,14 @@ macro_rules! snap_function {
 #[macro_export]
 macro_rules! no_plot_set_function {
     ($i:ident, $code:block) => {
-        pub fn run($i: &Self, sim_set: &SimSet) -> Vec<Result<DataPlotInfo>> {
+        pub fn run($i: &Self, sim_set: &SimSet) -> impl Iterator<Item = Result<DataPlotInfo>> {
             let result = $code(sim_set);
             if result.is_err() {
                 vec![Err(result.err().unwrap())]
             } else {
                 vec![]
             }
+            .into_iter()
         }
     };
 }
@@ -88,12 +89,12 @@ macro_rules! set_function {
             $i: &Self,
             sim_set: &SimSet,
             plot_template: Option<&str>,
-        ) -> Vec<Result<DataPlotInfo>> {
+        ) -> impl Iterator<Item = Result<DataPlotInfo>> {
             let result = $code(sim_set);
             let info = $i
                 .get_plot_info(sim_set, None, None, plot_template)
                 .unwrap();
-            vec![result.map(|result| DataPlotInfo::new(info, result))]
+            vec![result.map(|result| DataPlotInfo::new(info, result))].into_iter()
         }
     };
 }

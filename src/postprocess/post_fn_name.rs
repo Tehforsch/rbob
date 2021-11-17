@@ -21,15 +21,21 @@ pub enum PostFnName {
 }
 
 impl PostFnName {
-    pub fn run(&self, sim_set: &SimSet, plot_template: Option<&str>) -> Vec<Result<DataPlotInfo>> {
+    pub fn run(
+        &self,
+        sim_set: &SimSet,
+        plot_template: Option<&str>,
+    ) -> Box<dyn Iterator<Item = Result<DataPlotInfo>>> {
         use PostFnName::*;
         match self {
-            Slice(slice) => SliceFn::run(slice, sim_set, plot_template),
-            Compare(compare) => CompareFn::run(compare, sim_set),
-            Expansion(expansion) => ExpansionFn::run(expansion, sim_set, plot_template),
-            Scaling(scaling) => ScalingFn::run(scaling, sim_set, plot_template),
-            Shadowing(shadowing) => ShadowingFn::run(shadowing, sim_set, plot_template),
-            Convergence(convergence) => ConvergenceFn::run(convergence, sim_set, plot_template),
+            Slice(slice) => Box::new(SliceFn::run(slice, sim_set, plot_template)),
+            Compare(compare) => Box::new(CompareFn::run(compare, sim_set)),
+            Expansion(expansion) => Box::new(ExpansionFn::run(expansion, sim_set, plot_template)),
+            Scaling(scaling) => Box::new(ScalingFn::run(scaling, sim_set, plot_template)),
+            Shadowing(shadowing) => Box::new(ShadowingFn::run(shadowing, sim_set, plot_template)),
+            Convergence(convergence) => {
+                Box::new(ConvergenceFn::run(convergence, sim_set, plot_template))
+            }
         }
     }
 }
