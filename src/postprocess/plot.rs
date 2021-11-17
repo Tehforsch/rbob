@@ -44,9 +44,7 @@ pub fn run_plot(
         maybe_run_pdflatex(info)?;
         info.find_pic_file_and_copy_one_folder_up()
     } else {
-        Err(anyhow!(
-            "Plot was not actually created - no output file exists. Run with plot instead of post to change this"
-        ))
+        Ok(())
     }
 }
 
