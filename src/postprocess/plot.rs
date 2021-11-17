@@ -29,7 +29,7 @@ pub fn run_plot(
     info: &PlotInfo,
     filenames: &[Utf8PathBuf],
     special_replacements: &HashMap<String, String>,
-) -> Result<Utf8PathBuf> {
+) -> Result<()> {
     let mut replacements = get_default_replacements(info, filenames)?;
     for (k, v) in special_replacements {
         replacements.insert(k.to_string(), v.to_string());

@@ -73,7 +73,7 @@ impl PlotInfo {
         PlotTemplate::new(&self.plot_template_name)
     }
 
-    pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<Utf8PathBuf> {
+    pub fn find_pic_file_and_copy_one_folder_up(&self) -> Result<()> {
         let basename = &self.plot_name;
         let potential_extensions = ["pdf", "png"];
         let plot_folder = self.get_plot_folder();
@@ -83,7 +83,7 @@ impl PlotInfo {
             if path.is_file() {
                 let target = path.parent().unwrap().parent().unwrap().join(&filename);
                 copy_file(&path, target)?;
-                return Ok(path);
+                return Ok(());
             }
         }
         Err(anyhow!("No image file generated"))

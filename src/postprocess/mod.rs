@@ -52,15 +52,13 @@ pub fn postprocess_sim_set(
         }
         data_plot_info.info.create_folders_if_nonexistent()?;
         let filenames = write_results(&data_plot_info)?;
-        let image_file = plot::run_plot(
+        plot::run_plot(
             create_plot,
             &data_plot_info.info,
             &filenames,
             &data_plot_info.replacements,
-        );
-        if args.show {
-            show_image(&image_file?);
-        }
+        )
+        .unwrap();
     }
     if args.showall {
         if let Some(first_element) = first_element {

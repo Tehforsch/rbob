@@ -6,8 +6,6 @@ use super::post_fn_name::PostFnName;
 /// Run the postprocessing scripts
 #[derive(Clap, Debug)]
 pub struct PostprocessArgs {
-    #[clap(long, global = true)]
-    pub show: bool,
     #[clap(short, long, global = true)]
     pub showall: bool,
     #[clap(long, global = true)]
