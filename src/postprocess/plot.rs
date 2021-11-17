@@ -10,12 +10,14 @@ use itertools::Itertools;
 use super::plot_info::PlotInfo;
 use super::plot_info_file_contents::PlotInfoFileContents;
 use super::replot_args::ReplotArgs;
+use crate::config;
 use crate::config::DEFAULT_PIC_FOLDER;
 use crate::config::DEFAULT_PLOT_CONFIG_FOLDER_NAME;
 use crate::config::DEFAULT_PLOT_EXTENSION;
 use crate::config::DEFAULT_PLOT_FILE_NAME;
 use crate::config::DEFAULT_PLOT_INFO_FILE_NAME;
 use crate::config::PLOT_TEMPLATE_FOLDER;
+use crate::thread_pool::ThreadPool;
 use crate::util::copy_recursive;
 use crate::util::get_files;
 use crate::util::get_folders;
@@ -50,11 +52,16 @@ pub fn run_plot(
 
 pub fn replot(args: &ReplotArgs) -> Result<()> {
     let pic_folder = args.folder.join(DEFAULT_PIC_FOLDER);
+    let mut pool: ThreadPool<Result<()>, _> = ThreadPool::new(config::MAX_NUM_POST_THREADS);
     for folder in get_folders(&pic_folder)? {
-        let plot_info_file = folder.join(DEFAULT_PLOT_INFO_FILE_NAME);
-        let plot_info = read_plot_info_file(&plot_info_file)?;
-        run_plot(true, &plot_info.info, &[], &plot_info.replacements)?;
+        pool.add_job(move || {
+            let plot_info_file = folder.join(DEFAULT_PLOT_INFO_FILE_NAME);
+            let plot_info = read_plot_info_file(&plot_info_file)?;
+            run_plot(true, &plot_info.info, &[], &plot_info.replacements)?;
+            Ok(())
+        });
     }
+    let _: Vec<_> = pool.collect();
     Ok(())
 }
 
