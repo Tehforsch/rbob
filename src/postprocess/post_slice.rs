@@ -56,6 +56,9 @@ pub fn get_slice_result(
         FieldIdentifier::HpAbundance => snap.h_plus_abundance()?,
         FieldIdentifier::Density => snap.density()?,
     };
+    use std::thread;
+    use std::time::Duration;
+    thread::sleep(Duration::from_millis(1000));
     let min_extent = snap.min_extent();
     let max_extent = snap.max_extent();
     let center = snap.center();
