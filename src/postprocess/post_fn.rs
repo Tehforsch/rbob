@@ -53,6 +53,7 @@ macro_rules! snap_function {
                     infos.push(info);
                     pool.add_job(move || {
                         let snap=Snapshot::from_file(&sim, &snap_path).unwrap();
+                        println!("Running on {}", snap_path.as_str());
                         let closure = $code;
                         closure(cloned, snap)
                     });
