@@ -7,6 +7,7 @@ use args::SubCommand;
 use bob::config;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::copy::copy_sim_set;
+use bob::copy_abundances::copy_abundances;
 use bob::diff;
 use bob::get_data::get_data;
 use bob::make::build_sim_set;
@@ -67,6 +68,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Replot(l) => {
             replot(&l)?;
+        }
+        SubCommand::CopyAbundances(l) => {
+            copy_abundances(&l.sim_abundances, &l.sim_coordinates, &l.snap_output)?;
         }
     }
     Ok(())

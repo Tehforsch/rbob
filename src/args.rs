@@ -28,6 +28,7 @@ pub enum SubCommand {
     Plot(PostprocessArgs),
     Replot(ReplotArgs),
     GetData(GetData),
+    CopyAbundances(CopyAbundances),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -90,4 +91,17 @@ pub struct StartSimulation {
 pub struct GetData {
     pub source_folder: Utf8PathBuf,
     pub target_folder: Utf8PathBuf,
+}
+
+/// Combine two snapshots into one by using the abundances from the first
+/// and everything else from the second. The abundances will be set by a
+/// nearest neighbour lookup: For each cell in the second snapshot, the
+/// abundances are set to the value of the abundances in the closest cell
+/// in the first snapshot.
+/// The result is written into a third file
+#[derive(Clap, Debug)]
+pub struct CopyAbundances {
+    pub sim_abundances: Utf8PathBuf,
+    pub sim_coordinates: Utf8PathBuf,
+    pub snap_output: Utf8PathBuf,
 }

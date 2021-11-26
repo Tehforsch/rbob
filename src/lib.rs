@@ -3,6 +3,7 @@ pub mod array_utils;
 pub mod config;
 pub mod config_file;
 pub mod copy;
+pub mod copy_abundances;
 pub mod diff;
 pub mod get_data;
 pub mod job_params;
