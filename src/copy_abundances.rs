@@ -30,9 +30,17 @@ pub fn copy_abundances(
     let result_abundances = get_remapped_abundances(abundances_snap, coordinates_snap)?;
     copy_file(coordinates_snap_path, snap_output)?;
     let h5file = hdf5::File::open_rw(snap_output)?;
-    h5file
-        .dataset("PartType0/ChemicalAbundances")?
-        .write(&result_abundances)?;
+    let dataset_name = "PartType0/ChemicalAbundances";
+    let dataset = h5file.dataset(&dataset_name);
+    match dataset {
+        Ok(dataset) => dataset.write(&result_abundances)?,
+        Err(_) => {
+            h5file
+                .new_dataset_builder()
+                .with_data(result_abundances.view())
+                .create("PartType0/ChemicalAbundances")?;
+        }
+    }
     Ok(())
 }
 
