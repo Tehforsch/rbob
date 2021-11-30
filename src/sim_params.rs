@@ -193,27 +193,17 @@ impl SimParams {
     pub fn copy_ics(&self, target_folder: &Utf8Path) -> Result<()> {
         let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
         fs::create_dir_all(&sim_output_folder)?;
-        if let Some(initial_snap_file_name) = self.get(config::INITIAL_SNAP_IDENTIFIER) {
-            let initial_snap_file = self.folder.join(initial_snap_file_name.unwrap_string());
-            let snap_file_base = self.get("SnapshotFileBase").unwrap();
-            let target_file = sim_output_folder.join(format!(
-                "{snap_file_base}_000.hdf5",
-                snap_file_base = snap_file_base
-            ));
-            copy_file(initial_snap_file, target_file)?;
-        } else {
-            let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
-            let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
-            let ics_ending = match ics_format {
-                3 => "hdf5",
-                _ => unimplemented!(),
-            };
-            let ics_file_name = format!("{}.{}", ics_file_base, ics_ending);
-            copy_file(
-                self.folder.join(&ics_file_name),
-                target_folder.join(&ics_file_name),
-            )?;
-        }
+        let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
+        let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
+        let ics_ending = match ics_format {
+            3 => "hdf5",
+            _ => unimplemented!(),
+        };
+        let ics_file_name = format!("{}.{}", ics_file_base, ics_ending);
+        copy_file(
+            self.folder.join(&ics_file_name),
+            target_folder.join(&ics_file_name),
+        )?;
         Ok(())
     }
 

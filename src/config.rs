@@ -94,14 +94,11 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "runParams",
     "executableName",
     "paramFile",
-    "initialSnap",
     "arepoCommit",
     "runProgram",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
-
-pub static INITIAL_SNAP_IDENTIFIER: &str = "initialSnap";
 
 pub static H_IONIZATION_RATE_INDEX: usize = 2;
 pub static SX_NFREQ: usize = 6;
