@@ -6,6 +6,7 @@ pub mod copy;
 pub mod copy_abundances;
 pub mod diff;
 pub mod get_data;
+pub mod job_cascade;
 pub mod job_params;
 pub mod make;
 pub mod param_value;

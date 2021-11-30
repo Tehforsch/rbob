@@ -17,6 +17,7 @@ pub struct JobParams {
     pub executable_name: String,
     pub param_file: String,
     pub run_program: String,
+    pub additional_commands: String,
 }
 
 impl JobParams {
@@ -37,6 +38,7 @@ impl JobParams {
             run_program: sim.get_default_string("runProgram", config::DEFAULT_RUN_PROGRAM),
             executable_name: sim
                 .get_default_string("executableName", config::DEFAULT_AREPO_EXECUTABLE_NAME),
+            additional_commands: sim.get_default_string("additionalCommands", ""),
         })
     }
 
@@ -78,6 +80,10 @@ impl JobParams {
             self.executable_name.to_string(),
         );
         res.insert("runProgram".to_owned(), self.run_program.to_string());
+        res.insert(
+            "additionalCommands".to_owned(),
+            self.additional_commands.to_string(),
+        );
         res
     }
 }

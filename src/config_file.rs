@@ -16,6 +16,7 @@ pub struct ConfigFile {
     pub plot_template_folder: Utf8PathBuf,
     pub arepo_path: Utf8PathBuf,
     pub default_systype: String,
+    pub bob_path: Utf8PathBuf,
 }
 
 impl ConfigFile {
@@ -39,6 +40,7 @@ impl ConfigFile {
             plot_template_folder: Utf8Path::new("~/projects/phd/plotTemplates").into(),
             arepo_path: Utf8Path::new("~/projects/arepo").into(),
             default_systype: "Manjaro".into(),
+            bob_path: Utf8Path::new("~/.cargo/bin/bob").into(),
         }
     }
 
@@ -47,6 +49,7 @@ impl ConfigFile {
             plot_template_folder: Utf8Path::new(&expanduser(&self.plot_template_folder)?)
                 .to_owned(),
             arepo_path: Utf8Path::new(&expanduser(&self.arepo_path)?).to_owned(),
+            bob_path: Utf8Path::new(&expanduser(&self.bob_path)?).to_owned(),
             default_systype: self.default_systype.clone(),
         })
     }

@@ -59,6 +59,10 @@ impl ParamValue {
         }
     }
 
+    pub fn new_float(x: f64) -> Self {
+        Self::Float(OrderedFloat(x), format!("{}", x))
+    }
+
     pub fn unwrap_f64(&self) -> f64 {
         match self {
             ParamValue::Float(f, _) => **f,

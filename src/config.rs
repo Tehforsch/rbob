@@ -47,7 +47,7 @@ module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
 module load lib/hdf5/1.8-intel-16.0
 module load devel/python_intel/3.6
 startexe=\"{runProgram} {executableName} {paramFile} {runParams}\"
-exec $startexe";
+{additionalPrograms}; exec $startexe";
 
 #[cfg(feature = "bwfor")]
 pub static RUN_COMMAND: &str = "sbatch";
@@ -60,6 +60,7 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
+{additionalCommands}
 {runProgram} -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
 
 #[cfg(not(feature = "bwfor"))]
@@ -96,6 +97,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "paramFile",
     "arepoCommit",
     "runProgram",
+    "additionalCommands",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
