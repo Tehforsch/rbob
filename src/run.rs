@@ -19,7 +19,7 @@ pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
             run_after = job_id;
             assert!(
                 run_after.is_some(),
-                "Failed to get job id from previous job!"
+                "Failed to get job id from previous job! Run without -v ? "
             );
         }
     }
