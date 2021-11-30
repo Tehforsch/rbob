@@ -58,43 +58,38 @@ pub fn get_substitutions_cascade(
     };
     assert_eq!(times.len(), cascade.files.len() + 1);
     for (i, (time_begin, time_end)) in times.iter().zip(times[1..].iter()).enumerate() {
+        println!("sim {}: {} to {}", i, time_begin, time_end);
         let file = &cascade.files[i];
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
         insert_substitution(i, "TimeBegin", ParamValue::new_float(*time_begin));
         insert_substitution(i, "TimeMax", ParamValue::new_float(*time_end));
         let rewrite_snapshot_command = get_command_to_rewrite_snapshot(i, file);
-        dbg!(&rewrite_snapshot_command);
         insert_substitution(
             i,
             "additionalCommands",
             ParamValue::Str(rewrite_snapshot_command),
         );
     }
-    dbg!(&other_substitutions);
     Ok(other_substitutions)
 }
 
 fn get_command_to_rewrite_snapshot(num: usize, snap_name: &str) -> String {
     match num {
         0 => "".into(),
-        x => {
-            let rewrite_abundances = get_rewrite_abundances_command(x as i32);
-            let move_snapshot = move_snapshot_over_old_snapshot_command(snap_name);
-            format!("{}; {}", rewrite_abundances, move_snapshot)
+        num => {
+            format!(
+                "{bob_path} copy-abundances ../{num}/ . {rewritten_name}; rm {normal_name}; mv {rewritten_name} {normal_name}",
+                bob_path = CONFIG_FILE.bob_path,
+                num = num - 1,
+                rewritten_name = get_rewritten_snapshot_name(snap_name),
+                normal_name = snap_name,
+            )
         }
     }
 }
 
-fn move_snapshot_over_old_snapshot_command(snap_name: &str) -> String {
-    format!("mv snap_rewritten.hdf5 {}", snap_name)
-}
-
-fn get_rewrite_abundances_command(num: i32) -> String {
-    format!(
-        "{} copy-abundances ../{}/ . snap_rewritten.hdf5",
-        CONFIG_FILE.bob_path,
-        num - 1
-    )
+fn get_rewritten_snapshot_name(original_snap_name: &str) -> String {
+    format!("{}_rewritten.hdf5", strip_ending(original_snap_name))
 }
 
 fn get_non_cascade_substitutions(

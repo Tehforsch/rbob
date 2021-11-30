@@ -16,13 +16,13 @@ use crate::util::copy_file;
 
 pub fn copy_abundances(
     abundances_sim: &Utf8Path,
-    coordinates_sim: &Utf8Path,
+    coordinates_sim_path: &Utf8Path,
     snap_output: &Utf8Path,
 ) -> Result<()> {
     let abundances_sim = SimParams::from_folder(abundances_sim, SimParamsKind::Output)?;
-    let coordinates_sim = SimParams::from_folder(coordinates_sim, SimParamsKind::Output)?;
+    let coordinates_sim = SimParams::from_folder(coordinates_sim_path, SimParamsKind::Output)?;
+    let coordinates_snap_path = coordinates_sim_path.join(&coordinates_sim.get_ics_filename());
     let abundances_snap = last(get_snapshots(&abundances_sim)?).unwrap()?;
-    let coordinates_snap_path = coordinates_sim.folder.join("output/snap_000.hdf5");
     let coordinates_snap = Snapshot::from_file(&coordinates_sim, &coordinates_snap_path)?;
     let coordinates_time =
         coordinates_sim.get("TimeBegin").unwrap().unwrap_f64() * coordinates_sim.units.time;

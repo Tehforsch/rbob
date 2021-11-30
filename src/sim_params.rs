@@ -190,16 +190,20 @@ impl SimParams {
         Ok(())
     }
 
-    pub fn copy_ics(&self, target_folder: &Utf8Path) -> Result<()> {
-        let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
-        fs::create_dir_all(&sim_output_folder)?;
+    pub fn get_ics_filename(&self) -> String {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
         let ics_ending = match ics_format {
             3 => "hdf5",
             _ => unimplemented!(),
         };
-        let ics_file_name = format!("{}.{}", ics_file_base, ics_ending);
+        format!("{}.{}", ics_file_base, ics_ending)
+    }
+
+    pub fn copy_ics(&self, target_folder: &Utf8Path) -> Result<()> {
+        let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
+        let ics_file_name = self.get_ics_filename();
+        fs::create_dir_all(&sim_output_folder)?;
         copy_file(
             self.folder.join(&ics_file_name),
             target_folder.join(&ics_file_name),
