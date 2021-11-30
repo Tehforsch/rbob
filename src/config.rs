@@ -46,7 +46,7 @@ module load numlib/gsl/2.2.1-intel-16.0
 module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
 module load lib/hdf5/1.8-intel-16.0
 module load devel/python_intel/3.6
-startexe=\"mpirun {executableName} {paramFile} {runParams}\"
+startexe=\"{runProgram} {executableName} {paramFile} {runParams}\"
 exec $startexe";
 
 #[cfg(feature = "bwfor")]
@@ -60,10 +60,12 @@ pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
 
 #[cfg(not(feature = "bwfor"))]
 pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-mpirun -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
+{runProgram} -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
 
 #[cfg(not(feature = "bwfor"))]
 pub static RUN_COMMAND: &str = "bash";
+
+pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
 
 #[cfg(not(feature = "bwfor"))]
 pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
@@ -94,6 +96,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "paramFile",
     "initialSnap",
     "arepoCommit",
+    "runProgram",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
