@@ -107,6 +107,12 @@ impl SimParams {
             .unwrap_or_else(|| default.to_owned())
     }
 
+    pub fn get_default_bool(&self, key: &str, default: bool) -> bool {
+        self.get(key)
+            .map(|s| s.unwrap_bool())
+            .unwrap_or_else(|| default)
+    }
+
     pub fn new(
         folder: &Utf8Path,
         params: HashMap<String, ParamValue>,

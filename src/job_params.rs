@@ -18,6 +18,7 @@ pub struct JobParams {
     pub param_file: String,
     pub run_program: String,
     pub additional_commands: String,
+    pub cascade: bool,
 }
 
 impl JobParams {
@@ -39,6 +40,7 @@ impl JobParams {
             executable_name: sim
                 .get_default_string("executableName", config::DEFAULT_AREPO_EXECUTABLE_NAME),
             additional_commands: sim.get_default_string("additionalCommands", ""),
+            cascade: sim.get_default_bool("cascade", false),
         })
     }
 
@@ -84,6 +86,7 @@ impl JobParams {
             "additionalCommands".to_owned(),
             self.additional_commands.to_string(),
         );
+        res.insert("cascade".to_owned(), self.cascade.to_string());
         res
     }
 }

@@ -7,6 +7,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_yaml::Value;
 
+use crate::config::CASCADE_IDENTIFIER;
 use crate::config::CONFIG_FILE;
 use crate::param_value::ParamValue;
 use crate::postprocess::read_hdf5::read_attr_f64;
@@ -63,6 +64,7 @@ pub fn get_substitutions_cascade(
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
         insert_substitution(i, "TimeBegin", ParamValue::new_float(*time_begin));
         insert_substitution(i, "TimeMax", ParamValue::new_float(*time_end));
+        insert_substitution(i, CASCADE_IDENTIFIER, ParamValue::Bool(true));
         let rewrite_snapshot_command = get_command_to_rewrite_snapshot(i, file);
         insert_substitution(
             i,

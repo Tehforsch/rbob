@@ -90,6 +90,8 @@ pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
 pub static DEFAULT_PLOT_CONFIG_FOLDER_NAME: &str = "config";
 pub static DEFAULT_PLOT_INFO_FILE_NAME: &str = "plot.info";
 
+pub static CASCADE_IDENTIFIER: &str = "cascade";
+
 pub static SPECIAL_PARAMS: &[&str] = &[
     "numCores",
     "runParams",
@@ -98,6 +100,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "arepoCommit",
     "runProgram",
     "additionalCommands",
+    "cascade",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];

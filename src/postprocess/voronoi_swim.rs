@@ -48,7 +48,7 @@ fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
 fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
     let grid_file = get_grid_file_path(sim);
     let job_file = write_grid_job_file(sim)?;
-    run_job_file(sim, &job_file, false)?;
+    run_job_file(sim, &job_file, false, None)?;
     Ok(grid_file)
 }
 
