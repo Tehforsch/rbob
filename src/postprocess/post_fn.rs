@@ -41,6 +41,10 @@ macro_rules! snap_function {
     ($i:ident, $code:block) => {
         pub fn run($i: &Self, sim_set: &SimSet, plot_template: Option<&str>) -> impl Iterator<Item=Result<DataPlotInfo>>  {
             use crate::postprocess::data_plot_info::DataPlotInfo;
+            use crate::postprocess::snapshot::Snapshot;
+            use crate::thread_pool::ThreadPool;
+            use crate::config::MAX_NUM_POST_THREADS;
+            use crate::postprocess::get_snapshot_files;
             let mut pool = ThreadPool::new(MAX_NUM_POST_THREADS);
             let mut infos = vec![];
             for sim in sim_set.iter() {

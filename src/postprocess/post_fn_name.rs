@@ -5,6 +5,7 @@ use super::data_plot_info::DataPlotInfo;
 use super::post_compare::CompareFn;
 use super::post_convergence::ConvergenceFn;
 use super::post_expansion::ExpansionFn;
+use super::post_ionization::IonizationFn;
 use super::post_scaling::ScalingFn;
 use super::post_shadowing::ShadowingFn;
 use super::post_slice::SliceFn;
@@ -18,6 +19,7 @@ pub enum PostFnName {
     Compare(CompareFn),
     Shadowing(ShadowingFn),
     Convergence(ConvergenceFn),
+    Ionization(IonizationFn),
 }
 
 impl PostFnName {
@@ -35,6 +37,9 @@ impl PostFnName {
             Shadowing(shadowing) => Box::new(ShadowingFn::run(shadowing, sim_set, plot_template)),
             Convergence(convergence) => {
                 Box::new(ConvergenceFn::run(convergence, sim_set, plot_template))
+            }
+            Ionization(ionization) => {
+                Box::new(IonizationFn::run(ionization, sim_set, plot_template))
             }
         }
     }
