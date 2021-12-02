@@ -64,6 +64,8 @@ pub fn get_substitutions_cascade(
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
         insert_substitution(i, "TimeBegin", ParamValue::new_float(*time_begin));
         insert_substitution(i, "TimeMax", ParamValue::new_float(*time_end));
+        insert_substitution(i, "MaxSizeTimestep", ParamValue::new_float((time_end - time_begin) *1e-8));
+        insert_substitution(i, "MinSizeTimestep", ParamValue::new_float((time_end - time_begin) *1e-9));
         insert_substitution(i, CASCADE_IDENTIFIER, ParamValue::Bool(true));
         let rewrite_snapshot_command = get_command_to_rewrite_snapshot(i, file);
         insert_substitution(
@@ -80,7 +82,7 @@ fn get_command_to_rewrite_snapshot(num: usize, snap_name: &str) -> String {
         0 => "".into(),
         num => {
             format!(
-                "{bob_path} copy-abundances ../{num}/ . {rewritten_name}; rm {normal_name}; mv {rewritten_name} {normal_name}",
+                "{bob_path} copy-abundances ../{num}/ . {rewritten_name}; rm {normal_name}; mv {rewritten_name} {normal_name}; ",
                 bob_path = CONFIG_FILE.bob_path,
                 num = num - 1,
                 rewritten_name = get_rewritten_snapshot_name(snap_name),

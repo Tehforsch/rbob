@@ -47,7 +47,7 @@ module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
 module load lib/hdf5/1.8-intel-16.0
 module load devel/python_intel/3.6
 startexe=\"{runProgram} {executableName} {paramFile} {runParams}\"
-{additionalCommands}; exec $startexe";
+{additionalCommands}exec $startexe";
 
 #[cfg(feature = "bwfor")]
 pub static RUN_COMMAND: &str = "sbatch";
