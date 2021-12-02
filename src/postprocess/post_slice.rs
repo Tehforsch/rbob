@@ -9,7 +9,6 @@ use uom::si::length::parsec;
 use super::axis::Axis;
 use super::data_plot_info::DataPlotInfo;
 use super::field_identifier::FieldIdentifier;
-use super::get_snapshot_files;
 use super::named::Named;
 use super::plot_params::PlotParams;
 use super::post_fn::PostResult;
@@ -17,12 +16,10 @@ use super::snapshot::Snapshot;
 use crate::array_utils::convert_heatmap_to_gnuplot_format;
 use crate::array_utils::get_slice_grid;
 use crate::array_utils::FArray2;
-use crate::config::MAX_NUM_POST_THREADS;
 use crate::config::NX_SLICE;
 use crate::config::NY_SLICE;
 use crate::sim_set::SimSet;
 use crate::snap_function;
-use crate::thread_pool::ThreadPool;
 
 #[derive(Clap, Debug, Clone)]
 pub struct SliceFn {

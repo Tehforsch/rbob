@@ -31,6 +31,7 @@ pub mod post_convergence;
 pub mod post_expansion;
 pub mod post_fn;
 pub mod post_fn_name;
+pub mod post_ionization;
 pub mod post_scaling;
 pub mod post_shadowing;
 pub mod post_slice;

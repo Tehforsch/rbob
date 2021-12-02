@@ -26,6 +26,7 @@ use crate::config;
 use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
 use crate::sim_units::SimUnits;
+use crate::simplex_log_file::SimplexLogFile;
 use crate::strfmt_utils::strfmt_anyhow;
 use crate::util::copy_file;
 use crate::util::read_file_contents;
@@ -252,6 +253,10 @@ impl SimParams {
 
     pub fn get_log_file(&self) -> ArepoLogFile {
         ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
+    }
+
+    pub fn get_simplex_file(&self) -> SimplexLogFile {
+        SimplexLogFile::new(&self.output_folder().join(config::DEFAULT_SIMPLEX_LOG_FILE))
     }
 
     pub fn get_num_cores(&self) -> Result<i64> {
