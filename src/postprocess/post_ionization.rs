@@ -29,7 +29,7 @@ impl Named for IonizationFn {
 }
 
 fn get_average_ionization_over_time(sim_set: &SimSet) -> Result<PostResult> {
-    let times_and_ionizations: Vec<(f64, f64)> = sim_set
+    let times_and_ionizations: Vec<(f64, f64, f64)> = sim_set
         .iter()
         .flat_map(|sim| {
             let simplex_file = sim.get_simplex_file();
@@ -37,10 +37,12 @@ fn get_average_ionization_over_time(sim_set: &SimSet) -> Result<PostResult> {
         })
         .collect();
     let num_points = times_and_ionizations.len();
-    let mut data = FArray2::zeros((num_points, 2));
-    for (i, (time, ionization)) in times_and_ionizations.iter().enumerate() {
+    let mut data = FArray2::zeros((num_points, 3));
+    for (i, (time, volume_ionization, mass_ionization)) in times_and_ionizations.iter().enumerate()
+    {
         data[[i, 0]] = *time;
-        data[[i, 1]] = *ionization;
+        data[[i, 1]] = *volume_ionization;
+        data[[i, 2]] = *mass_ionization;
     }
     Ok(PostResult::new(PlotParams::default(), vec![data]))
 }
