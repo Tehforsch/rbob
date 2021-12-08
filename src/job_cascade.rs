@@ -64,8 +64,16 @@ pub fn get_substitutions_cascade(
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
         insert_substitution(i, "TimeBegin", ParamValue::new_float(*time_begin));
         insert_substitution(i, "TimeMax", ParamValue::new_float(*time_end));
-        insert_substitution(i, "MaxSizeTimestep", ParamValue::new_float((time_end - time_begin) *1e-8));
-        insert_substitution(i, "MinSizeTimestep", ParamValue::new_float((time_end - time_begin) *1e-9));
+        insert_substitution(
+            i,
+            "MaxSizeTimestep",
+            ParamValue::new_float((time_end - time_begin) * 1e-8),
+        );
+        insert_substitution(
+            i,
+            "MinSizeTimestep",
+            ParamValue::new_float((time_end - time_begin) * 1e-9),
+        );
         insert_substitution(i, CASCADE_IDENTIFIER, ParamValue::Bool(true));
         let rewrite_snapshot_command = get_command_to_rewrite_snapshot(i, file);
         insert_substitution(
