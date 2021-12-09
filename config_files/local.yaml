@@ -5,6 +5,9 @@ bob_path: "~/.cargo/bin/bob"
 system_config:
     max_num_cores: 6
     max_num_cores_per_node: 6
+    partitions:
+      - - 0
+        - ""
 job_file_run_command: "bash"
 job_file_template: |
     #!/bin/bash

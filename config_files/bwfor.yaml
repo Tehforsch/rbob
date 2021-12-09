@@ -5,6 +5,11 @@ bob_path: "~/projects/bob/target/release/bob"
 system_config:
     max_num_cores: 2048
     max_num_cores_per_node: 16
+    partitions:
+      - - 1
+        - "single"
+      - - 2
+        - "multi"
 job_file_run_command: "sbatch"
 job_file_template: |
     #!/bin/bash

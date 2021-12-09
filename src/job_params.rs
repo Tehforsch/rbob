@@ -58,10 +58,7 @@ impl JobParams {
         }
         let num_cores_per_node = num_cores.min(system_conf.max_num_cores_per_node);
         let num_nodes = num_cores / num_cores_per_node;
-        let partition = match num_nodes > 1 {
-            true => "multi".to_owned(),
-            false => "single".to_owned(),
-        };
+        let partition = system_conf.get_partition(num_nodes).into();
         (num_nodes, num_cores_per_node, partition)
     }
 
@@ -97,6 +94,7 @@ impl JobParams {
 pub struct SystemConfiguration {
     pub max_num_cores: i64, // Locally this is the real maximum, remotely this should be a sanity limit so we never launch a truly huge job ...
     pub max_num_cores_per_node: i64,
+    pub partitions: Vec<(i64, String)>,
 }
 
 impl SystemConfiguration {
@@ -107,5 +105,15 @@ impl SystemConfiguration {
         } else {
             false
         }
+    }
+
+    pub fn get_partition(&self, num_nodes: i64) -> &str {
+        let mut partition = &self.partitions[0].1;
+        for (num_nodes_this_partition, this_partition) in self.partitions.iter() {
+            if num_nodes >= *num_nodes_this_partition {
+                partition = this_partition
+            }
+        }
+        partition
     }
 }
