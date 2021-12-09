@@ -1,18 +1,24 @@
 plot_template_folder: "~/projects/phd/plotTemplates"
-arepo_path: "~/projects/arepo"
-default_systype: "bwFor"
-bob_path: "~/projects/bob/target/release/bob"
+arepo_path:  "~/projects/arepo"
+default_systype: "SuperMucIntel"
+bob_path: "~/projects/bob/bob"
 system_config:
-    max_num_cores: 2048
-    max_num_cores_per_node: 16
+    max_num_cores: 8192
+    max_num_cores_per_node: 48
+    partitions:
+        - - 1
+          - "micro"
+        - - 17
+          - "general"
 job_file_run_command: "sbatch"
 job_file_template: |
     #!/bin/bash
+    #SBATCH -D ./
     #SBATCH --partition={partition}
+    #SBATCH --account=pr74nu
     #SBATCH --nodes={numNodes}
     #SBATCH --ntasks-per-node={numCoresPerNode}
     #SBATCH --time={wallTime}
-    #SBATCH --mem=50gb
     #SBATCH --output={logFile}
     #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
     module load compiler/intel/16.0
