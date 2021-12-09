@@ -1,0 +1,12 @@
+plot_template_folder: "~/projects/phd/plotTemplates"
+arepo_path:  "~/projects/arepo"
+default_systype: "Manjaro"
+bob_path: "~/.cargo/bin/bob"
+system_config:
+    max_num_cores: 6
+    max_num_cores_per_node: 6
+job_file_run_command: "bash"
+job_file_template: |
+    #!/bin/bash
+    {additionalCommands}
+    {runProgram} -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )

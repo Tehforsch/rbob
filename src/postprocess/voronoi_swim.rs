@@ -68,7 +68,7 @@ fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     let mut job_params = sim.get_job_params()?;
     let num_cores = sim.get_num_cores()?;
     let (num_nodes, num_cores_per_node, partition) =
-        JobParams::get_core_distribution(num_cores, config::SYSTEM_CONFIG);
+        JobParams::get_core_distribution(num_cores, &config::SYSTEM_CONFIG);
     job_params.num_cores = num_cores;
     job_params.num_nodes = num_nodes;
     job_params.num_cores_per_node = num_cores_per_node;

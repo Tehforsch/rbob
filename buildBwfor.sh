@@ -8,4 +8,4 @@
 # module load lib/hdf5/1.10-gnu-7.1
 export HDF5_VERSION="1.8.18"
 export HDF5_DIR=/opt/bwhpc/common/lib/hdf5/1.8.18-intel-16.0
-cargo build --release --features bwfor
+cargo build --release

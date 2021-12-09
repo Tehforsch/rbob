@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::config;
 use crate::sim_params::SimParams;
@@ -25,7 +27,7 @@ impl JobParams {
     pub fn new(sim: &SimParams) -> Result<JobParams> {
         let num_cores = sim.get_default_i64("numCores", config::DEFAULT_NUM_CORES);
         let (num_nodes, num_cores_per_node, partition) =
-            JobParams::get_core_distribution(num_cores, config::SYSTEM_CONFIG);
+            JobParams::get_core_distribution(num_cores, &config::SYSTEM_CONFIG);
         Ok(JobParams {
             num_cores,
             num_nodes,
@@ -91,7 +93,19 @@ impl JobParams {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SystemConfiguration {
     pub max_num_cores: i64, // Locally this is the real maximum, remotely this should be a sanity limit so we never launch a truly huge job ...
     pub max_num_cores_per_node: i64,
+}
+
+impl SystemConfiguration {
+    pub fn dependencies_allowed(&self) -> bool {
+        // Temporary solution
+        if self.max_num_cores > 6 {
+            true
+        } else {
+            false
+        }
+    }
 }

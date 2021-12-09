@@ -46,7 +46,12 @@ pub fn run_job_file(
     dependency_job_id: Option<usize>,
 ) -> Result<Option<usize>> {
     let args = get_run_command_args(job_file_path, dependency_job_id);
-    let out = get_shell_command_output(config::RUN_COMMAND, &args, Some(&sim.folder), verbose);
+    let out = get_shell_command_output(
+        &config::JOB_FILE_RUN_COMMAND,
+        &args,
+        Some(&sim.folder),
+        verbose,
+    );
     match out.success {
         false => {
             if !verbose {
@@ -59,7 +64,6 @@ pub fn run_job_file(
     }
 }
 
-#[cfg(feature = "bwfor")]
 fn get_run_command_args(
     job_file_path: &camino::Utf8Path,
     dependency_job_id: Option<usize>,
@@ -74,31 +78,24 @@ fn get_run_command_args(
     }
 }
 
-#[cfg(not(feature = "bwfor"))]
-fn get_run_command_args(job_file_path: &camino::Utf8Path, _: Option<usize>) -> Vec<String> {
-    vec![job_file_path.file_name().unwrap().into()]
-}
-
-#[cfg(feature = "bwfor")]
 fn get_job_id(output: &str) -> Result<Option<usize>> {
-    use anyhow::Context;
-    use regex::Regex;
-    let re = Regex::new("Submitted batch job ([0-9]*)").unwrap();
-    let capture = re.captures_iter(output).next();
-    match capture {
-        None => Ok(None),
-        Some(capture) => Ok(Some(
-            capture
-                .get(1)
-                .unwrap()
-                .as_str()
-                .parse::<usize>()
-                .context("Failed to parse job id as int")?,
-        )),
+    if !config::SYSTEM_CONFIG.dependencies_allowed() {
+        Ok(None)
+    } else {
+        use anyhow::Context;
+        use regex::Regex;
+        let re = Regex::new("Submitted batch job ([0-9]*)").unwrap();
+        let capture = re.captures_iter(output).next();
+        match capture {
+            None => Ok(None),
+            Some(capture) => Ok(Some(
+                capture
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse::<usize>()
+                    .context("Failed to parse job id as int")?,
+            )),
+        }
     }
-}
-
-#[cfg(not(feature = "bwfor"))]
-fn get_job_id(_: &str) -> Result<Option<usize>> {
-    Ok(Some(0))
 }

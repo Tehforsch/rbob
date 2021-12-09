@@ -9,6 +9,9 @@ lazy_static! {
     pub static ref AREPO_PATH: Utf8PathBuf = CONFIG_FILE.arepo_path.clone();
     pub static ref PLOT_TEMPLATE_FOLDER: Utf8PathBuf = CONFIG_FILE.plot_template_folder.clone();
     pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
+    pub static ref JOB_FILE_TEMPLATE: String = CONFIG_FILE.job_file_template.clone();
+    pub static ref JOB_FILE_RUN_COMMAND: String = CONFIG_FILE.job_file_run_command.clone();
+    pub static ref SYSTEM_CONFIG: SystemConfiguration = CONFIG_FILE.system_config.clone();
 }
 
 pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
@@ -31,48 +34,7 @@ pub static CONFIG_FILE_NAME: &str = "config.yaml";
 pub static MAX_NUM_VORONOI_SWIM_THREADS: usize = 8;
 pub static MAX_NUM_POST_THREADS: usize = 16;
 
-#[cfg(feature = "bwfor")]
-pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-#SBATCH --partition={partition}
-#SBATCH --nodes={numNodes}
-#SBATCH --ntasks-per-node={numCoresPerNode}
-#SBATCH --time={wallTime}
-#SBATCH --mem=50gb
-#SBATCH --output={logFile}
-#SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
-module load compiler/intel/16.0
-module load mpi/impi/5.1.3-intel-16.0
-module load numlib/gsl/2.2.1-intel-16.0
-module load numlib/fftw/3.3.5-impi-5.1.3-intel-16.0
-module load lib/hdf5/1.8-intel-16.0
-module load devel/python_intel/3.6
-startexe=\"{runProgram} {executableName} {paramFile} {runParams}\"
-{additionalCommands}exec $startexe";
-
-#[cfg(feature = "bwfor")]
-pub static RUN_COMMAND: &str = "sbatch";
-
-#[cfg(feature = "bwfor")]
-pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
-    max_num_cores: 2048,
-    max_num_cores_per_node: 16,
-};
-
-#[cfg(not(feature = "bwfor"))]
-pub static JOB_FILE_TEMPLATE: &str = "#!/bin/bash
-{additionalCommands}
-{runProgram} -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )";
-
-#[cfg(not(feature = "bwfor"))]
-pub static RUN_COMMAND: &str = "bash";
-
 pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
-
-#[cfg(not(feature = "bwfor"))]
-pub static SYSTEM_CONFIG: &SystemConfiguration = &SystemConfiguration {
-    max_num_cores: 2048,
-    max_num_cores_per_node: 16,
-};
 
 pub static DEFAULT_LOG_FILE: &str = "stdout.log";
 pub static DEFAULT_SIMPLEX_LOG_FILE: &str = "simplex.txt";
