@@ -58,6 +58,11 @@ pub fn copy_recursive<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<
                 stack.push(path);
             } else if let Some(filename) = path.file_name() {
                 let dest_path = dest.join(filename);
+                println!(
+                    "Copy {} -> {}",
+                    &path.to_str().unwrap(),
+                    &dest_path.to_str().unwrap()
+                );
                 fs::copy(&path, &dest_path).context(format!(
                     "Error copying {} to {}",
                     &path.to_str().unwrap(),

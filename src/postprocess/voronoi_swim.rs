@@ -1,10 +1,9 @@
-use std::thread;
-use std::time::Duration;
+// use std::thread;
+// use std::time::Duration;
 
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use voronoi_swim::run::simulate_grid;
 
 use crate::config;
 use crate::job_params::JobParams;
@@ -13,10 +12,11 @@ use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::write_file;
 
-pub fn simulate_run_time(sim: &SimParams, voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
-    let grid_file = get_grid_file(sim)?;
-    let result = simulate_grid(&voronoi_swim_param_file, &vec![grid_file]);
-    Ok(result?[0].time)
+pub fn simulate_run_time(_sim: &SimParams, _voronoi_swim_param_file: &Utf8Path) -> Result<f64> {
+    // let grid_file = get_grid_file(sim)?;
+    // let result = voronoi_swim::run::simulate_grid(&voronoi_swim_param_file, &vec![grid_file]);
+    // Ok(result?[0].time)
+    todo!() // Fix this for building on supermuc with cross ...
 }
 
 fn get_grid_file_path(sim: &SimParams) -> Utf8PathBuf {
@@ -34,16 +34,16 @@ pub fn generate_all_grid_files(sim_set: &SimSet) -> Result<()> {
     Ok(())
 }
 
-fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
-    let grid_file = get_grid_file_path(sim);
-    let grid_file = if grid_file.is_file() {
-        println!("Reusing existing grid file: {}", grid_file);
-        grid_file
-    } else {
-        wait_for_grid_file(sim)
-    };
-    Ok(grid_file)
-}
+// fn get_grid_file(sim: &SimParams) -> Result<Utf8PathBuf> {
+//     let grid_file = get_grid_file_path(sim);
+//     let grid_file = if grid_file.is_file() {
+//         println!("Reusing existing grid file: {}", grid_file);
+//         grid_file
+//     } else {
+//         wait_for_grid_file(sim)
+//     };
+//     Ok(grid_file)
+// }
 
 fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
     let grid_file = get_grid_file_path(sim);
@@ -52,16 +52,16 @@ fn get_grid_file_from_arepo(sim: &SimParams) -> Result<Utf8PathBuf> {
     Ok(grid_file)
 }
 
-fn wait_for_grid_file(sim: &SimParams) -> Utf8PathBuf {
-    let grid_file = get_grid_file_path(sim);
-    if !grid_file.is_file() {
-        println!("Waiting for grid job to finish.");
-    }
-    while !grid_file.is_file() {
-        thread::sleep(Duration::from_millis(100));
-    }
-    grid_file
-}
+// fn wait_for_grid_file(sim: &SimParams) -> Utf8PathBuf {
+//     let grid_file = get_grid_file_path(sim);
+//     if !grid_file.is_file() {
+//         println!("Waiting for grid job to finish.");
+//     }
+//     while !grid_file.is_file() {
+//         thread::sleep(Duration::from_millis(100));
+//     }
+//     grid_file
+// }
 
 fn write_grid_job_file(sim: &SimParams) -> Result<Utf8PathBuf> {
     let job_file = sim.folder.join(config::DEFAULT_GRID_JOB_FILE_NAME);
