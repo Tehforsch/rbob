@@ -64,7 +64,10 @@ pub fn postprocess_sim_set(
             Ok(())
         });
     }
-    let _: Vec<_> = pool.collect();
+    let results: Vec<_> = pool.collect();
+    for result in results.into_iter() {
+        result?;
+    }
     if args.showall {
         let pic_folder = sim_set.get_folder()?.join(DEFAULT_PIC_FOLDER);
         show_image_folder(&pic_folder);
