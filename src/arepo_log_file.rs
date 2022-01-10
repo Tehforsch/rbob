@@ -32,24 +32,28 @@ impl ArepoLogFile {
 
     pub fn get_run_time(&self, sweep: bool) -> Result<f64> {
         let re = match sweep {
-            true => Regex::new("Finished sweep in ([0-9.+]+)s").unwrap(),
-            false => Regex::new("SX: RUN [0-9]+ took ([0-9.+-e]+) s").unwrap(),
+            true => Regex::new("Finished ([0-9+]+) sweeps in ([0-9.+]+)s").unwrap(),
+            false => Regex::new("SX: RUN ([0-9]+) took ([0-9.+-e]+) s").unwrap(),
         };
         let contents = self.get_contents()?;
         let run_times: Result<Vec<f64>> = re
             .captures_iter(&contents)
             .map(|cap| {
-                let run_time_string = cap.get(1).unwrap().as_str();
+                let run_time_string = cap
+                    .get(2)
+                    .ok_or_else(|| anyhow!("Failed to parse log file"))?
+                    .as_str();
                 let run_time: f64 = run_time_string.parse()?;
                 Ok(run_time)
             })
             .collect();
         let run_times = run_times?;
-        assert!(
-            run_times.len() > 0,
-            "Could not read run time from log file for sim {}!",
-            self.file
-        );
+        if run_times.len() == 0 {
+            return Err(anyhow!(
+                "Could not read run time from log file for sim {}!",
+                self.file
+            ));
+        }
         let total_run_time = run_times.iter().sum();
         Ok(total_run_time)
     }

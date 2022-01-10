@@ -20,6 +20,8 @@ pub struct ScalingFn {
     quotient_parameter: Option<String>,
     #[clap(long)]
     voronoi_swim: Vec<Utf8PathBuf>,
+    #[clap(long)]
+    ignore_failed: bool,
 }
 
 impl Named for ScalingFn {
@@ -39,10 +41,15 @@ impl ScalingFn {
 impl ScalingFn {
     fn get_scaling_data(&self, sim_set: &SimSet) -> Result<PostResult> {
         let mut results = vec![];
-        let sub_sim_sets = match self.quotient_parameter {
+        let mut sub_sim_sets = match self.quotient_parameter {
             Some(ref param) => sim_set.quotient(param),
             None => vec![sim_set.clone()],
         };
+        sub_sim_sets.sort_by_key(|set| {
+            set.iter()
+                .map(|sim| sim.get("numCores").unwrap().unwrap_i64())
+                .min()
+        });
         let get_params = |res: FArray2| {
             let mut params = PlotParams::default();
             params
@@ -57,7 +64,14 @@ impl ScalingFn {
             let mut res = FArray2::zeros((sub_sim_set.len(), 2));
             for (i, sim) in sub_sim_set.enumerate() {
                 res[[*i, 0]] = sim.get_num_cores()? as f64;
-                res[[*i, 1]] = sim.get_rt_run_time()?;
+                res[[*i, 1]] = if self.ignore_failed {
+                    match sim.get_rt_run_time() {
+                        Ok(time) => time,
+                        Err(_) => 0.0,
+                    }
+                } else {
+                    sim.get_rt_run_time()?
+                };
             }
             results.push(get_params(res))
         }
