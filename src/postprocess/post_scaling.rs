@@ -45,11 +45,7 @@ impl ScalingFn {
             Some(ref param) => sim_set.quotient(param),
             None => vec![sim_set.clone()],
         };
-        sub_sim_sets.sort_by_key(|set| {
-            set.iter()
-                .map(|sim| sim.get("numCores").unwrap().unwrap_i64())
-                .min()
-        });
+        sub_sim_sets.sort_by_key(|set| set.iter().map(|sim| sim.get_num_cores().unwrap()).min());
         let get_params = |res: FArray2| {
             let mut params = PlotParams::default();
             params
