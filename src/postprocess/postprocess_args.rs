@@ -10,7 +10,7 @@ pub struct PostprocessArgs {
     pub showall: bool,
     #[clap(long, global = true)]
     pub select: Option<Vec<usize>>,
-    pub output_folder: Utf8PathBuf,
+    pub output_folders: Vec<Utf8PathBuf>,
     #[clap(long)]
     pub plot_template: Option<String>,
     #[clap(subcommand)]

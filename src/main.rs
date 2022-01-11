@@ -19,6 +19,7 @@ use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use bob::unit_utils::nice_time;
 use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use clap::Clap;
 
 use self::args::Opts;
@@ -59,11 +60,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_data(&l.source_folder, &l.target_folder)?;
         }
         SubCommand::Post(l) => {
-            let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            let sim_set = get_sim_set_from_multiple_outputs(&l.output_folders)?;
             postprocess_sim_set(false, sim_set, &l)?;
         }
         SubCommand::Plot(l) => {
-            let sim_set = get_sim_set_from_output(&l.output_folder)?;
+            let sim_set = get_sim_set_from_multiple_outputs(&l.output_folders)?;
             postprocess_sim_set(true, sim_set, &l)?;
         }
         SubCommand::Replot(l) => {
@@ -134,4 +135,12 @@ fn get_sim_set_from_input(folder: &Utf8Path) -> Result<SimSet> {
 
 fn get_sim_set_from_output(folder: &Utf8Path) -> Result<SimSet> {
     SimSet::from_output_folder(folder)
+}
+
+fn get_sim_set_from_multiple_outputs(folders: &[Utf8PathBuf]) -> Result<SimSet> {
+    let sim_sets: Result<Vec<_>> = folders
+        .iter()
+        .map(|folder| SimSet::from_output_folder(folder))
+        .collect();
+    Ok(SimSet::join(sim_sets?.into_iter()))
 }

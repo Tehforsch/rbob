@@ -20,6 +20,7 @@ use crate::job_cascade::CascadeArgs;
 use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
+use crate::util::get_common_path;
 use crate::util::get_folders;
 
 #[derive(Serialize, Deserialize)]
@@ -98,6 +99,12 @@ impl SimSet {
             .collect()
     }
 
+    pub fn join(sets: impl Iterator<Item = SimSet>) -> SimSet {
+        sets.flat_map(|set| set.into_iter().map(|(_, s)| s))
+            .enumerate()
+            .collect()
+    }
+
     pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = &'a SimParams> + 'a> {
         Box::new(self.simulations.iter().map(|(_, s)| s))
     }
@@ -107,10 +114,8 @@ impl SimSet {
     }
 
     pub fn get_folder(&self) -> Result<Utf8PathBuf> {
-        self.simulations
-            .get(0)
-            .ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
-            .map(|(_, sim)| sim.folder.parent().unwrap().to_owned())
+        let parent_folders = get_common_path(self.iter().map(|sim| sim.folder.parent().unwrap()));
+        parent_folders.ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
     }
 
     pub fn len(&self) -> usize {
