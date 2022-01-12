@@ -5,6 +5,7 @@ use camino::Utf8PathBuf;
 use snapshot::Snapshot;
 
 use self::data_plot_info::DataPlotInfo;
+use self::plotter::Plotter;
 use self::postprocess_args::PostprocessArgs;
 use crate::config;
 use crate::config::DEFAULT_PIC_FOLDER;
@@ -26,6 +27,7 @@ pub mod plot_info;
 pub mod plot_info_file_contents;
 pub mod plot_params;
 pub mod plot_template;
+mod plotter;
 pub mod post_compare;
 pub mod post_convergence;
 pub mod post_expansion;
@@ -50,13 +52,15 @@ pub fn postprocess_sim_set(
     let data_plot_info_iter = args.function.run(&sim_set, args.plot_template.as_deref());
     let mut pool: ThreadPool<anyhow::Result<()>, _> = ThreadPool::new(config::MAX_NUM_POST_THREADS);
     for data_plot_info in data_plot_info_iter {
+        let folder = sim_set.get_folder()?;
         pool.add_job(move || {
             let data_plot_info = data_plot_info?;
-            data_plot_info.info.create_folders_if_nonexistent()?;
-            let filenames = write_results(&data_plot_info)?;
+            let plotter = Plotter::from_sim_set_folder(&folder, data_plot_info.info.clone());
+            plotter.create_folders_if_nonexistent()?;
+            let filenames = write_results(&plotter.get_data_folder(), &data_plot_info)?;
             plot::run_plot(
+                &plotter,
                 create_plot,
-                &data_plot_info.info,
                 &filenames,
                 &data_plot_info.replacements,
             )
@@ -86,8 +90,10 @@ fn filter_sim_set(sim_set: SimSet, select: Option<&Vec<usize>>) -> SimSet {
     }
 }
 
-pub fn write_results(data_plot_info: &DataPlotInfo) -> Result<Vec<Utf8PathBuf>> {
-    let data_folder = &data_plot_info.info.get_data_folder();
+pub fn write_results(
+    data_folder: &Utf8Path,
+    data_plot_info: &DataPlotInfo,
+) -> Result<Vec<Utf8PathBuf>> {
     data_plot_info
         .data
         .iter()

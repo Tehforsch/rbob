@@ -143,7 +143,7 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
 
     let output = child.wait_with_output().expect("Failed to read stdout");
     let exit_code = output.status;
-    ShellCommandOutput {
+    let result = ShellCommandOutput {
         success: exit_code.success(),
         stdout: str::from_utf8(&output.stdout)
             .expect("Failed to decode stdout as utf8")
@@ -151,7 +151,11 @@ pub fn get_shell_command_output<T: Display + AsRef<OsStr>>(
         stderr: str::from_utf8(&output.stderr)
             .expect("Failed to decode stderr as utf8")
             .to_owned(),
+    };
+    if verbose {
+        println!("STDERR: {}", result.stderr);
     }
+    result
 }
 
 pub fn copy_file<U: AsRef<Path>, V: AsRef<Path>>(source: U, target: V) -> Result<()> {
@@ -182,6 +186,13 @@ pub fn get_relative_path(folder: &Utf8Path, base_folder: &Utf8Path) -> Result<Ut
         ))
     })?;
     Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
+}
+
+pub fn create_folder_if_nonexistent(folder: &Utf8Path) -> Result<()> {
+    if !folder.is_dir() {
+        fs::create_dir_all(&folder)?;
+    };
+    Ok(())
 }
 
 pub fn get_common_path<'a>(paths: impl Iterator<Item = &'a Utf8Path> + 'a) -> Option<Utf8PathBuf> {

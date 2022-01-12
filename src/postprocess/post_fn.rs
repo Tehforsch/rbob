@@ -49,9 +49,8 @@ macro_rules! snap_function {
             let mut infos = vec![];
             for sim in sim_set.iter() {
                 for snap_path in get_snapshot_files(sim).unwrap() {
-                    let sim_set = sim_set.clone();
-                    let snap=Snapshot::from_file(&sim, &snap_path).unwrap();
-                    let info = $i.get_plot_info(&sim_set, Some(&sim), Some(&snap), plot_template).unwrap();
+                    let snap = Snapshot::from_file(&sim, &snap_path).unwrap();
+                    let info = $i.get_plot_info(Some(&sim), Some(&snap), plot_template).unwrap();
                     let sim = sim.clone();
                     let cloned = $i.clone();
                     infos.push(info);
@@ -96,9 +95,7 @@ macro_rules! set_function {
             plot_template: Option<&str>,
         ) -> impl Iterator<Item = Result<DataPlotInfo>> {
             let result = $code(sim_set);
-            let info = $i
-                .get_plot_info(sim_set, None, None, plot_template)
-                .unwrap();
+            let info = $i.get_plot_info(None, None, plot_template).unwrap();
             vec![result.map(|result| DataPlotInfo::new(info, result))].into_iter()
         }
     };
