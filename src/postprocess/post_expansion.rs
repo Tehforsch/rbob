@@ -64,9 +64,15 @@ fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
         let mut data = FArray2::zeros((num_snaps, 2));
         for (j, snap) in get_snapshots(sim)?.enumerate() {
             let snap = snap?;
+            let source_pos = FArray1::from_vec(vec![
+                sim.get("TestSourcePosX").unwrap().unwrap_f64(),
+                sim.get("TestSourcePosY").unwrap().unwrap_f64(),
+                sim.get("TestSourcePosZ").unwrap().unwrap_f64(),
+            ]);
+            let box_size = sim.get("BoxSize").unwrap().unwrap_f64();
             let time = (snap.time / recombination_time).value;
             data[[j, 0]] = time;
-            data[[j, 1]] = (get_radius(&snap)? / stroemgren_radius).value;
+            data[[j, 1]] = (get_radius(&snap, &source_pos, box_size)? / stroemgren_radius).value;
             if time > max_t {
                 max_t = time;
             }
@@ -84,20 +90,26 @@ fn get_expansion_data(sim_set: &SimSet) -> Result<PostResult> {
     Ok(PostResult::new(params, result))
 }
 
-fn get_radius(snap: &Snapshot) -> Result<Length> {
-    get_radius_code_units(snap).map(|radius| radius * snap.sim.units.length)
+fn get_radius(snap: &Snapshot, source_pos: &FArray1, box_size: f64) -> Result<Length> {
+    get_radius_code_units(snap, source_pos, box_size).map(|radius| radius * snap.sim.units.length)
 }
 
-fn get_radius_code_units(snap: &Snapshot) -> Result<f64> {
+fn get_radius_code_units(snap: &Snapshot, source_pos: &FArray1, box_size: f64) -> Result<f64> {
     let coords = snap.coordinates()?;
     let h_plus_abundance = snap.h_plus_abundance()?;
-    let center = snap.center();
     let min_extent = snap.min_extent();
     let max_extent = snap.max_extent();
     let max_radius = (max_extent[0] - min_extent[0]).max(max_extent[1] - min_extent[1]);
     Ok(bisect(
         |radius| {
-            1.0 - get_mean_abundance_at_radius(&coords, &h_plus_abundance, &center, radius).unwrap()
+            1.0 - get_mean_abundance_at_radius(
+                &coords,
+                &h_plus_abundance,
+                &source_pos,
+                radius,
+                box_size,
+            )
+            .unwrap()
         },
         0.5,
         0.00001,
@@ -135,13 +147,15 @@ fn get_mean_abundance_at_radius(
     h_plus_abundance: &FArray1,
     center: &FArray1,
     radius: f64,
+    box_size: f64,
 ) -> Option<f64> {
     let thickness = 0.05;
     let mut mean_abundance = 0.0;
     let mut num_points = 0;
     let coords_iter = coordinates.outer_iter().map(|x| [x[0], x[1], x[2]]);
     for (i, coord) in coords_iter.enumerate() {
-        if (distance_to_center(&coord, center) - radius).abs() < thickness / 2.0 {
+        if (distance_to_center_periodic(&coord, center, box_size) - radius).abs() < thickness / 2.0
+        {
             mean_abundance += h_plus_abundance[i];
             num_points += 1;
         }
@@ -152,9 +166,19 @@ fn get_mean_abundance_at_radius(
     }
 }
 
-fn distance_to_center(coord: &[f64; 3], center: &FArray1) -> f64 {
-    ((coord[0] - center[0]).powi(2)
-        + (coord[1] - center[1]).powi(2)
-        + (coord[2] - center[2]).powi(2))
+fn periodic_distance(x1: f64, x2: f64, box_size: f64) -> f64 {
+    let normal = x1 - x2;
+    let left_wrapped = x1 - x2 - box_size;
+    let right_wrapped = x1 - x2 + box_size;
+    normal
+        .abs()
+        .min(left_wrapped.abs())
+        .min(right_wrapped.abs())
+}
+
+fn distance_to_center_periodic(coord: &[f64; 3], center: &FArray1, box_size: f64) -> f64 {
+    (periodic_distance(coord[0], center[0], box_size).powi(2)
+        + periodic_distance(coord[1], center[1], box_size).powi(2)
+        + periodic_distance(coord[2], center[2], box_size).powi(2))
     .sqrt()
 }
