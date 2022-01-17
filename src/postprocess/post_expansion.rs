@@ -182,3 +182,33 @@ fn distance_to_center_periodic(coord: &[f64; 3], center: &FArray1, box_size: f64
         + periodic_distance(coord[2], center[2], box_size).powi(2))
     .sqrt()
 }
+
+#[derive(Clap, Debug)]
+pub struct ExpansionErrorFn {}
+
+impl Named for ExpansionErrorFn {
+    fn name(&self) -> &'static str {
+        "expansion_error"
+    }
+
+    fn qualified_name(&self) -> String {
+        self.name().to_string()
+    }
+}
+
+impl ExpansionErrorFn {
+    set_function!(expansion, {
+        |sim_set| get_expansion_data(sim_set).map(|result| get_error(sim_set, result))
+    });
+}
+
+fn get_error(sim_set: &SimSet, res: PostResult) -> PostResult {
+    let mut result = FArray2::zeros((res.data.len(), 3));
+    for (i, (sim, data)) in sim_set.iter().zip(res.data.into_iter()).enumerate() {
+        let len = data.shape()[0];
+        result[[i, 0]] = sim.get("SweepNumPeriodicIterations").unwrap().unwrap_i64() as f64;
+        result[[i, 1]] = data[[len - 1, 1]];
+        result[[i, 2]] = data[[len - 1, 0]];
+    }
+    PostResult::new(res.params, vec![result])
+}
