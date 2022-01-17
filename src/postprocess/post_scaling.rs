@@ -12,7 +12,7 @@ use crate::sim_set::SimSet;
 
 #[derive(Clap, Debug)]
 pub struct ScalingFn {
-    quotient_parameter: Option<String>,
+    quotient_parameters: Vec<String>,
     #[clap(long)]
     ignore_failed: bool,
 }
@@ -34,11 +34,23 @@ impl ScalingFn {
 impl ScalingFn {
     fn get_scaling_data(&self, sim_set: &SimSet) -> Result<PostResult> {
         let mut results = vec![];
-        let mut sub_sim_sets = match self.quotient_parameter {
-            Some(ref param) => sim_set.quotient(param),
-            None => vec![sim_set.clone()],
-        };
-        sub_sim_sets.sort_by_key(|set| set.iter().map(|sim| sim.get_num_cores().unwrap()).min());
+        let params: Vec<&str> = self
+            .quotient_parameters
+            .iter()
+            .map(|x| x.as_ref())
+            .collect();
+        let mut sub_sim_sets = sim_set.quotients(&params);
+        sub_sim_sets.sort_by_key(|set| {
+            (
+                set.iter()
+                    .next()
+                    .unwrap()
+                    .get("SWEEP")
+                    .unwrap()
+                    .unwrap_bool(),
+                set.iter().map(|sim| sim.get_num_cores().unwrap()).min(),
+            )
+        });
         let get_params = |first_sim: &SimParams, res: FArray2| {
             let mut params = PlotParams::default();
             params.add("referenceTime".into(), res[[0, 1]]);

@@ -145,6 +145,18 @@ impl SimSet {
         sub_sim_sets.sort_by_key(|sim_set| sim_set.iter().next().unwrap()[param].clone());
         sub_sim_sets
     }
+
+    pub fn quotients<'a>(&'a self, params: &[&str]) -> Vec<SimSet> {
+        let next_param = params.first();
+        match next_param {
+            Some(param) => self
+                .quotient(param)
+                .into_iter()
+                .flat_map(|sim_set| sim_set.quotients(&params[1..]))
+                .collect(),
+            None => vec![self.clone()],
+        }
+    }
 }
 
 fn get_sim_params(
