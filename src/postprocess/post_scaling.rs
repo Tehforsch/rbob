@@ -68,12 +68,12 @@ impl ScalingFn {
             for (i, (_, sim)) in sub_sim_set.enumerate().enumerate() {
                 res[[i, 0]] = sim.get_num_cores()? as f64;
                 res[[i, 1]] = if self.ignore_failed {
-                    match sim.get_rt_run_time() {
+                    match sim.get_rt_run_time_per_iteration() {
                         Ok(time) => time,
                         Err(_) => 0.0,
                     }
                 } else {
-                    sim.get_rt_run_time()?
+                    sim.get_rt_run_time_per_iteration()?
                 };
             }
             results.push(get_params(sub_sim_set.iter().next().unwrap(), res))

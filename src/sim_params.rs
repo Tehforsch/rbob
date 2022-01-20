@@ -278,6 +278,29 @@ impl SimParams {
         )
     }
 
+    pub fn get_rt_run_time_per_iteration(&self) -> Result<f64> {
+        assert_eq!(self.kind, SimParamsKind::Output);
+        let num_pbc_iterations = self
+            .get("SweepNumPeriodicIterations")
+            .map(|num| num.unwrap_i64())
+            .unwrap_or(1);
+        let num_rotations = self.get("SX_NUM_ROT").unwrap().unwrap_i64();
+        let run_params = self.get("runParams").unwrap().unwrap_string();
+        let re = Regex::new("21 ([0-9+]+).*").unwrap();
+        let cap = re.captures_iter(&run_params).next().ok_or_else(|| {
+            anyhow!("Not a postprocessing run, failed to get number of iterations")
+        })?;
+        let num_iterations: i32 = cap
+            .get(1)
+            .unwrap()
+            .as_str()
+            .parse()
+            .context("Wrong format of run params")?;
+        self.get_rt_run_time().map(|run_time| {
+            run_time / num_pbc_iterations as f64 / num_iterations as f64 / num_rotations as f64
+        })
+    }
+
     pub fn get_num_sweep_runs(&self) -> Result<usize> {
         self.get_log_file().get_num_sweep_runs()
     }
