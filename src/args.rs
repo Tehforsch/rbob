@@ -36,6 +36,8 @@ pub enum SubCommand {
 pub struct ShowSimulationInfo {
     pub folder: Utf8PathBuf,
     pub param_names: Vec<String>,
+    #[clap(short, long)]
+    pub all: bool,
 }
 
 /// Show the difference in the parameters between two simulation directories
@@ -52,6 +54,8 @@ pub struct ShowSimulationDiff {
 pub struct ShowSimulationInfoOutput {
     pub output_folder: Utf8PathBuf,
     pub param_names: Vec<String>,
+    #[clap(short, long)]
+    pub all: bool,
 }
 
 /// Read the input directory and copy/rewrite the simulation files

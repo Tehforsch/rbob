@@ -62,11 +62,12 @@ impl ScalingFn {
             params.add("NFreq".into(), crate::config::SX_NFREQ);
             PostResult::new(params, vec![res])
         };
-        for sub_sim_set in sub_sim_sets.iter() {
+        for sub_sim_set in sub_sim_sets.iter_mut() {
+            sub_sim_set.sort_by_key(|sim| sim.get_num_cores().unwrap());
             let mut res = FArray2::zeros((sub_sim_set.len(), 2));
-            for (i, sim) in sub_sim_set.enumerate() {
-                res[[*i, 0]] = sim.get_num_cores()? as f64;
-                res[[*i, 1]] = if self.ignore_failed {
+            for (i, (_, sim)) in sub_sim_set.enumerate().enumerate() {
+                res[[i, 0]] = sim.get_num_cores()? as f64;
+                res[[i, 1]] = if self.ignore_failed {
                     match sim.get_rt_run_time() {
                         Ok(time) => time,
                         Err(_) => 0.0,

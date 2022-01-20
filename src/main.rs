@@ -31,14 +31,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     match a.subcmd {
         SubCommand::Show(l) => {
             let sim_set = get_sim_set_from_input(&l.folder)?;
-            show_sim_set(sim_set, &l.param_names)?;
+            show_sim_set(sim_set, &l.param_names, l.all)?;
         }
         SubCommand::Diff(l) => {
             diff::show_sim_diff(&l.folder1, &l.folder2)?;
         }
         SubCommand::ShowOutput(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            show_sim_set(sim_set, &l.param_names)?;
+            show_sim_set(sim_set, &l.param_names, l.all)?;
         }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
@@ -92,13 +92,15 @@ fn print_param_value(param: &str, value: &ParamValue) {
     println!("\t{}: {:?}", param, value);
 }
 
-fn show_sim_set(sim_set: SimSet, param_names: &[String]) -> Result<()> {
+fn show_sim_set(sim_set: SimSet, param_names: &[String], all: bool) -> Result<()> {
     let print_param = |sim: &SimParams, param: &str| print_param_value(param, &sim[param]);
     for (i, sim) in sim_set.enumerate() {
         println!("{}:", i);
         if param_names.is_empty() {
             for param in sim.keys() {
-                print_param(sim, param)
+                if all || sim_set.varies(param) {
+                    print_param(sim, param)
+                }
             }
         } else {
             for param in param_names.iter() {

@@ -113,6 +113,21 @@ impl SimSet {
         self.simulations.iter()
     }
 
+    pub fn sort_by_key<K>(&mut self, mut f: impl FnMut(&SimParams) -> K)
+    where
+        K: Ord,
+    {
+        self.simulations.sort_by_key(|(_, sim)| f(sim))
+    }
+
+    pub fn varies(&self, param: &str) -> bool {
+        let first_sim = self.simulations.first().map(|(_, s)| s);
+        match first_sim {
+            None => false,
+            Some(sim) => self.iter().any(|s| s.get(param) != sim.get(param)),
+        }
+    }
+
     pub fn get_folder(&self) -> Result<Utf8PathBuf> {
         let parent_folders = get_common_path(self.iter().map(|sim| sim.folder.parent().unwrap()));
         parent_folders.ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
