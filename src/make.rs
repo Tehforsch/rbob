@@ -31,21 +31,24 @@ fn build_sim(sim: &SimParams, verbose: bool, systype: &Option<Systype>) -> Resul
     write_systype_file(systype)?;
     copy_config_file(sim)?;
     if let Some(commit) = sim.get("arepoCommit") {
-        checkout_arepo_commit(commit.unwrap_string());
+        checkout_arepo_commit(commit.unwrap_string())?;
     }
     build_arepo(verbose)?;
     copy_arepo_file(sim)?;
     Ok(())
 }
 
-fn checkout_arepo_commit(commit: &str) {
+fn checkout_arepo_commit(commit: &str) -> Result<()> {
     let out = get_shell_command_output(
         "git",
         &[&"checkout", &commit],
         Some(&config::AREPO_PATH),
         false,
     );
-    assert!(out.success);
+    match out.success {
+        true => Ok(()),
+        false => Err(anyhow!("Failed to check out arepo commit {}", commit)),
+    }
 }
 
 fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
