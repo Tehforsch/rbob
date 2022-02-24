@@ -281,7 +281,7 @@ impl SimParams {
     pub fn get_rt_run_time_per_iteration(&self) -> Result<f64> {
         assert_eq!(self.kind, SimParamsKind::Output);
         let num_pbc_iterations = self
-            .get("SweepNumPeriodicIterations")
+            .get("SweepMaxNumIterations")
             .map(|num| num.unwrap_i64())
             .unwrap_or(1);
         let num_rotations = self.get("SX_NUM_ROT").unwrap().unwrap_i64();

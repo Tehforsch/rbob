@@ -206,7 +206,7 @@ fn get_error(sim_set: &SimSet, res: PostResult) -> PostResult {
     let mut result = FArray2::zeros((res.data.len(), 3));
     for (i, (sim, data)) in sim_set.iter().zip(res.data.into_iter()).enumerate() {
         let len = data.shape()[0];
-        result[[i, 0]] = sim.get("SweepNumPeriodicIterations").unwrap().unwrap_i64() as f64;
+        result[[i, 0]] = sim.get("SweepMaxNumIterations").unwrap().unwrap_i64() as f64;
         result[[i, 1]] = data[[len - 1, 1]];
         result[[i, 2]] = data[[len - 1, 0]];
     }

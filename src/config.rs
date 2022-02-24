@@ -816,6 +816,7 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SX_DISPLAY_LOAD",
     "SWEEP",
     "SWEEP_PERIODIC",
+    "SWEEP_SCATTER",
     "SWEEP_NO_WARMSTARTING",
 ];
 
@@ -939,8 +940,9 @@ pub static PARAM_FILE_PARAMS: &[&str] = &[
     "TestSrcFile",
     "TestSrcFile",
     "TestSrcFile",
-    "SweepPeriodicConvergenceThreshold",
-    "SweepNumPeriodicIterations",
+    "SweepConvergenceThreshold",
+    "SweepMaxNumIterations",
+    "SweepSigmaScatter",
     "TimeBegin",
     "TimeBetSnapshot",
     "TimeBetStatistics",
