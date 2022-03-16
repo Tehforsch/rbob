@@ -23,7 +23,7 @@ pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>)
         println!("Building sim {}", i);
         build_sim(sim, verbose, systype)?;
     }
-    copy_source_code_to_output(&config::AREPO_PATH, &sim_set.iter().next().unwrap().folder)?;
+    // copy_source_code_to_output(&config::AREPO_PATH, &sim_set.iter().next().unwrap().folder)?;
     Ok(())
 }
 

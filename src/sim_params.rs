@@ -201,10 +201,11 @@ impl SimParams {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
         let ics_ending = match ics_format {
-            3 => "hdf5",
+            3 => ".hdf5",
+            1 => "",
             _ => unimplemented!(),
         };
-        format!("{}.{}", ics_file_base, ics_ending)
+        format!("{}{}", ics_file_base, ics_ending)
     }
 
     pub fn copy_ics(&self, target_folder: &Utf8Path) -> Result<()> {

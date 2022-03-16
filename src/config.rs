@@ -32,7 +32,7 @@ pub static DEFAULT_PIC_FOLDER: &str = "pics";
 pub static CONFIG_FILE_NAME: &str = "config.yaml";
 
 pub static MAX_NUM_VORONOI_SWIM_THREADS: usize = 8;
-pub static MAX_NUM_POST_THREADS: usize = 16;
+pub static MAX_NUM_POST_THREADS: usize = 1;
 
 pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
 
@@ -44,8 +44,8 @@ pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_PARAMS: &str = "0";
 pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &12;
 
-pub static NX_SLICE: usize = 400;
-pub static NY_SLICE: usize = 400;
+pub static NX_SLICE: usize = 600;
+pub static NY_SLICE: usize = 600;
 
 pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";
@@ -943,6 +943,22 @@ pub static PARAM_FILE_PARAMS: &[&str] = &[
     "SweepConvergenceThreshold",
     "SweepMaxNumIterations",
     "SweepSigmaScatter",
+    "SweepEscapeFraction",
+    "TreecoolFile",
+    "DesNumNgbEnrichment",
+    "MaxNumNgbDeviationEnrichment",
+    "SNII_MinMass_Msun",
+    "SNII_MaxMass_Msun",
+    "IMF_MinMass_Msun",
+    "IMF_MaxMass_Msun",
+    "AGB_MassTransferOn",
+    "SNIa_Rate_Norm",
+    "SNIa_Rate_TAU",
+    "SNIa_MassTransferOn",
+    "SNII_MassTransferOn",
+    "YieldTablePath",
+    "CoolingTablePath",
+    "MinMetalTemp",
     "TimeBegin",
     "TimeBetSnapshot",
     "TimeBetStatistics",

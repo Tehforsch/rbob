@@ -33,7 +33,7 @@ fn get_average_ionization_over_time(sim_set: &SimSet) -> Result<PostResult> {
         .iter()
         .flat_map(|sim| {
             let simplex_file = sim.get_simplex_file();
-            simplex_file.get_average_ionization_over_time().unwrap()
+            simplex_file.get_average_ionization_over_time().unwrap_or(vec![])
         })
         .collect();
     let num_points = times_and_ionizations.len();
