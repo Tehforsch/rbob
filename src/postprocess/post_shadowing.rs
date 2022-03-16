@@ -18,7 +18,9 @@ use crate::sim_set::SimSet;
 use crate::unit_utils::nice_time;
 
 #[derive(Clap, Debug)]
-pub struct ShadowingFn {}
+pub struct ShadowingFn {
+    times: Vec<f64>,
+}
 
 impl Named for ShadowingFn {
     fn name(&self) -> &'static str {
@@ -31,13 +33,18 @@ impl Named for ShadowingFn {
 }
 
 impl ShadowingFn {
-    set_function!(shadowing, { move |sim_set| run(sim_set) });
+    set_function!(shadowing, { move |sim_set| run(&shadowing, sim_set) });
 }
 
-fn run(sim_set: &SimSet) -> Result<PostResult> {
+fn run(shadowing: &ShadowingFn, sim_set: &SimSet) -> Result<PostResult> {
     let mut results = vec![];
     let kiloyear = Time::new::<year>(1e3);
-    let times = [6.4 * kiloyear, 32.0 * kiloyear, 48.0 * kiloyear];
+    let times = if shadowing.times.is_empty() {
+        vec![6.4, 32.0, 48.0]
+    } else {
+        shadowing.times.clone()
+    };
+    let times: Vec<_> = times.into_iter().map(|time| time * kiloyear).collect();
     for sim in sim_set.iter() {
         let snaps = find_snaps_at_times(sim, &times)?;
         for snap in snaps {
