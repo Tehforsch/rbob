@@ -70,13 +70,6 @@ fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
     }
 }
 
-fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<()> {
-    copy_recursive(
-        arepo_path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
-        path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
-    )
-}
-
 fn build_arepo(verbose: bool) -> Result<()> {
     delete_arepoconfig_header_file_if_present(&AREPO_PATH)?;
     let out = get_shell_command_output(
