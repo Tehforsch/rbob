@@ -1,18 +1,30 @@
+use bob::util::get_folders;
 use camino::Utf8Path;
-use camino::Utf8PathBuf;
-use eframe::egui::Button;
 use eframe::egui::{self};
 use eframe::epi;
 
+use self::gui_sim_set::GuiSimSet;
+
 mod config;
+mod gui_sim_set;
 
 pub struct BobGui {
-    path: Utf8PathBuf,
+    sim_sets: Vec<GuiSimSet>,
+}
+
+fn discover_sims(path: &Utf8Path) -> Vec<GuiSimSet> {
+    get_folders(path)
+        .unwrap()
+        .into_iter()
+        .map(|path| GuiSimSet { path })
+        .collect()
 }
 
 impl BobGui {
     pub fn new(path: &Utf8Path) -> Self {
-        Self { path: path.into() }
+        Self {
+            sim_sets: discover_sims(path),
+        }
     }
 
     fn add_side_panel(&mut self, ctx: &egui::CtxRef) {
@@ -20,9 +32,8 @@ impl BobGui {
             .resizable(false)
             .min_width(config::MIN_SIDE_BAR_WIDTH)
             .show(ctx, |ui| {
-                let cut_button = ui.add(Button::new("hi"));
-                if cut_button.clicked() {
-                    dbg!("ho");
+                for sim in self.sim_sets.iter() {
+                    ui.label(sim.name());
                 }
             });
     }
