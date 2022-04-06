@@ -1,5 +1,6 @@
 use camino::Utf8PathBuf;
 
+#[derive(PartialEq, Eq)]
 pub struct GuiSimSet {
     pub path: Utf8PathBuf,
 }

@@ -1,8 +1,11 @@
 use bob::util::get_folders;
 use camino::Utf8Path;
+use eframe::egui::Button;
+use eframe::egui::TextStyle;
 use eframe::egui::{self};
 use eframe::epi;
 
+use self::config::SELECTED_COLOR;
 use self::gui_sim_set::GuiSimSet;
 
 mod config;
@@ -10,6 +13,7 @@ mod gui_sim_set;
 
 pub struct BobGui {
     sim_sets: Vec<GuiSimSet>,
+    selected: usize,
 }
 
 fn discover_sims(path: &Utf8Path) -> Vec<GuiSimSet> {
@@ -24,7 +28,17 @@ impl BobGui {
     pub fn new(path: &Utf8Path) -> Self {
         Self {
             sim_sets: discover_sims(path),
+            selected: 0,
         }
+    }
+
+    fn find_index(&self, sim: &GuiSimSet) -> usize {
+        self.sim_sets
+            .iter()
+            .enumerate()
+            .find(|(i, s)| *s == sim)
+            .map(|(i, _)| i)
+            .unwrap()
     }
 
     fn add_side_panel(&mut self, ctx: &egui::CtxRef) {
@@ -32,8 +46,15 @@ impl BobGui {
             .resizable(false)
             .min_width(config::MIN_SIDE_BAR_WIDTH)
             .show(ctx, |ui| {
-                for sim in self.sim_sets.iter() {
-                    ui.label(sim.name());
+                for (i, sim) in self.sim_sets.iter().enumerate() {
+                    let mut button = Button::new(sim.name()).text_style(TextStyle::Heading);
+                    if i == self.selected {
+                        button = button.fill(SELECTED_COLOR);
+                    }
+                    let response = ui.add(button);
+                    if response.clicked() {
+                        self.selected = self.find_index(sim);
+                    }
                 }
             });
     }
