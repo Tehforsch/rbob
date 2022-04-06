@@ -7,19 +7,25 @@ use bob::util::get_folders;
 use camino::Utf8Path;
 use eframe::egui::Button;
 use eframe::egui::RichText;
+use eframe::egui::Style;
 use eframe::egui::TextStyle;
 use eframe::egui::Ui;
+use eframe::egui::Visuals;
 use eframe::egui::{self};
+use eframe::epaint::TextureHandle;
 use eframe::epi;
 
 use self::config::SELECTED_COLOR;
 use self::gui_sim_set::GuiSimSet;
 use self::named::Named;
+use self::plot::Plot;
+use self::plot::Slice;
 use self::selection::Selection;
 
 mod config;
 mod gui_sim_set;
 mod named;
+mod plot;
 mod selection;
 
 fn discover_sims(path: &Utf8Path) -> Vec<GuiSimSet> {
@@ -72,6 +78,8 @@ pub struct BobGui {
     sim_sets: Selection<GuiSimSet>,
     sims: Selection<SimParams>,
     snaps: Selection<Snapshot>,
+    plots: Selection<Box<dyn Plot>>,
+    image: Option<TextureHandle>,
 }
 
 impl BobGui {
@@ -80,6 +88,8 @@ impl BobGui {
             sim_sets: Selection::new(discover_sims(path)),
             sims: Selection::new(vec![]),
             snaps: Selection::new(vec![]),
+            image: None,
+            plots: Selection::new(vec![Box::new(Slice {})]),
         }
     }
 
@@ -105,7 +115,7 @@ impl BobGui {
             .collect();
     }
 
-    fn add_sim_set_selection_panel(&mut self, ctx: &egui::CtxRef) {
+    fn add_sim_set_selection_panel(&mut self, ctx: &egui::Context) {
         egui::SidePanel::left("sim_set_bar")
             .resizable(false)
             .min_width(config::MIN_SIDE_BAR_WIDTH)
@@ -118,7 +128,7 @@ impl BobGui {
             });
     }
 
-    fn add_sim_selection_panel(&mut self, ctx: &egui::CtxRef) {
+    fn add_sim_selection_panel(&mut self, ctx: &egui::Context) {
         if self.sim_sets.num_selected() != 1 {
             return;
         }
@@ -133,7 +143,7 @@ impl BobGui {
             });
     }
 
-    fn add_snap_selection_panel(&mut self, ctx: &egui::CtxRef) {
+    fn add_snap_selection_panel(&mut self, ctx: &egui::Context) {
         if self.sims.num_selected() != 1 {
             return;
         }
@@ -146,8 +156,15 @@ impl BobGui {
             });
     }
 
-    fn add_central_panel(&mut self, ctx: &egui::CtxRef) {
-        egui::CentralPanel::default().show(ctx, |ui| {});
+    fn add_central_panel(&mut self, ctx: &egui::Context) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            if ui.button("Plot").clicked() {
+                self.image = Some(ui.ctx().load_texture("some", egui::ColorImage::example()));
+            }
+            if let Some(ref plot) = self.image {
+                ui.add(egui::Image::new(plot, plot.size_vec2()));
+            }
+        });
     }
 }
 
@@ -156,10 +173,11 @@ impl epi::App for BobGui {
         "Bob"
     }
 
-    fn update(&mut self, ctx: &egui::CtxRef, _: &epi::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _: &epi::Frame) {
         self.add_sim_set_selection_panel(ctx);
         self.add_sim_selection_panel(ctx);
         self.add_snap_selection_panel(ctx);
         self.add_central_panel(ctx);
+        ctx.set_visuals(Visuals::dark());
     }
 }
