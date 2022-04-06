@@ -29,6 +29,7 @@ pub enum SubCommand {
     Replot(ReplotArgs),
     GetData(GetData),
     CopyAbundances(CopyAbundances),
+    Gui(GuiArgs),
 }
 
 /// Read the input directory and show info about the resulting simulations.
@@ -108,4 +109,10 @@ pub struct CopyAbundances {
     pub sim_abundances: Utf8PathBuf,
     pub sim_coordinates: Utf8PathBuf,
     pub snap_output: Utf8PathBuf,
+}
+
+/// Run the Gui
+#[derive(Clap, Debug)]
+pub struct GuiArgs {
+    pub path: Utf8PathBuf,
 }

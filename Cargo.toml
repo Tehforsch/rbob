@@ -29,7 +29,7 @@ kdtree = "0.6.0"
 byteorder = "1.4.3"
 lazy_static = "1.4.0"
 take_mut = "0.2.2"
-# voronoi_swim = { path = "../voronoiSwim/", optional = true}
+eframe = "0.16.0" # Gives us egui, epi and web+native backends
 
 [dev-dependencies]
 tempdir = "0.3.7"

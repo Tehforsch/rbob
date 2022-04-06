@@ -21,10 +21,12 @@ use bob::unit_utils::nice_time;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use clap::Clap;
+use gui::BobGui;
 
 use self::args::Opts;
 
 pub mod args;
+pub mod gui;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
@@ -72,6 +74,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::CopyAbundances(l) => {
             copy_abundances(&l.sim_abundances, &l.sim_coordinates, &l.snap_output)?;
+        }
+        SubCommand::Gui(l) => {
+            let gui = BobGui::new(&l.path);
+            let native_options = eframe::NativeOptions::default();
+            eframe::run_native(Box::new(gui), native_options);
         }
     }
     Ok(())
