@@ -1,4 +1,5 @@
 use std::iter;
+use std::path::Path;
 
 use bob::postprocess::get_snapshots;
 use bob::postprocess::snapshot::Snapshot;
@@ -72,6 +73,17 @@ fn show_buttons_and_handle_selection<T: Named>(
         selection.add_or_remove_from_selection(selected);
     }
     selected
+}
+
+fn load_image_from_path(path: &std::path::Path) -> Result<egui::ColorImage, image::ImageError> {
+    let image = image::io::Reader::open(path)?.decode()?;
+    let size = [image.width() as _, image.height() as _];
+    let image_buffer = image.to_rgba8();
+    let pixels = image_buffer.as_flat_samples();
+    Ok(egui::ColorImage::from_rgba_unmultiplied(
+        size,
+        pixels.as_slice(),
+    ))
 }
 
 pub struct BobGui {
@@ -151,15 +163,25 @@ impl BobGui {
             .resizable(false)
             .min_width(config::MIN_SIDE_BAR_WIDTH)
             .show(ctx, |mut ui| {
-                let selected_snap_index =
-                    show_buttons_and_handle_selection(&mut ui, &mut self.snaps);
+                show_buttons_and_handle_selection(&mut ui, &mut self.snaps);
             });
     }
 
     fn add_central_panel(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             if ui.button("Plot").clicked() {
-                self.image = Some(ui.ctx().load_texture("some", egui::ColorImage::example()));
+                let plot = self.plots.get_selected().next();
+                if let Some(plot) = plot {
+                    let path = plot.run_plot(
+                        self.sim_sets.get_selected().collect(),
+                        self.sims.get_selected().collect(),
+                        self.snaps.get_selected().collect(),
+                    );
+                    self.image = Some(
+                        ui.ctx()
+                            .load_texture("some", load_image_from_path(Path::new(&path)).unwrap()),
+                    );
+                }
             }
             if let Some(ref plot) = self.image {
                 ui.add(egui::Image::new(plot, plot.size_vec2()));
