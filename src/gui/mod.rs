@@ -6,21 +6,21 @@ use bob::postprocess::snapshot::Snapshot;
 use bob::sim_params::SimParams;
 use bob::util::get_folders;
 use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use eframe::egui::Button;
 use eframe::egui::RichText;
-use eframe::egui::Style;
 use eframe::egui::TextStyle;
 use eframe::egui::Ui;
 use eframe::egui::Visuals;
 use eframe::egui::{self};
 use eframe::epaint::TextureHandle;
 use eframe::epi;
+use strum::IntoEnumIterator;
 
 use self::config::SELECTED_COLOR;
 use self::gui_sim_set::GuiSimSet;
 use self::named::Named;
 use self::plot::Plot;
-use self::plot::Slice;
 use self::selection::Selection;
 
 mod config;
@@ -30,10 +30,13 @@ mod plot;
 mod selection;
 
 fn discover_sims(path: &Utf8Path) -> Vec<GuiSimSet> {
-    discover_sims_iter(path).collect()
+    discover_sims_iter(path.to_owned(), path).collect()
 }
 
-fn discover_sims_iter(path: &Utf8Path) -> Box<dyn Iterator<Item = GuiSimSet>> {
+fn discover_sims_iter(
+    top_path: Utf8PathBuf,
+    path: &Utf8Path,
+) -> Box<dyn Iterator<Item = GuiSimSet>> {
     let folders = get_folders(path).unwrap();
     Box::new(
         folders
@@ -45,9 +48,9 @@ fn discover_sims_iter(path: &Utf8Path) -> Box<dyn Iterator<Item = GuiSimSet>> {
                     .find(|path| path.file_name() == Some("0"))
                     .is_some()
                 {
-                    Box::new(iter::once(GuiSimSet { path: path.into() }))
+                    Box::new(iter::once(GuiSimSet::new(top_path.clone(), &path)))
                 } else {
-                    discover_sims_iter(&path)
+                    discover_sims_iter(top_path.clone(), &path)
                 }
             })
             .into_iter(),
@@ -87,21 +90,23 @@ fn load_image_from_path(path: &std::path::Path) -> Result<egui::ColorImage, imag
 }
 
 pub struct BobGui {
+    path: Utf8PathBuf,
     sim_sets: Selection<GuiSimSet>,
     sims: Selection<SimParams>,
     snaps: Selection<Snapshot>,
-    plots: Selection<Box<dyn Plot>>,
+    plot: Plot,
     image: Option<TextureHandle>,
 }
 
 impl BobGui {
     pub fn new(path: &Utf8Path) -> Self {
         Self {
+            path: path.to_owned(),
             sim_sets: Selection::new(discover_sims(path)),
             sims: Selection::new(vec![]),
             snaps: Selection::new(vec![]),
             image: None,
-            plots: Selection::new(vec![Box::new(Slice {})]),
+            plot: Plot::Slice,
         }
     }
 
@@ -167,21 +172,33 @@ impl BobGui {
             });
     }
 
+    fn add_plot_selection_panel(&mut self, ctx: &egui::Context) {
+        if self.sims.num_selected() != 1 {
+            return;
+        }
+        egui::TopBottomPanel::top("plot_bar")
+            .resizable(false)
+            .min_height(config::MIN_SIDE_BAR_WIDTH)
+            .show(ctx, |mut ui| {
+                for plot in Plot::iter() {
+                    ui.label(plot.name());
+                }
+            });
+    }
+
     fn add_central_panel(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             if ui.button("Plot").clicked() {
-                let plot = self.plots.get_selected().next();
-                if let Some(plot) = plot {
-                    let path = plot.run_plot(
-                        self.sim_sets.get_selected().collect(),
-                        self.sims.get_selected().collect(),
-                        self.snaps.get_selected().collect(),
-                    );
-                    self.image = Some(
-                        ui.ctx()
-                            .load_texture("some", load_image_from_path(Path::new(&path)).unwrap()),
-                    );
-                }
+                let path = self.plot.run_plot(
+                    &self.path,
+                    self.sim_sets.get_selected().collect(),
+                    self.sims.get_selected().collect(),
+                    self.snaps.get_selected().collect(),
+                );
+                self.image = Some(
+                    ui.ctx()
+                        .load_texture("some", load_image_from_path(Path::new(&path)).unwrap()),
+                );
             }
             if let Some(ref plot) = self.image {
                 ui.add(egui::Image::new(plot, plot.size_vec2()));
@@ -199,6 +216,7 @@ impl epi::App for BobGui {
         self.add_sim_set_selection_panel(ctx);
         self.add_sim_selection_panel(ctx);
         self.add_snap_selection_panel(ctx);
+        self.add_plot_selection_panel(ctx);
         self.add_central_panel(ctx);
         ctx.set_visuals(Visuals::dark());
     }
