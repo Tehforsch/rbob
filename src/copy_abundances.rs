@@ -57,9 +57,9 @@ fn write_dataset<D: ndarray::Dimension>(
     Ok(())
 }
 
-fn get_remapped_abundances_and_energies<'a>(
-    abundances_snap: Snapshot<'a>,
-    coordinates_snap: Snapshot<'a>,
+fn get_remapped_abundances_and_energies(
+    abundances_snap: Snapshot,
+    coordinates_snap: Snapshot,
 ) -> Result<(FArray2, FArray1)> {
     let reference_coords = abundances_snap.coordinates()?;
     let mut tree = KdTree::new(3);

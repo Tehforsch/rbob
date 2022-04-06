@@ -58,8 +58,8 @@ fn run(shadowing: &ShadowingFn, sim_set: &SimSet) -> Result<PostResult> {
     Ok(PostResult::join(results))
 }
 
-fn find_snaps_at_times<'a>(sim: &'a SimParams, times: &[Time]) -> Result<Vec<Snapshot<'a>>> {
-    let mut snaps: Vec<Snapshot<'a>> = get_snapshots(sim)?.collect::<Result<_>>()?;
+fn find_snaps_at_times(sim: &SimParams, times: &[Time]) -> Result<Vec<Snapshot>> {
+    let mut snaps: Vec<Snapshot> = get_snapshots(sim)?.collect::<Result<_>>()?;
     let num_snaps = snaps.len();
     let mut current_time_index = 0;
     let mut result_indices = vec![];

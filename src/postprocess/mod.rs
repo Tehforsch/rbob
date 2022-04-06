@@ -121,7 +121,7 @@ pub fn write_results(
 
 pub fn get_snapshots<'a>(
     sim: &'a SimParams,
-) -> Result<Box<dyn Iterator<Item = Result<Snapshot<'a>>> + 'a>> {
+) -> Result<Box<dyn Iterator<Item = Result<Snapshot>> + 'a>> {
     Ok(Box::new(get_snapshot_files(sim)?.map(move |snap_file| {
         Snapshot::from_file(sim, &snap_file)
     })))

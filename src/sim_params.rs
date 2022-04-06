@@ -38,7 +38,7 @@ pub enum SimParamsKind {
     Output,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SimParams {
     pub folder: Utf8PathBuf,
     params: HashMap<String, ParamValue>,
@@ -134,8 +134,8 @@ impl SimParams {
         })
     }
 
-    pub fn get_name(&self) -> String {
-        self.folder.file_name().unwrap().to_owned()
+    pub fn get_name(&self) -> &str {
+        self.folder.file_name().unwrap()
     }
 
     pub fn output_folder(&self) -> Utf8PathBuf {
