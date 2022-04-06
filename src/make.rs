@@ -13,7 +13,6 @@ use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::systype::Systype;
 use crate::util::copy_file;
-use crate::util::copy_recursive;
 use crate::util::get_shell_command_output;
 use crate::util::read_file_contents;
 use crate::util::write_file;
@@ -23,7 +22,6 @@ pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>)
         println!("Building sim {}", i);
         build_sim(sim, verbose, systype)?;
     }
-    // copy_source_code_to_output(&config::AREPO_PATH, &sim_set.iter().next().unwrap().folder)?;
     Ok(())
 }
 
@@ -68,13 +66,6 @@ fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
     } else {
         Ok(())
     }
-}
-
-fn copy_source_code_to_output(arepo_path: &Utf8Path, path: &Utf8Path) -> Result<()> {
-    copy_recursive(
-        arepo_path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
-        path.join(config::DEFAULT_AREPO_SOURCE_FOLDER),
-    )
 }
 
 fn build_arepo(verbose: bool) -> Result<()> {
