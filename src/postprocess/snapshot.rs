@@ -58,6 +58,11 @@ impl<'a> Snapshot<'a> {
         Ok(arr)
     }
 
+    pub fn energies(&self) -> Result<FArray1> {
+        let arr = self.read_1d_dataset("PartType0/InternalEnergy")?;
+        Ok(arr)
+    }
+
     pub fn read_2d_dataset(&self, dataset: &str) -> Result<FArray2> {
         Ok(self.file.dataset(dataset)?.read()?)
     }
