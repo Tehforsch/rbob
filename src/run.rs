@@ -16,11 +16,16 @@ pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
             sim.get(config::CASCADE_IDENTIFIER),
             Some(ParamValue::Bool(true))
         ) {
-            run_after = job_id;
-            assert!(
-                run_after.is_some(),
-                "Failed to get job id from previous job! Run without -v ? "
-            );
+            match config::JOB_FILE_RUN_COMMAND.as_str() {
+                "bash" => {}
+                _ => {
+                    run_after = job_id;
+                    assert!(
+                        run_after.is_some(),
+                        "Failed to get job id from previous job! Run without -v ? "
+                    );
+                }
+            }
         }
     }
     Ok(())
