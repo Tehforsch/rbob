@@ -818,6 +818,7 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SWEEP_PERIODIC",
     "SWEEP_SCATTER",
     "SWEEP_NO_WARMSTARTING",
+    "SWEEP_OUTPUT_IONIZATION_TIME",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[
