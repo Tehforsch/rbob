@@ -233,6 +233,20 @@ impl SimParams {
         Ok(())
     }
 
+    pub fn copy_treecool_file_if_exists(
+        &self,
+        source_folder: &Utf8Path,
+        target_folder: &Utf8Path,
+    ) -> Result<()> {
+        if let Some(treecool_file_identifier) = self.get("TreecoolFile") {
+            let treecool_file_name = treecool_file_identifier.unwrap_string();
+            let treecool_file = source_folder.join(&treecool_file_name);
+            let output_treecool_file = target_folder.join(&treecool_file_name);
+            copy_file(treecool_file, output_treecool_file)?;
+        }
+        Ok(())
+    }
+
     fn get_job_file_contents(&self) -> Result<String> {
         let job_params = self.get_job_params()?;
         self.get_job_file_contents_from_job_params(&job_params)
