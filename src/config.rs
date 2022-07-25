@@ -63,6 +63,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
     "runProgram",
     "additionalCommands",
     "cascade",
+    "wallTime",
 ];
 
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
