@@ -56,7 +56,7 @@ pub fn get_slice_result(
         FieldIdentifier::PhotonRates => {
             let data = snap.photon_rates()?;
             let index_136_freq = 2;
-            data.slice(s![index_136_freq, ..]).to_owned()
+            data.slice(s![.., index_136_freq]).to_owned()
         }
     };
     use std::thread;
