@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::Clap;
 use kdtree::distance::squared_euclidean;
 use kdtree::KdTree;
+use ndarray::s;
 use ndarray_stats::QuantileExt;
 use uom::si::f64::Length;
 use uom::si::length::parsec;
@@ -52,6 +53,11 @@ pub fn get_slice_result(
     let data = match field {
         FieldIdentifier::HpAbundance => snap.h_plus_abundance()?,
         FieldIdentifier::Density => snap.density()?,
+        FieldIdentifier::PhotonRates => {
+            let data = snap.photon_rates()?;
+            let index_136_freq = 2;
+            data.slice(s![index_136_freq, ..]).to_owned()
+        }
     };
     use std::thread;
     use std::time::Duration;

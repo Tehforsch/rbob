@@ -7,6 +7,7 @@ use clap::Clap;
 #[derive(Clap, Debug, Clone)]
 pub enum FieldIdentifier {
     HpAbundance,
+    PhotonRates,
     Density,
 }
 
@@ -26,6 +27,7 @@ impl std::fmt::Display for FieldIdentifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::HpAbundance => write!(f, "hpabundance"),
+            Self::PhotonRates => write!(f, "photonrates"),
             Self::Density => write!(f, "density"),
         }
     }
