@@ -58,6 +58,11 @@ pub fn get_slice_result(
             let index_136_freq = 2;
             data.slice(s![.., index_136_freq]).to_owned()
         }
+        FieldIdentifier::PhotonFlux => {
+            let data = snap.photon_flux()?;
+            let index_136_freq = 2;
+            data.slice(s![.., index_136_freq]).to_owned()
+        }
     };
     use std::thread;
     use std::time::Duration;

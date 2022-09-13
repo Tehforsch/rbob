@@ -51,6 +51,10 @@ impl<'a> Snapshot<'a> {
         self.read_2d_dataset("PartType0/PhotonRates")
     }
 
+    pub fn photon_flux(&self) -> Result<FArray2> {
+        self.read_2d_dataset("PartType0/PhotonFlux")
+    }
+
     pub fn h_plus_abundance(&self) -> Result<FArray1> {
         let full_data = self.read_2d_dataset("PartType0/ChemicalAbundances")?;
         Ok(full_data.slice(s![.., 1]).to_owned())

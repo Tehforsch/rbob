@@ -51,7 +51,7 @@ fn run(shadowing: &ShadowingFn, sim_set: &SimSet) -> Result<PostResult> {
             results.push(get_slice_result(
                 &snap,
                 &Axis::Z,
-                &FieldIdentifier::PhotonRates,
+                &FieldIdentifier::PhotonFlux,
             )?);
         }
     }

@@ -8,6 +8,7 @@ use clap::Clap;
 pub enum FieldIdentifier {
     HpAbundance,
     PhotonRates,
+    PhotonFlux,
     Density,
 }
 
@@ -28,6 +29,7 @@ impl std::fmt::Display for FieldIdentifier {
         match self {
             Self::HpAbundance => write!(f, "hpabundance"),
             Self::PhotonRates => write!(f, "photonrates"),
+            Self::PhotonFlux => write!(f, "photonflux"),
             Self::Density => write!(f, "density"),
         }
     }
