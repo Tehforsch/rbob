@@ -60,8 +60,12 @@ pub fn get_slice_result(
         }
         FieldIdentifier::PhotonFlux => {
             let data = snap.photon_flux()?;
+            let densities = snap.density()?;
+            let masses = snap.masses()?;
+            let volumes = masses / densities;
             let index_136_freq = 2;
-            data.slice(s![.., index_136_freq]).to_owned()
+            let fluxes = data.slice(s![.., index_136_freq]).to_owned();
+            (fluxes / volumes).to_owned()
         }
     };
     use std::thread;

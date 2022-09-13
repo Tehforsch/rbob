@@ -43,6 +43,10 @@ impl<'a> Snapshot<'a> {
         self.read_2d_dataset("PartType0/Coordinates")
     }
 
+    pub fn masses(&self) -> Result<FArray1> {
+        self.read_1d_dataset("PartType0/Masses")
+    }
+
     pub fn density(&self) -> Result<FArray1> {
         self.read_1d_dataset("PartType0/Density")
     }
