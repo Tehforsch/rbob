@@ -945,7 +945,7 @@ pub static PARAM_FILE_PARAMS: &[&str] = &[
     "SweepConvergenceThreshold",
     "SweepMaxNumIterations",
     "SweepSigmaScatter",
-    "SweepEscapeFraction",
+    "SourceFactor",
     "TreecoolFile",
     "DesNumNgbEnrichment",
     "MaxNumNgbDeviationEnrichment",
