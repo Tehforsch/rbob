@@ -197,25 +197,45 @@ impl SimParams {
         Ok(())
     }
 
-    pub fn get_ics_filename(&self) -> String {
+    pub fn get_ics_filename(&self) -> Utf8PathBuf {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
-        let ics_ending = match ics_format {
+        let ics_extension = match ics_format {
             3 => ".hdf5",
             1 => "",
             _ => unimplemented!(),
         };
-        format!("{}{}", ics_file_base, ics_ending)
+        let path = Utf8Path::new(ics_file_base);
+        let filename_with_extension = path.with_extension(ics_extension);
+        if filename_with_extension.is_file() {
+            filename_with_extension.into()
+        } else {
+            // Simply return the path to the parent folder of the initial conditions
+            path.parent().unwrap().into()
+        }
     }
 
-    pub fn copy_ics(&self, target_folder: &Utf8Path) -> Result<()> {
+    pub fn copy_ics(&self, target_folder: &Utf8Path, symlink_ics: bool) -> Result<()> {
         let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
         let ics_file_name = self.get_ics_filename();
         fs::create_dir_all(&sim_output_folder)?;
-        copy_file(
-            self.folder.join(&ics_file_name),
-            target_folder.join(&ics_file_name),
-        )?;
+        let source = self.folder.join(&ics_file_name);
+        let target = target_folder.join(&ics_file_name);
+        if symlink_ics {
+            std::os::unix::fs::symlink(
+                &source.canonicalize().context(format!(
+                    "While trying to obtain absolute path to initial conditions at {:?}",
+                    source
+                ))?,
+                &target,
+            )
+            .context(format!(
+                "While symlinking ics file from {:?} to {:?}",
+                source, target
+            ))?;
+        } else {
+            copy_file(&source, &target)?;
+        }
         Ok(())
     }
 

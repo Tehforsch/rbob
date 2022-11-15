@@ -65,6 +65,8 @@ pub struct CopySimulation {
     pub output_folder: Utf8PathBuf,
     #[clap(short, long)]
     pub delete: bool,
+    #[clap(short, long)]
+    pub symlink_ics: bool,
 }
 
 /// Build arepo for each of the configuration files in the output directory
@@ -88,6 +90,8 @@ pub struct StartSimulation {
     #[clap(short, long)]
     pub delete: bool,
     pub systype: Option<Systype>,
+    #[clap(short, long)]
+    pub symlink_ics: bool,
 }
 
 /// Copy all the relevant files (snapshots and parameter files) from a simulation to another dir

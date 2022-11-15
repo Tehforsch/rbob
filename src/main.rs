@@ -42,7 +42,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
-            copy_sim_set(&sim_set, l.input_folder, l.output_folder, l.delete)?;
+            copy_sim_set(
+                &sim_set,
+                l.input_folder,
+                l.output_folder,
+                l.delete,
+                l.symlink_ics,
+            )?;
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -83,6 +89,7 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         &args.input_folder,
         &args.output_folder,
         args.delete,
+        args.symlink_ics,
     )?;
     build_sim_set(&output_sim_set, verbose, &args.systype)?;
     run_sim_set(&output_sim_set, verbose)
