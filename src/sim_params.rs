@@ -201,7 +201,7 @@ impl SimParams {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
         let ics_extension = match ics_format {
-            3 => ".hdf5",
+            3 => "hdf5",
             1 => "",
             _ => unimplemented!(),
         };
