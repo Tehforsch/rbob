@@ -116,7 +116,8 @@ impl ParamValue {
 impl FromStr for ParamValue {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<ParamValue> {
-        s.parse::<i64>()
+        s.trim()
+            .parse::<i64>()
             .map(ParamValue::Int)
             .or_else(|_| {
                 s.parse::<f64>()
