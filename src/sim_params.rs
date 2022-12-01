@@ -202,7 +202,7 @@ impl SimParams {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
         let ics_extension = match ics_format {
-            3 => ".hdf5",
+            3 => "hdf5",
             1 => "",
             _ => unimplemented!(),
         };
@@ -212,7 +212,9 @@ impl SimParams {
             filename_with_extension.into()
         } else {
             // Simply return the path to the parent folder of the initial conditions
-            path.parent().unwrap().into()
+            let f =  path.parent().unwrap().into();
+            println!("Did not find ICS file at {:?}, assuming ICS are a folder at {:?}", filename_with_extension, f);
+            f
         }
     }
 
