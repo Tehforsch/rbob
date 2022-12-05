@@ -190,6 +190,7 @@ impl SimParams {
             })
             .flatten()
             .join("\n")
+            + "\n"
     }
 
     pub fn write_job_file(&self, path: &Utf8Path) -> Result<()> {
