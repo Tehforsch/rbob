@@ -50,6 +50,7 @@ fn copy_sim(
     sim.copy_ics(sim_output_folder, symlink_ics)?;
     sim.copy_test_sources_file_if_exists(input_folder, sim_output_folder)?;
     sim.copy_treecool_file_if_exists(input_folder, sim_output_folder)?;
+    sim.copy_output_list_file_if_exists(input_folder, sim_output_folder)?;
     sim.write_bob_param_file(&sim_output_folder.join(config::DEFAULT_BOB_PARAM_FILE_NAME))?;
     // This is not the most efficient thing ever but it should be completely fine since this is not done very often, nor is the hashmap very large.
     let mut new_sim_params = sim.clone();
