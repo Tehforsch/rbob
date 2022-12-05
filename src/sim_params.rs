@@ -281,6 +281,30 @@ impl SimParams {
         Ok(())
     }
 
+    pub fn copy_output_list_file_if_exists(
+        &self,
+        source_folder: &Utf8Path,
+        target_folder: &Utf8Path,
+    ) -> Result<()> {
+        if !self
+            .get("OutputListOn")
+            .map(|x| x.unwrap_i64() > 0)
+            .unwrap_or(false)
+        {
+            return Ok(());
+        }
+        if let Some(output_list_file_identifier) = self.get("OutputListFilename") {
+            let output_list_file_name = output_list_file_identifier.unwrap_string();
+            let output_list_file = source_folder.join(&output_list_file_name);
+            if output_list_file.is_absolute() {
+                return Ok(());
+            }
+            let output_output_list_file = target_folder.join(&output_list_file_name);
+            copy_file(output_list_file, output_output_list_file)?;
+        }
+        Ok(())
+    }
+
     fn get_job_file_contents(&self) -> Result<String> {
         let job_params = self.get_job_params()?;
         self.get_job_file_contents_from_job_params(&job_params)
