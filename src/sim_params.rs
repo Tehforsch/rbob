@@ -224,6 +224,10 @@ impl SimParams {
     pub fn copy_ics(&self, target_folder: &Utf8Path, symlink_ics: bool) -> Result<()> {
         let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
         let ics_file_name = self.get_ics_filename();
+        // Nothing to do if the ICS are given as an absolute path
+        if ics_file_name.is_absolute() {
+            return Ok(());
+        }
         fs::create_dir_all(&sim_output_folder)?;
         let source = self.folder.join(&ics_file_name);
         let target = target_folder.join(&ics_file_name);
