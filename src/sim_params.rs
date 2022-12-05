@@ -185,6 +185,7 @@ impl SimParams {
                 },
                 ParamValue::Int(value) => Some(format!("{}={}", key, value)),
                 ParamValue::Float(_, s) => Some(format!("{}={}", key, s)),
+                ParamValue::Str(s) => Some(format!("{}={}", key, s)),
                 _ => panic!("Wrong param value: {}", key),
             })
             .flatten()
@@ -211,7 +212,9 @@ impl SimParams {
             filename_with_extension.into()
         } else {
             // Simply return the path to the parent folder of the initial conditions
-            path.parent().unwrap().into()
+            let f =  path.parent().unwrap().into();
+            println!("Did not find ICS file at {:?}, assuming ICS are a folder at {:?}", filename_with_extension, f);
+            f
         }
     }
 
@@ -407,6 +410,7 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
     for param in config::CONFIG_FILE_PARAMS {
         params.insert(param.to_string(), ParamValue::Bool(false));
     }
+    let mut invalid_keys = vec![];
     for line in get_nonempty_noncomment_lines(content, comment_string) {
         let (mut key, value) = match line.contains(&"=") {
             true => {
@@ -422,9 +426,18 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
             false => Ok((line.to_string(), ParamValue::Bool(true))),
         }?;
         key = key.trim_start().trim_end().to_string();
-        if params.insert(key, value) == None {
-            return Err(anyhow!("Found invalid config parameter: {}", line));
+        if params.insert(key.clone(), value) == None {
+            invalid_keys.push(key);
         }
+    }
+    if !invalid_keys.is_empty() {
+        return Err(anyhow!(
+            "Found invalid config parameters:\n{}",
+            invalid_keys
+                .iter()
+                .map(|x| format!("\"{}\",", x))
+                .join("\n")
+        ));
     }
     Ok(params)
 }
