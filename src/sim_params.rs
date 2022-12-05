@@ -271,6 +271,9 @@ impl SimParams {
         if let Some(treecool_file_identifier) = self.get("TreecoolFile") {
             let treecool_file_name = treecool_file_identifier.unwrap_string();
             let treecool_file = source_folder.join(&treecool_file_name);
+            if treecool_file.is_absolute() {
+                return Ok(());
+            }
             let output_treecool_file = target_folder.join(&treecool_file_name);
             copy_file(treecool_file, output_treecool_file)?;
         }
