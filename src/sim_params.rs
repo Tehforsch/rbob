@@ -209,7 +209,7 @@ impl SimParams {
         };
         let path = Utf8Path::new(ics_file_base);
         let filename_with_extension = path.with_extension(ics_extension);
-        if filename_with_extension.is_file() {
+        if self.folder.join(&filename_with_extension).is_file() {
             filename_with_extension.into()
         } else {
             // Simply return the path to the parent folder of the initial conditions
