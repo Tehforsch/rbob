@@ -59,7 +59,7 @@ impl ScalingFn {
                 "NDir".into(),
                 first_sim.get("SX_NDIR").unwrap().unwrap_i64(),
             );
-            params.add("NFreq".into(), crate::config::SX_NFREQ);
+            params.add("NFreq".into(), crate::config::SWEEP_NFREQ);
             PostResult::new(params, vec![res])
         };
         for sub_sim_set in sub_sim_sets.iter_mut() {

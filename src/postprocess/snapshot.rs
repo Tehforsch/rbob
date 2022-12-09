@@ -8,7 +8,7 @@ use uom::si::f64::Time;
 use super::read_hdf5::get_header_attribute;
 use crate::array_utils::FArray1;
 use crate::array_utils::FArray2;
-use crate::config::SX_NFREQ;
+use crate::config::SWEEP_NFREQ;
 use crate::sim_params::SimParams;
 
 #[derive(Debug)]
@@ -66,7 +66,7 @@ impl<'a> Snapshot<'a> {
 
     pub fn chemical_abundances(&self) -> Result<FArray2> {
         let arr = self.read_2d_dataset("PartType0/ChemicalAbundances")?;
-        assert_eq!(arr.shape()[1], SX_NFREQ);
+        assert_eq!(arr.shape()[1], SWEEP_NFREQ);
         Ok(arr)
     }
 

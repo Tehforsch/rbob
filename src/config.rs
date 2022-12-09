@@ -71,7 +71,7 @@ pub static SPECIAL_PARAMS: &[&str] = &[
 pub static CALC_PARAMS: &[&str] = &["timeUnit"];
 
 pub static H_IONIZATION_RATE_INDEX: usize = 2;
-pub static SX_NFREQ: usize = 6;
+pub static SWEEP_NFREQ: usize = 6;
 
 pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "NTYPES",
@@ -732,25 +732,13 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "NSIDE",
     "OUTPUTCOL",
     "TREE_RAD_VEL",
-    "SGCHEM_RT",
-    "SIMPLEX",
-    "SX_CHEMISTRY",
-    "SX_NDIR",
-    "SX_SOURCES",
-    "SX_NUM_ROT",
-    "SX_HYDROGEN_ONLY",
-    "SX_DISPLAY_STATS",
-    "SX_DISPLAY_TIMERS",
-    "SX_DISPLAY_TIMERS_SITE",
-    "SX_DISPLAY_MEMORY",
-    "SX_OUTPUT_IMAGE",
-    "SX_OUTPUT_IMAGE_ALL",
-    "SX_OUTPUT_FLUX",
+    "SWEEP_NDIR",
+    "SWEEP_SOURCES",
+    "SWEEP_NUM_ROTATIONS",
+    "SWEEP_HYDROGEN_ONLY",
+    "SWEEP_OUTPUT_FLUX",
+    "SWEEP_SGCHEM",
     "SWEEP_SGCHEM_RECOMBINE",
-    "SX_RADIATION_PRESSURE",
-    "SX_FLOAT_PRECISION",
-    "SX_PP_ZERO_SNAPSHOT",
-    "SX_SKIP_RADIUS",
     "MAX_VARIATION_TOLERANCE",
     "MRT",
     "MRT_COMOVING",
