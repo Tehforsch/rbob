@@ -9,7 +9,7 @@ use uom::si::f64::Time;
 
 use crate::array_utils::FArray1;
 use crate::array_utils::FArray2;
-use crate::config::SX_NFREQ;
+use crate::config::SWEEP_NFREQ;
 use crate::postprocess::get_snapshots;
 use crate::postprocess::snapshot::Snapshot;
 use crate::sim_params::SimParams;
@@ -73,10 +73,10 @@ fn get_remapped_abundances_and_energies<'a>(
     let reference_abundances = abundances_snap.chemical_abundances()?;
     let reference_energies = abundances_snap.energies()?;
     let mut result_energies = coordinates_snap.energies()?;
-    let mut result_abundances = Array::zeros((shape[0], SX_NFREQ));
+    let mut result_abundances = Array::zeros((shape[0], SWEEP_NFREQ));
     for (i, pos) in coords_iter.enumerate() {
         let (_, index) = tree.nearest(&pos, 1, &squared_euclidean).unwrap()[0];
-        for j in 0..SX_NFREQ {
+        for j in 0..SWEEP_NFREQ {
             result_abundances[[i, j]] = reference_abundances[[*index, j]];
         }
         if reference_energies[[*index]] > result_energies[[i]] {
