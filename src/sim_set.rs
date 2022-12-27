@@ -185,7 +185,9 @@ fn get_sim_params(
         CartesianType::Grouped(l) => {
             get_substitutions_cartesian(&config.substitutions, Some(l.to_vec()))
         }
-        CartesianType::Cascade(l) => get_substitutions_cascade(folder, &config.substitutions, l),
+        CartesianType::Cascade(l) => {
+            get_substitutions_cascade(&base_sim_params, folder, &config.substitutions, l)
+        }
     }?;
     get_sim_params_from_substitutions(base_sim_params, substitutions)
 }

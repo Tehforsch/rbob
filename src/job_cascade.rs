@@ -11,28 +11,75 @@ use crate::config::CASCADE_IDENTIFIER;
 use crate::config::CONFIG_FILE;
 use crate::param_value::ParamValue;
 use crate::postprocess::read_hdf5::read_attr_f64;
+use crate::sim_params::SimParams;
 use crate::sim_set::get_substitutions_cartesian;
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum ArepoTime {
+    Time(f64),
+    ScaleFactor(f64),
+}
+
+impl ArepoTime {
+    /// Returns the time in code units between `self` and `other`.
+    /// Assumes that all times are given in the same code units.
+    fn time_until(&self, other: &ArepoTime, sim: &SimParams) -> f64 {
+        match self {
+            Self::Time(t1) => match other {
+                ArepoTime::Time(t2) => t2 - t1,
+                ArepoTime::ScaleFactor(_) => unreachable!(),
+            },
+            Self::ScaleFactor(a1) => match other {
+                ArepoTime::ScaleFactor(a2) => get_time_between_scale_factors(*a1, *a2, sim),
+                ArepoTime::Time(_) => unreachable!(),
+            },
+        }
+    }
+}
+
+fn get_time_between_scale_factors(a1: f64, a2: f64, sim: &SimParams) -> f64 {
+    let omega_lambda = sim["OmegaLambda"].unwrap_f64();
+    let omega_0 = sim["Omega0"].unwrap_f64();
+    // let t_lambda = 2.0 / (3.0 * H_0 * omega_lambda.sqrt());
+    let a_to_t = |val: f64| {
+        let factor1 = 2.0 / (3.0 * omega_lambda.sqrt());
+        let term1 = (omega_lambda / omega_0).sqrt() * val.powf(1.5);
+        let term2 = (1.0 + omega_lambda / omega_0 * val.powi(3)).sqrt();
+        let factor2 = (term1 + term2).ln();
+        factor1 * factor2
+    };
+
+    let t1 = a_to_t(a1);
+    let t2 = a_to_t(a2);
+    t2 - t1
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct CascadeArgs {
     files: Vec<String>,
-    final_time: f64,
+    final_time: ArepoTime,
+    original_simulation_comoving: bool,
 }
 
 impl CascadeArgs {
-    pub fn get_times(&self, folder: &Utf8Path) -> Vec<f64> {
+    pub fn get_times(&self, folder: &Utf8Path) -> Vec<ArepoTime> {
         let mut times = vec![];
         for file in self.files.iter() {
-            times.push(get_time_for_snapshot(&folder.join(file)).unwrap());
+            times.push(self.get_time_for_snapshot(&folder.join(file)).unwrap());
         }
         times.push(self.final_time);
         times
     }
-}
 
-fn get_time_for_snapshot(path: &Utf8Path) -> Result<f64> {
-    let h5file = hdf5::File::open_rw(path)?;
-    read_attr_f64(&h5file, "Time")
+    fn get_time_for_snapshot(&self, path: &Utf8Path) -> Result<ArepoTime> {
+        let h5file = hdf5::File::open_rw(path)?;
+        let val = read_attr_f64(&h5file, "Time")?;
+        if self.original_simulation_comoving {
+            Ok(ArepoTime::ScaleFactor(val))
+        } else {
+            Ok(ArepoTime::Time(val))
+        }
+    }
 }
 
 fn strip_ending(s: &str) -> String {
@@ -40,6 +87,7 @@ fn strip_ending(s: &str) -> String {
 }
 
 pub fn get_substitutions_cascade(
+    base_sim_params: &SimParams,
     folder: &Utf8Path,
     substitutions: &HashMap<String, Value>,
     cascade: &CascadeArgs,
@@ -59,20 +107,21 @@ pub fn get_substitutions_cascade(
     };
     assert_eq!(times.len(), cascade.files.len() + 1);
     for (i, (time_begin, time_end)) in times.iter().zip(times[1..].iter()).enumerate() {
-        println!("sim {}: {} to {}", i, time_begin, time_end);
+        println!("sim {}: {:?} to {:?}", i, time_begin, time_end);
         let file = &cascade.files[i];
+        let time_diff = time_begin.time_until(time_end, base_sim_params);
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
-        insert_substitution(i, "TimeBegin", ParamValue::new_float(*time_begin));
-        insert_substitution(i, "TimeMax", ParamValue::new_float(*time_end));
+        insert_substitution(i, "TimeBegin", ParamValue::new_float(0.0));
+        insert_substitution(i, "TimeMax", ParamValue::new_float(time_diff));
         insert_substitution(
             i,
             "MaxSizeTimestep",
-            ParamValue::new_float((time_end - time_begin) * 1e-8),
+            ParamValue::new_float(time_diff * 1e-8),
         );
         insert_substitution(
             i,
             "MinSizeTimestep",
-            ParamValue::new_float((time_end - time_begin) * 1e-9),
+            ParamValue::new_float(time_diff * 1e-9),
         );
         insert_substitution(i, CASCADE_IDENTIFIER, ParamValue::Bool(true));
         let rewrite_snapshot_command = get_command_to_rewrite_snapshot(i, file);
