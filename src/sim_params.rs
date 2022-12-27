@@ -212,8 +212,11 @@ impl SimParams {
             filename_with_extension.into()
         } else {
             // Simply return the path to the parent folder of the initial conditions
-            let f =  path.parent().unwrap().into();
-            println!("Did not find ICS file at {:?}, assuming ICS are a folder at {:?}", filename_with_extension, f);
+            let f = path.parent().unwrap().into();
+            println!(
+                "Did not find ICS file at {:?}, assuming ICS are a folder at {:?}",
+                filename_with_extension, f
+            );
             f
         }
     }
