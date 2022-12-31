@@ -40,7 +40,8 @@ impl ArepoTime {
 fn get_time_between_scale_factors(a1: f64, a2: f64, sim: &SimParams) -> f64 {
     let omega_lambda = sim["OmegaLambda"].unwrap_f64();
     let omega_0 = sim["Omega0"].unwrap_f64();
-    // let t_lambda = 2.0 / (3.0 * H_0 * omega_lambda.sqrt());
+    let hubble_param = sim["HubbleParam"].unwrap_f64();
+    let hubble = 3.2407789e-18;
     let a_to_t = |val: f64| {
         let factor1 = 2.0 / (3.0 * omega_lambda.sqrt());
         let term1 = (omega_lambda / omega_0).sqrt() * val.powf(1.5);
@@ -48,10 +49,13 @@ fn get_time_between_scale_factors(a1: f64, a2: f64, sim: &SimParams) -> f64 {
         let factor2 = (term1 + term2).ln();
         factor1 * factor2
     };
-
     let t1 = a_to_t(a1);
     let t2 = a_to_t(a2);
-    t2 - t1
+    let diff_h = t2 - t1;
+    let diff_secs = diff_h / (hubble_param * hubble);
+    let secs_in_code_units =
+        sim["UnitLength_in_cm"].unwrap_f64() / sim["UnitVelocity_in_cm_per_s"].unwrap_f64();
+    diff_secs / secs_in_code_units
 }
 
 #[derive(Serialize, Deserialize)]
