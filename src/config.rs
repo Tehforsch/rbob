@@ -817,6 +817,12 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "L25n512_5004_COMMITS_d17aee4_795679d",
     "L25n512_5005_COMMIT_fd10b24",
     "L25n512_5008_COMMIT_6f1e66c",
+    "SIMPLEX",
+    "SX_CHEMISTRY",
+    "SX_NDIR",
+    "SX_NUM_ROT",
+    "SX_RECOMBINE",
+    "SX_SOURCES",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[
