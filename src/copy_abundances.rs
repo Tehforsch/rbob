@@ -5,7 +5,6 @@ use kdtree::KdTree;
 use ndarray::Array;
 use ndarray::ArrayBase;
 use ndarray::OwnedRepr;
-use uom::si::f64::Time;
 
 use crate::array_utils::FArray1;
 use crate::array_utils::FArray2;
@@ -14,7 +13,6 @@ use crate::postprocess::get_snapshots;
 use crate::postprocess::snapshot::Snapshot;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
-use crate::unit_utils::nice_time;
 use crate::util::copy_file;
 
 pub fn copy_abundances(
@@ -27,9 +25,6 @@ pub fn copy_abundances(
     let coordinates_snap_path = coordinates_sim_path.join(&coordinates_sim.get_ics_filename());
     let coordinates_snap = Snapshot::from_file(&coordinates_sim, &coordinates_snap_path)?;
     let abundances_snap = last(get_snapshots(&abundances_sim)?).unwrap()?;
-    let coordinates_time =
-        coordinates_sim.get("TimeBegin").unwrap().unwrap_f64() * coordinates_sim.units.time;
-    assert!(is_close(abundances_snap.time, coordinates_time), "Time of last snapshot of reference and TimeBegin of new simulation are not close: {:?} {:?}", nice_time(abundances_snap.time), nice_time(coordinates_time));
     let (result_abundances, result_energies) =
         get_remapped_abundances_and_energies(abundances_snap, coordinates_snap)?;
     copy_file(coordinates_snap_path, snap_output)?;
@@ -84,10 +79,6 @@ fn get_remapped_abundances_and_energies<'a>(
         }
     }
     Ok((result_abundances, result_energies))
-}
-
-fn is_close(a: Time, b: Time) -> bool {
-    ((a.value - b.value) / (a.value + b.value + 1e-15)).abs() < 0.0001
 }
 
 fn last<T>(iter: impl Iterator<Item = T>) -> Option<T> {
