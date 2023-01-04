@@ -462,13 +462,13 @@ fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<Stri
         }
     }
     if !invalid_keys.is_empty() {
-        return Err(anyhow!(
+        println!(
             "Found invalid config parameters:\n{}",
             invalid_keys
                 .iter()
                 .map(|x| format!("\"{}\",", x))
                 .join("\n")
-        ));
+        );
     }
     Ok(params)
 }
