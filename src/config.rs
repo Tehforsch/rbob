@@ -823,6 +823,7 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SX_NUM_ROT",
     "SX_RECOMBINE",
     "SX_SOURCES",
+    "SX_HYDROGEN_ONLY",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[
