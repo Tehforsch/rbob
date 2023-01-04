@@ -113,7 +113,10 @@ pub fn get_substitutions_cascade(
     for (i, (time_begin, time_end)) in times.iter().zip(times[1..].iter()).enumerate() {
         let file = &cascade.files[i];
         let time_diff = time_begin.time_until(time_end, base_sim_params);
-        println!("sim {}: {:?} to {:?} ({:.5})", i, time_begin, time_end, time_diff);
+        println!(
+            "sim {}: {:?} to {:?} ({:.5})",
+            i, time_begin, time_end, time_diff
+        );
         insert_substitution(i, "InitCondFile", ParamValue::Str(strip_ending(file)));
         insert_substitution(i, "TimeBegin", ParamValue::new_float(0.0));
         insert_substitution(i, "TimeMax", ParamValue::new_float(time_diff));
