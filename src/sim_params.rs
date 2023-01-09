@@ -47,6 +47,37 @@ pub struct SimParams {
     pub kind: SimParamsKind,
 }
 
+#[derive(PartialEq, Eq)]
+enum ParamType {
+    Config,
+    Param,
+    Special,
+}
+
+impl From<&str> for ParamType {
+    fn from(value: &str) -> Self {
+        if config::SPECIAL_PARAMS.contains(&value) {
+            Self::Special
+        } else if config::CONFIG_FILE_PARAMS.contains(&value) {
+            Self::Config
+        } else if config::PARAM_FILE_PARAMS.contains(&value) {
+            Self::Param
+        } else if value.chars().all(|c| c.is_uppercase() || c == '_') {
+            Self::Config
+        } else {
+            Self::Param
+        }
+    }
+}
+
+fn is_config_file_param(s: &str) -> bool {
+    ParamType::from(s) == ParamType::Config
+}
+
+fn is_param_file_param(s: &str) -> bool {
+    ParamType::from(s) == ParamType::Param
+}
+
 impl SimParams {
     pub fn from_folder<U: AsRef<Utf8Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let mut params = HashMap::new();
@@ -157,7 +188,7 @@ impl SimParams {
         sorted_keys.sort();
         sorted_keys
             .iter()
-            .filter(|key| config::PARAM_FILE_PARAMS.contains(&key.as_str()))
+            .filter(|key| is_param_file_param(&key.as_str()))
             .filter_map(|key| {
                 self[key]
                     .as_option()
@@ -177,7 +208,7 @@ impl SimParams {
         sorted_keys.sort();
         sorted_keys
             .iter()
-            .filter(|key| config::CONFIG_FILE_PARAMS.contains(&key.as_str()))
+            .filter(|key| is_config_file_param(&key.as_str()))
             .map(|key| match &self[key] {
                 ParamValue::Bool(value) => match value {
                     true => Some(key.to_string()),

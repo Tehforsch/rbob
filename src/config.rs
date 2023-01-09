@@ -824,6 +824,9 @@ pub static CONFIG_FILE_PARAMS: &[&str] = &[
     "SX_RECOMBINE",
     "SX_SOURCES",
     "SX_HYDROGEN_ONLY",
+    "STEEPER_SFR_FOR_STARBURST",
+    "MEMORY_MANAGER_USE_MPROTECT",
+    "MEMORY_MANAGER_CHECK_LEAKS",
 ];
 
 pub static PARAM_FILE_PARAMS: &[&str] = &[

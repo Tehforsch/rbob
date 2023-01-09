@@ -160,7 +160,7 @@ pub fn get_snapshot_files(sim: &SimParams) -> Result<Box<dyn Iterator<Item = Utf
 }
 
 pub fn get_source_file(sim: &SimParams) -> Result<SourceFile> {
-    match sim.get("SX_SOURCES").unwrap().unwrap_i64() {
+    match sim.get("SWEEP_SOURCES").unwrap().unwrap_i64() {
         10 => {
             let path = sim
                 .folder
