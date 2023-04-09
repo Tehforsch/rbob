@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug, Clone)]
 pub enum Systype {
     Asan,
     Gprof,

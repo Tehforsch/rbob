@@ -9,7 +9,7 @@ use boxiom::make::build_sim_set;
 use boxiom::run::run_sim_set;
 use boxiom::sim_set::SimSet;
 use camino::Utf8Path;
-use clap::Clap;
+use clap::Parser;
 
 use self::args::Opts;
 
