@@ -7,10 +7,10 @@ use crate::sim_set::SimSet;
 use crate::util::get_shell_command_output;
 
 pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
-    let mut run_after = None;
+    let run_after = None;
     for (i, sim) in sim_set.iter().enumerate() {
         println!("Running sim {}", i);
-        let job_id = run_sim(sim, verbose, run_after)?;
+        run_sim(sim, verbose, run_after)?;
     }
     Ok(())
 }

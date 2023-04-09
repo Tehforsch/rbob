@@ -1,4 +1,3 @@
-pub(crate) mod arepo_log_file;
 pub mod config;
 pub(crate) mod config_file;
 pub mod copy;
@@ -9,5 +8,4 @@ pub mod sim_params;
 pub mod sim_set;
 pub(crate) mod strfmt_utils;
 pub mod systype;
-pub mod unit_utils;
 pub(crate) mod util;

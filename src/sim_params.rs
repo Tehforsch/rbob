@@ -1,28 +1,12 @@
-use std::collections::hash_map::Iter;
-use std::collections::hash_map::Keys;
-use std::collections::HashMap;
 use std::fs;
-use std::ops::Index;
 
-use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use itertools::Itertools;
-use regex::Regex;
 use serde_yaml::Mapping;
 use serde_yaml::Value;
-use uom::si::f64::Length;
-use uom::si::f64::Mass;
-use uom::si::f64::Time;
-use uom::si::f64::Velocity;
-use uom::si::length::centimeter;
-use uom::si::mass::gram;
-use uom::si::time::second;
-use uom::si::velocity::centimeter_per_second;
 
-use crate::arepo_log_file::ArepoLogFile;
 use crate::config;
 use crate::job_params::JobParams;
 use crate::strfmt_utils::strfmt_anyhow;
@@ -199,17 +183,10 @@ impl SimParams {
         write_file(&path, &contents)
     }
 
-    pub fn get_log_file(&self) -> ArepoLogFile {
-        ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
-    }
-
     pub fn get_num_cores(&self) -> Result<i64> {
-        // For input params, the number of cores should be readable directly from the params
-        // For output params, we will read the arepo log file and check for the corresponding line
-        // because that is the most accurate way to determine the number of cores.
         match self.kind {
             SimParamsKind::Input => Ok(self.get("numCores").unwrap().as_i64().unwrap()),
-            SimParamsKind::Output => self.get_log_file().get_num_cores(),
+            SimParamsKind::Output => todo!(),
         }
     }
 }

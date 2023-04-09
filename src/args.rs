@@ -1,4 +1,4 @@
-use bob::systype::Systype;
+use boxiom::systype::Systype;
 use camino::Utf8PathBuf;
 use clap::Clap;
 
