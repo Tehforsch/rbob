@@ -2,6 +2,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 
 use crate::config;
+use crate::config::RAXIOM_BUILD_PATH;
 use crate::config::RAXIOM_PATH;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
@@ -26,7 +27,7 @@ fn build_sim(sim: &SimParams, verbose: bool, _systype: &Option<Systype>) -> Resu
 fn build_raxiom(verbose: bool) -> Result<()> {
     let out = get_shell_command_output(
         "cargo",
-        &["build", "--release"],
+        &["build", "--release", "--example", "arepo_postprocess"],
         Some(&RAXIOM_PATH),
         verbose,
     );
@@ -39,7 +40,7 @@ fn build_raxiom(verbose: bool) -> Result<()> {
 }
 
 fn copy_binary(sim: &SimParams) -> Result<()> {
-    let source = RAXIOM_PATH.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
+    let source = RAXIOM_BUILD_PATH.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     let target = sim.folder.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     copy_file(source, target)
 }

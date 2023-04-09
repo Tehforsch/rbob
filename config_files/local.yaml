@@ -1,5 +1,5 @@
-plot_template_folder: "~/projects/phd/plotTemplates"
-arepo_path:  "~/projects/arepo"
+raxiom_path:  "~/projects/raxiom/"
+raxiom_build_path:  "/run/media/extHdd/.cargo-target/release/examples"
 default_systype: "Manjaro"
 bob_path: "~/.cargo/bin/bob"
 system_config:
@@ -12,4 +12,4 @@ job_file_run_command: "bash"
 job_file_template: |
     #!/bin/bash
     {additionalCommands}
-    {runProgram} -n {numCores} {executableName} {paramFile} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )
+    {runProgram} -n {numCores} {executableName} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )
