@@ -6,7 +6,7 @@ use crate::job_params::SystemConfiguration;
 
 lazy_static! {
     pub static ref CONFIG_FILE: ConfigFile = ConfigFile::read().unwrap().expanduser().unwrap();
-    pub static ref AREPO_PATH: Utf8PathBuf = CONFIG_FILE.arepo_path.clone();
+    pub static ref RAXIOM_PATH: Utf8PathBuf = CONFIG_FILE.raxiom_path.clone();
     pub static ref PLOT_TEMPLATE_FOLDER: Utf8PathBuf = CONFIG_FILE.plot_template_folder.clone();
     pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
     pub static ref JOB_FILE_TEMPLATE: String = CONFIG_FILE.job_file_template.clone();
@@ -15,37 +15,21 @@ lazy_static! {
 }
 
 pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
-pub static DEFAULT_PARAM_FILE_NAME: &str = "param.txt";
-pub static DEFAULT_CONFIG_FILE_NAME: &str = "Config.sh";
+pub static DEFAULT_PARAM_FILE_NAME: &str = "params.yml";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
-pub static DEFAULT_GRID_JOB_FILE_NAME: &str = "gridJob";
-pub static DEFAULT_GRID_FILE_NAME: &str = "grid.dat";
-pub static DEFAULT_BOB_PARAM_FILE_NAME: &str = "bobParams.yaml";
 
-pub static DEFAULT_AREPO_EXECUTABLE_NAME: &str = "./Arepo";
-pub static DEFAULT_AREPO_SOURCE_FOLDER: &str = "src";
-pub static DEFAULT_AREPO_CONFIG_BUILD_FILE: &str = "build/arepoconfig.h";
-pub static DEFAULT_AREPO_CONFIG_SOURCE_FILE: &str = "src/arepoconfig.h";
+pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "./arepo";
 
-pub static DEFAULT_PIC_FOLDER: &str = "pics";
-
-pub static CONFIG_FILE_NAME: &str = "config.yaml";
-
-pub static MAX_NUM_VORONOI_SWIM_THREADS: usize = 8;
-pub static MAX_NUM_POST_THREADS: usize = 1;
+pub static CONFIG_FILE_NAME: &str = "config_raxiom.yaml";
 
 pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
 
 pub static DEFAULT_LOG_FILE: &str = "stdout.log";
-pub static DEFAULT_SIMPLEX_LOG_FILE: &str = "simplex.txt";
-pub static DEFAULT_JOB_NAME: &str = "arepoTest";
+pub static DEFAULT_JOB_NAME: &str = "raxiom";
 pub static DEFAULT_WALL_TIME: &str = "23:00:00";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 pub static DEFAULT_RUN_PARAMS: &str = "0";
 pub static DEFAULT_NUM_CORES_TO_COMPILE: &i64 = &12;
-
-pub static NX_SLICE: usize = 600;
-pub static NY_SLICE: usize = 600;
 
 pub static DEFAULT_PLOT_FILE_NAME: &str = "plot.gp";
 pub static DEFAULT_PLOT_EXTENSION: &str = "gp";

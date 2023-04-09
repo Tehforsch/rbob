@@ -40,7 +40,7 @@ impl JobParams {
             param_file: sim.get_default_string("paramFile", config::DEFAULT_PARAM_FILE_NAME),
             run_program: sim.get_default_string("runProgram", config::DEFAULT_RUN_PROGRAM),
             executable_name: sim
-                .get_default_string("executableName", config::DEFAULT_AREPO_EXECUTABLE_NAME),
+                .get_default_string("executableName", config::DEFAULT_RAXIOM_EXECUTABLE_NAME),
             additional_commands: sim.get_default_string("additionalCommands", ""),
             cascade: sim.get_default_bool("cascade", false),
         })

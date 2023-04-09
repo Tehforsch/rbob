@@ -3,17 +3,14 @@ use std::fmt::Display;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::Path;
-use std::path::PathBuf;
 use std::process::Command;
 use std::process::Stdio;
 use std::str;
 
-use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
-use pathdiff::diff_paths;
 
 pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
     fs::read_to_string(path).with_context(|| format!("While reading file {}", path))
@@ -21,67 +18,6 @@ pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
 
 pub fn write_file(path: &Utf8Path, contents: &str) -> Result<()> {
     fs::write(path, contents).with_context(|| format!("While writing file {}", path))
-}
-
-// Taken from 'Doug' from
-// https://stackoverflow.com/questions/26958489/how-to-copy-a-folder-recursively-in-rust
-pub fn copy_recursive<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<()> {
-    let mut stack = vec![PathBuf::from(from.as_ref())];
-
-    let output_root = PathBuf::from(to.as_ref());
-    let input_root = PathBuf::from(from.as_ref()).components().count();
-
-    while let Some(working_path) = stack.pop() {
-        // Generate a relative path
-        let src: PathBuf = working_path.components().skip(input_root).collect();
-        // Create a destination if missing
-        let dest = if src.components().count() == 0 {
-            output_root.clone()
-        } else {
-            output_root.join(&src)
-        };
-        if fs::metadata(&dest).is_err() {
-            fs::create_dir_all(&dest)
-                .context(format!("Creating directory {}", dest.to_str().unwrap()))?;
-        }
-
-        for entry in fs::read_dir(&working_path).context(format!(
-            "Reading directory {}",
-            &working_path.to_str().unwrap()
-        ))? {
-            let entry = entry.context(format!(
-                "Reading entry in directory {}",
-                &working_path.to_str().unwrap()
-            ))?;
-            let path = entry.path();
-            if path.is_dir() {
-                stack.push(path);
-            } else if let Some(filename) = path.file_name() {
-                let dest_path = dest.join(filename);
-                fs::copy(&path, &dest_path).context(format!(
-                    "Error copying {} to {}",
-                    &path.to_str().unwrap(),
-                    &dest_path.to_str().unwrap()
-                ))?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn traverse_folder_files(folder: &Utf8Path) -> Result<Box<dyn Iterator<Item = Utf8PathBuf>>> {
-    let folder_files = Box::new(iter_files(folder)?);
-    let sub_folders = iter_folders(folder)?;
-    let sub_folder_results = sub_folders.map(|f| traverse_folder_files(&f));
-    let sub_folder_files_iterators_result: Result<Vec<Box<dyn Iterator<Item = Utf8PathBuf>>>> =
-        sub_folder_results.collect();
-    let sub_folder_files_iterator = (sub_folder_files_iterators_result?).into_iter().flatten();
-    Ok(Box::new(folder_files.chain(sub_folder_files_iterator)))
-}
-
-fn iter_files(folder: &Utf8Path) -> Result<impl Iterator<Item = Utf8PathBuf>> {
-    get_entries_with_predicate(folder, Path::is_file)
 }
 
 fn iter_folders(folder: &Utf8Path) -> Result<impl Iterator<Item = Utf8PathBuf>> {
@@ -102,14 +38,6 @@ where
         .map(|entry| entry.path())
         .filter(move |path| predicate(path))
         .map(|path| Utf8Path::from_path(&path).unwrap().to_owned()))
-}
-
-pub fn get_files_recursively(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
-    Ok(traverse_folder_files(folder)?.collect())
-}
-
-pub fn get_files(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
-    Ok(iter_files(folder)?.collect())
 }
 
 pub fn get_folders(folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
@@ -176,23 +104,6 @@ pub fn expanduser(path: &Utf8Path) -> Result<Utf8PathBuf> {
         .canonicalize()
         .context(format!("While reading {}", &expanded))?;
     Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
-}
-
-pub fn get_relative_path(folder: &Utf8Path, base_folder: &Utf8Path) -> Result<Utf8PathBuf> {
-    let path_buf = diff_paths(folder, base_folder).ok_or_else(|| {
-        anyhow!(format!(
-            "Failed to construct relative link from {:?} to {:?}",
-            folder, base_folder
-        ))
-    })?;
-    Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
-}
-
-pub fn create_folder_if_nonexistent(folder: &Utf8Path) -> Result<()> {
-    if !folder.is_dir() {
-        fs::create_dir_all(&folder)?;
-    };
-    Ok(())
 }
 
 pub fn get_common_path<'a>(paths: impl Iterator<Item = &'a Utf8Path> + 'a) -> Option<Utf8PathBuf> {

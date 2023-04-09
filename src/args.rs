@@ -1,5 +1,3 @@
-use bob::postprocess::postprocess_args::PostprocessArgs;
-use bob::postprocess::replot_args::ReplotArgs;
 use bob::systype::Systype;
 use camino::Utf8PathBuf;
 use clap::Clap;
@@ -24,11 +22,6 @@ pub enum SubCommand {
     Build(BuildSimulation),
     Run(RunSimulation),
     Start(StartSimulation),
-    Post(PostprocessArgs),
-    Plot(PostprocessArgs),
-    Replot(ReplotArgs),
-    GetData(GetData),
-    CopyAbundances(CopyAbundances),
 }
 
 /// Read the input directory and show info about the resulting simulations.

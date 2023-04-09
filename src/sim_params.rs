@@ -3,7 +3,6 @@ use std::collections::hash_map::Keys;
 use std::collections::HashMap;
 use std::fs;
 use std::ops::Index;
-use std::str::FromStr;
 
 use anyhow::anyhow;
 use anyhow::Context;
@@ -12,6 +11,8 @@ use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use itertools::Itertools;
 use regex::Regex;
+use serde::Deserialize;
+use serde::Serialize;
 use uom::si::f64::Length;
 use uom::si::f64::Mass;
 use uom::si::f64::Time;
@@ -26,10 +27,8 @@ use crate::config;
 use crate::job_params::JobParams;
 use crate::param_value::ParamValue;
 use crate::sim_units::SimUnits;
-use crate::simplex_log_file::SimplexLogFile;
 use crate::strfmt_utils::strfmt_anyhow;
 use crate::util::copy_file;
-use crate::util::read_file_contents;
 use crate::util::write_file;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -53,6 +52,9 @@ enum ParamType {
     Param,
     Special,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ParamSection(HashMap<String, ParamValue>);
 
 impl From<&str> for ParamType {
     fn from(value: &str) -> Self {
@@ -81,31 +83,13 @@ fn is_param_file_param(s: &str) -> bool {
 impl SimParams {
     pub fn from_folder<U: AsRef<Utf8Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let mut params = HashMap::new();
-        let bob_param_file_path = get_bob_param_file_path(&folder);
         let param_file_path = get_param_file_path(&folder);
-        let config_file_path = get_config_file_path(&folder);
-        if bob_param_file_path.is_file() {
-            update_from(
-                &mut params,
-                read_bob_param_file(&bob_param_file_path).with_context(|| {
-                    format!(
-                        "While reading bob parameter file at {:?}",
-                        bob_param_file_path
-                    )
-                })?,
-            )?;
-        }
 
         update_from(
             &mut params,
             read_param_file(&param_file_path).with_context(|| {
                 format!("While reading parameter file at {:?}", param_file_path)
             })?,
-        )?;
-        update_from(
-            &mut params,
-            read_config_file(&config_file_path)
-                .with_context(|| format!("While reading config file at {:?}", config_file_path))?,
         )?;
         update_from(&mut params, get_job_file_params())?;
         SimParams::new(folder.as_ref(), params, kind)
@@ -359,10 +343,6 @@ impl SimParams {
         ArepoLogFile::new(&self.folder.join(config::DEFAULT_LOG_FILE))
     }
 
-    pub fn get_simplex_file(&self) -> SimplexLogFile {
-        SimplexLogFile::new(&self.output_folder().join(config::DEFAULT_SIMPLEX_LOG_FILE))
-    }
-
     pub fn get_num_cores(&self) -> Result<i64> {
         // For input params, the number of cores should be readable directly from the params
         // For output params, we will read the arepo log file and check for the corresponding line
@@ -413,16 +393,8 @@ pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path)
     sim_folder.join(Utf8Path::new(sim.params["OutputDir"].unwrap_string()))
 }
 
-pub fn get_bob_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder.as_ref().join(config::DEFAULT_BOB_PARAM_FILE_NAME)
-}
-
 pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME)
-}
-
-pub fn get_config_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder.as_ref().join(config::DEFAULT_CONFIG_FILE_NAME)
 }
 
 pub fn get_job_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
@@ -461,105 +433,13 @@ fn get_job_file_params() -> HashMap<String, ParamValue> {
     HashMap::new()
 }
 
-fn read_config_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
-    let contents =
-        read_file_contents(path).context(format!("While reading config file {:?}", path))?;
-    read_config_lines(&contents, "#")
-}
-
-fn read_config_lines(content: &str, comment_string: &str) -> Result<HashMap<String, ParamValue>> {
-    let mut params = HashMap::new();
-    for param in config::CONFIG_FILE_PARAMS {
-        params.insert(param.to_string(), ParamValue::Bool(false));
-    }
-    let mut invalid_keys = vec![];
-    for line in get_nonempty_noncomment_lines(content, comment_string) {
-        let (mut key, value) = match line.contains(&"=") {
-            true => {
-                let split: Vec<&str> = line.split('=').collect();
-                match split.len() {
-                    2 => Ok((split[0].to_string(), ParamValue::from_str(split[1])?)),
-                    _ => Err(anyhow!(format!(
-                        "Invalid line in config file:\n\"{}\"",
-                        line,
-                    ))),
-                }
-            }
-            false => Ok((line.to_string(), ParamValue::Bool(true))),
-        }?;
-        key = key.trim_start().trim_end().to_string();
-        if params.insert(key.clone(), value) == None {
-            invalid_keys.push(key);
-        }
-    }
-    if !invalid_keys.is_empty() {
-        println!(
-            "Found invalid config parameters:\n{}",
-            invalid_keys
-                .iter()
-                .map(|x| format!("\"{}\",", x))
-                .join("\n")
-        );
-    }
-    Ok(params)
-}
-
 fn read_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
-    let contents =
-        read_file_contents(path).context(format!("While reading parameter file {:?}", path))?;
-    let re = Regex::new("^([^ ]*?)\\s+([^ ]*)\\s*[;%]*.*$").unwrap();
-    let key_value_strings = read_parameter_lines(&contents, &re, "%")?;
-    key_value_strings
-        .into_iter()
-        .filter_map(|(k, v)| {
-            ParamValue::from_str(&v)
-                .map(|x| x.into_option().map(|x| (k, x)))
-                .transpose()
-        })
-        .collect()
-}
-
-fn get_nonempty_noncomment_lines<'a>(
-    contents: &'a str,
-    comment_string: &'a str,
-) -> Box<dyn Iterator<Item = &'a str> + 'a> {
-    Box::new(
-        contents
-            .lines()
-            .map(|line| line.trim())
-            .filter(|line| line != &"")
-            .filter(move |line| !line.starts_with(comment_string))
-            .map(move |line| match line.find(comment_string) {
-                None => line,
-                Some(index) => &line[..index],
-            }),
-    )
-}
-
-fn read_parameter_lines(
-    contents: &str,
-    pattern: &Regex,
-    comment_string: &str,
-) -> Result<HashMap<String, String>> {
-    get_nonempty_noncomment_lines(contents, comment_string)
-        .map(|line| {
-            let mut captures = pattern.captures_iter(line);
-            captures.next().filter(|cap| cap.len() == 3).map_or_else(
-                || {
-                    Err(anyhow!(format!(
-                        "Invalid line in parameter file:\n{}",
-                        line,
-                    )))
-                },
-                |cap| Ok((cap[1].to_string(), cap[2].to_string())),
-            )
-        })
-        .collect()
-}
-
-fn read_bob_param_file(path: &Utf8Path) -> Result<HashMap<String, ParamValue>> {
-    let contents = read_file_contents(path)?;
-    serde_yaml::from_str(&contents).context("While reading plot info file")
+    let data = fs::read_to_string(path)
+        .context(format!("While reading raxiom param file at {:?}", path,))?;
+    let res: Result<HashMap<String, ParamSection>> =
+        serde_yaml::from_str(&data).context("Reading param file contents");
+    dbg!(&res);
+    todo!()
 }
 
 impl Index<&str> for SimParams {

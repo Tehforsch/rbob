@@ -29,7 +29,6 @@ kdtree = "0.6.0"
 byteorder = "1.4.3"
 lazy_static = "1.4.0"
 take_mut = "0.2.2"
-# voronoi_swim = { path = "../voronoiSwim/", optional = true}
 
 [dev-dependencies]
 tempdir = "0.3.7"

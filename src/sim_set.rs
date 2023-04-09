@@ -15,8 +15,6 @@ use serde::Serialize;
 use serde_yaml::Value;
 
 use crate::config;
-use crate::job_cascade::get_substitutions_cascade;
-use crate::job_cascade::CascadeArgs;
 use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
@@ -28,7 +26,6 @@ enum CartesianType {
     NoCartesian,
     All,
     Grouped(Vec<Vec<String>>),
-    Cascade(CascadeArgs),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -75,7 +72,6 @@ impl SimSet {
     ) -> Result<SimSet> {
         let config = SimSetConfig::from_file(config_file_path)?;
         let simulations = get_sim_params(
-            folder.as_ref(),
             &config,
             SimParams::from_folder(folder.as_ref(), SimParamsKind::Input)?,
         )?;
@@ -175,7 +171,6 @@ impl SimSet {
 }
 
 fn get_sim_params(
-    folder: &Utf8Path,
     config: &SimSetConfig,
     base_sim_params: SimParams,
 ) -> Result<Vec<(usize, SimParams)>> {
@@ -184,9 +179,6 @@ fn get_sim_params(
         CartesianType::All => get_substitutions_cartesian(&config.substitutions, None),
         CartesianType::Grouped(l) => {
             get_substitutions_cartesian(&config.substitutions, Some(l.to_vec()))
-        }
-        CartesianType::Cascade(l) => {
-            get_substitutions_cascade(&base_sim_params, folder, &config.substitutions, l)
         }
     }?;
     get_sim_params_from_substitutions(base_sim_params, substitutions)

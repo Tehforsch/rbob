@@ -1,14 +1,9 @@
-use std::fs;
-
 use anyhow::anyhow;
-use anyhow::Context;
 use anyhow::Result;
-use camino::Utf8Path;
 
 use crate::config;
-use crate::config::AREPO_PATH;
 use crate::config::DEFAULT_SYSTYPE;
-use crate::sim_params::get_config_file_path;
+use crate::config::RAXIOM_PATH;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::systype::Systype;
@@ -27,12 +22,11 @@ pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>)
 
 fn build_sim(sim: &SimParams, verbose: bool, systype: &Option<Systype>) -> Result<()> {
     write_systype_file(systype)?;
-    copy_config_file(sim)?;
     if let Some(commit) = sim.get("arepoCommit") {
         checkout_arepo_commit(commit.unwrap_string())?;
     }
     build_arepo(verbose)?;
-    copy_arepo_file(sim)?;
+    copy_binary(sim)?;
     Ok(())
 }
 
@@ -40,7 +34,7 @@ fn checkout_arepo_commit(commit: &str) -> Result<()> {
     let out = get_shell_command_output(
         "git",
         &[&"checkout", &commit],
-        Some(&config::AREPO_PATH),
+        Some(&config::RAXIOM_PATH),
         false,
     );
     match out.success {
@@ -50,7 +44,7 @@ fn checkout_arepo_commit(commit: &str) -> Result<()> {
 }
 
 fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
-    let systype_file = &AREPO_PATH.join("Makefile.systype");
+    let systype_file = &RAXIOM_PATH.join("Makefile.systype");
     let current_contents = read_file_contents(systype_file)?;
     let default_systype = DEFAULT_SYSTYPE.clone();
     let new_contents = match systype {
@@ -69,67 +63,22 @@ fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
 }
 
 fn build_arepo(verbose: bool) -> Result<()> {
-    delete_arepoconfig_header_file_if_present(&AREPO_PATH)?;
     let out = get_shell_command_output(
-        "make",
-        &[
-            &"-j",
-            &config::DEFAULT_NUM_CORES_TO_COMPILE.to_string().as_ref(),
-        ],
-        Some(&AREPO_PATH),
+        "cargo",
+        &["build", "--release"],
+        Some(&RAXIOM_PATH),
         verbose,
     );
     if !out.success {
         println!("{}", out.stdout);
         println!("{}", out.stderr);
-        return Err(anyhow!("Arepo compilation failed!"));
+        return Err(anyhow!("Compilation failed!"));
     }
-    copy_arepoconfig_header_file(&AREPO_PATH) // For clang to make sense of the situation
+    Ok(())
 }
 
-fn delete_arepoconfig_header_file_if_present(arepo_path: &Utf8Path) -> Result<()> {
-    let file = arepo_path.join(config::DEFAULT_AREPO_CONFIG_SOURCE_FILE);
-    match file.is_file() {
-        true => fs::remove_file(&file).with_context(|| {
-            format!(
-                "While deleting the arepo config file in the src folder at {:?}",
-                &file
-            )
-        }),
-        false => Ok(()),
-    }
-}
-
-fn copy_arepoconfig_header_file(arepo_path: &Utf8Path) -> Result<()> {
-    let source = arepo_path.join(config::DEFAULT_AREPO_CONFIG_BUILD_FILE);
-    let target = arepo_path.join(config::DEFAULT_AREPO_CONFIG_SOURCE_FILE);
-    copy_file(source, target)
-}
-
-fn copy_config_file(sim: &SimParams) -> Result<()> {
-    let source = get_config_file_path(&sim.folder);
-    let target = AREPO_PATH.join(config::DEFAULT_CONFIG_FILE_NAME);
-    if config_files_differ(&source, &target)? {
-        copy_file(source, target)
-    } else {
-        println!("Config file is the same as in arepo file - not copying it");
-        Ok(())
-    }
-}
-
-fn config_files_differ(source: &Utf8Path, target: &Utf8Path) -> Result<bool> {
-    if source.is_file() && target.is_file() {
-        let contents_a = read_file_contents(source)?;
-        let contents_b = read_file_contents(target)?;
-        if contents_a == contents_b {
-            return Ok(false);
-        }
-    }
-    Ok(true)
-}
-
-fn copy_arepo_file(sim: &SimParams) -> Result<()> {
-    let source = AREPO_PATH.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
-    let target = sim.folder.join(config::DEFAULT_AREPO_EXECUTABLE_NAME);
+fn copy_binary(sim: &SimParams) -> Result<()> {
+    let source = RAXIOM_PATH.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
+    let target = sim.folder.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     copy_file(source, target)
 }

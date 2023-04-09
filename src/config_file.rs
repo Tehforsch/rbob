@@ -16,7 +16,7 @@ use crate::util::expanduser;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
     pub plot_template_folder: Utf8PathBuf,
-    pub arepo_path: Utf8PathBuf,
+    pub raxiom_path: Utf8PathBuf,
     pub default_systype: String,
     pub bob_path: Utf8PathBuf,
     pub job_file_template: String,
@@ -45,7 +45,7 @@ impl ConfigFile {
         Ok(ConfigFile {
             plot_template_folder: Utf8Path::new(&expanduser(&self.plot_template_folder)?)
                 .to_owned(),
-            arepo_path: Utf8Path::new(&expanduser(&self.arepo_path)?).to_owned(),
+            raxiom_path: Utf8Path::new(&expanduser(&self.raxiom_path)?).to_owned(),
             bob_path: Utf8Path::new(&expanduser(&self.bob_path)?).to_owned(),
             default_systype: self.default_systype.clone(),
             job_file_run_command: self.job_file_run_command,

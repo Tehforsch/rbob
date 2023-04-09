@@ -7,19 +7,14 @@ use args::SubCommand;
 use bob::config;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::copy::copy_sim_set;
-use bob::copy_abundances::copy_abundances;
 use bob::diff;
-use bob::get_data::get_data;
 use bob::make::build_sim_set;
 use bob::param_value::ParamValue;
-use bob::postprocess::plot::replot;
-use bob::postprocess::postprocess_sim_set;
 use bob::run::run_sim_set;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
 use bob::unit_utils::nice_time;
 use camino::Utf8Path;
-use camino::Utf8PathBuf;
 use clap::Clap;
 
 use self::args::Opts;
@@ -61,23 +56,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Start(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             start_sim_set(sim_set, &l, a.verbose)?;
-        }
-        SubCommand::GetData(l) => {
-            get_data(&l.source_folder, &l.target_folder)?;
-        }
-        SubCommand::Post(l) => {
-            let sim_set = get_sim_set_from_multiple_outputs(&l.output_folders)?;
-            postprocess_sim_set(false, sim_set, &l)?;
-        }
-        SubCommand::Plot(l) => {
-            let sim_set = get_sim_set_from_multiple_outputs(&l.output_folders)?;
-            postprocess_sim_set(true, sim_set, &l)?;
-        }
-        SubCommand::Replot(l) => {
-            replot(&l)?;
-        }
-        SubCommand::CopyAbundances(l) => {
-            copy_abundances(&l.sim_abundances, &l.sim_coordinates, &l.snap_output)?;
         }
     }
     Ok(())
@@ -144,12 +122,4 @@ fn get_sim_set_from_input(folder: &Utf8Path) -> Result<SimSet> {
 
 fn get_sim_set_from_output(folder: &Utf8Path) -> Result<SimSet> {
     SimSet::from_output_folder(folder)
-}
-
-fn get_sim_set_from_multiple_outputs(folders: &[Utf8PathBuf]) -> Result<SimSet> {
-    let sim_sets: Result<Vec<_>> = folders
-        .iter()
-        .map(|folder| SimSet::from_output_folder(folder))
-        .collect();
-    Ok(SimSet::join(sim_sets?.into_iter()))
 }
