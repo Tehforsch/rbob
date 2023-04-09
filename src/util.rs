@@ -12,10 +12,6 @@ use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 
-pub fn read_file_contents(path: &Utf8Path) -> Result<String> {
-    fs::read_to_string(path).with_context(|| format!("While reading file {}", path))
-}
-
 pub fn write_file(path: &Utf8Path, contents: &str) -> Result<()> {
     fs::write(path, contents).with_context(|| format!("While writing file {}", path))
 }
@@ -104,60 +100,4 @@ pub fn expanduser(path: &Utf8Path) -> Result<Utf8PathBuf> {
         .canonicalize()
         .context(format!("While reading {}", &expanded))?;
     Ok(Utf8PathBuf::from_path_buf(path_buf).unwrap())
-}
-
-pub fn get_common_path<'a>(paths: impl Iterator<Item = &'a Utf8Path> + 'a) -> Option<Utf8PathBuf> {
-    let paths = paths.map(|path| Utf8PathBuf::from_path_buf(path.canonicalize().unwrap()).unwrap());
-    get_common_path_for_canonicalized_paths(paths)
-}
-
-fn get_common_path_for_canonicalized_paths<'a>(
-    mut paths: impl Iterator<Item = Utf8PathBuf>,
-) -> Option<Utf8PathBuf> {
-    let mut common_path = paths.next()?;
-    for path in paths {
-        let common_components = common_path
-            .components()
-            .zip(path.components())
-            .take_while(|(a, b)| a == b)
-            .map(|(a, _)| a);
-        common_path = common_components.collect();
-    }
-    Some(common_path)
-}
-
-#[cfg(test)]
-mod tests {
-    use camino::Utf8Path;
-
-    use super::get_common_path_for_canonicalized_paths;
-
-    #[test]
-    fn test_common_path() {
-        let paths = [
-            Utf8Path::new("/a/b").to_path_buf(),
-            Utf8Path::new("/a/b/c").to_path_buf(),
-            Utf8Path::new("/a/b").to_path_buf(),
-        ];
-        let common_path = get_common_path_for_canonicalized_paths(paths.into_iter());
-        assert!(common_path.unwrap().as_str() == "/a/b");
-    }
-
-    #[test]
-    fn test_common_path_single_path() {
-        let paths = [Utf8Path::new("/a/b/c").to_path_buf()];
-        let common_path = get_common_path_for_canonicalized_paths(paths.into_iter());
-        assert!(common_path.unwrap().as_str() == "/a/b/c");
-    }
-
-    #[test]
-    fn test_common_path_multiple_subfolders() {
-        let paths = [
-            Utf8Path::new("/a/b/c").to_path_buf(),
-            Utf8Path::new("/a/b/d").to_path_buf(),
-            Utf8Path::new("/a/b/e").to_path_buf(),
-        ];
-        let common_path = get_common_path_for_canonicalized_paths(paths.into_iter());
-        assert!(common_path.unwrap().as_str() == "/a/b");
-    }
 }

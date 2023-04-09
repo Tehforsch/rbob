@@ -42,14 +42,10 @@ impl From<&str> for ParamType {
     }
 }
 
-fn is_param_file_param(s: &str) -> bool {
-    ParamType::from(s) == ParamType::Param
-}
-
 impl SimParams {
     pub fn from_folder<U: AsRef<Utf8Path>>(folder: U, kind: SimParamsKind) -> Result<SimParams> {
         let param_file_path = get_param_file_path(&folder);
-        let mut params = read_param_file(&param_file_path)
+        let params = read_param_file(&param_file_path)
             .with_context(|| format!("While reading parameter file at {:?}", param_file_path))?;
         SimParams::new(folder.as_ref(), params.as_mapping().unwrap().clone(), kind)
     }
@@ -199,10 +195,6 @@ pub fn get_output_folder_from_sim_folder(sim: &SimParams, sim_folder: &Utf8Path)
 
 pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
     folder.as_ref().join(config::DEFAULT_PARAM_FILE_NAME)
-}
-
-pub fn get_job_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
-    folder.as_ref().join(config::DEFAULT_JOB_FILE_NAME)
 }
 
 fn read_param_file(path: &Utf8Path) -> Result<Value> {

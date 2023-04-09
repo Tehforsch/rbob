@@ -28,7 +28,7 @@ fn run_sim(
     )
 }
 
-pub fn run_job_file(
+fn run_job_file(
     sim: &SimParams,
     job_file_path: &camino::Utf8Path,
     verbose: bool,

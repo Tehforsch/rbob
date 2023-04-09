@@ -1,15 +1,12 @@
 use std::error::Error;
 
-use anyhow::anyhow;
 use anyhow::Result;
 use args::StartSimulation;
 use args::SubCommand;
-use boxiom::config;
 use boxiom::config::DEFAULT_BOB_CONFIG_NAME;
 use boxiom::copy::copy_sim_set;
 use boxiom::make::build_sim_set;
 use boxiom::run::run_sim_set;
-use boxiom::sim_params::SimParams;
 use boxiom::sim_set::SimSet;
 use camino::Utf8Path;
 use clap::Clap;

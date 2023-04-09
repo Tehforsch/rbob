@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::fs;
 use std::iter::FromIterator;
 use std::slice::Iter;
@@ -17,7 +16,6 @@ use serde_yaml::Value;
 use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
-use crate::util::get_common_path;
 use crate::util::get_folders;
 
 #[derive(Serialize, Deserialize)]
@@ -28,13 +26,13 @@ enum CartesianType {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct SimSetConfig {
+struct SimSetConfig {
     cartesian_type: CartesianType,
     substitutions: HashMap<String, Value>,
 }
 
 impl SimSetConfig {
-    pub fn from_file<U: AsRef<Utf8Path>>(path: U) -> Result<SimSetConfig> {
+    fn from_file<U: AsRef<Utf8Path>>(path: U) -> Result<SimSetConfig> {
         let data = fs::read_to_string(path.as_ref()).context(format!(
             "While reading bob config file at {:?}",
             path.as_ref()
@@ -94,46 +92,12 @@ impl SimSet {
             .collect()
     }
 
-    pub fn join(sets: impl Iterator<Item = SimSet>) -> SimSet {
-        sets.flat_map(|set| set.into_iter().map(|(_, s)| s))
-            .enumerate()
-            .collect()
-    }
-
     pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = &'a SimParams> + 'a> {
         Box::new(self.simulations.iter().map(|(_, s)| s))
     }
 
     pub fn enumerate(&self) -> Iter<(usize, SimParams)> {
         self.simulations.iter()
-    }
-
-    pub fn sort_by_key<K>(&mut self, mut f: impl FnMut(&SimParams) -> K)
-    where
-        K: Ord,
-    {
-        self.simulations.sort_by_key(|(_, sim)| f(sim))
-    }
-
-    pub fn varies(&self, param: &str) -> bool {
-        let first_sim = self.simulations.first().map(|(_, s)| s);
-        match first_sim {
-            None => false,
-            Some(sim) => self.iter().any(|s| s.get(param) != sim.get(param)),
-        }
-    }
-
-    pub fn get_folder(&self) -> Result<Utf8PathBuf> {
-        let parent_folders = get_common_path(self.iter().map(|sim| sim.folder.parent().unwrap()));
-        parent_folders.ok_or_else(|| anyhow!("No simulation in sim set, cannot determine folder."))
-    }
-
-    pub fn len(&self) -> usize {
-        self.simulations.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.simulations.is_empty()
     }
 }
 
@@ -183,7 +147,7 @@ fn get_substitutions_normal(
             let mut subst = HashMap::new();
             for (k, v) in substitutions.iter() {
                 let this_v = if let Value::Sequence(s) = v { &s[i] } else { v };
-                subst.insert(k.into(), v.clone());
+                subst.insert(k.into(), this_v.clone());
             }
             Ok(subst)
         })
@@ -200,7 +164,7 @@ fn get_parameter_groups(
     param_groups
 }
 
-pub fn get_substitutions_cartesian(
+fn get_substitutions_cartesian(
     substitutions: &HashMap<String, Value>,
     grouped_params: Option<Vec<Vec<String>>>,
 ) -> Result<Vec<HashMap<String, Value>>> {
