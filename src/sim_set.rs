@@ -125,8 +125,10 @@ fn get_sim_params_from_substitutions(
         .map(|(i, substitution_map)| {
             let mut new_sim = base.clone();
             for (k, v) in substitution_map.iter() {
-                if new_sim.insert(k, v) == None && !is_special_param(k) {
-                    return Err(anyhow!("Found (non-special) parameter in substitutions that does not appear in parameter files: {}", k));
+                if !is_special_param(k) {
+                    new_sim.insert(k, v);
+                } else {
+                    println!("Found special param: {}", k);
                 }
             }
             Ok((i as usize, new_sim))

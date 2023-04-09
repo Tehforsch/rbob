@@ -26,7 +26,7 @@ pub struct ConfigFile {
 
 impl ConfigFile {
     pub fn read() -> Result<ConfigFile> {
-        let xdg_dirs = xdg::BaseDirectories::with_prefix("bob").unwrap();
+        let xdg_dirs = xdg::BaseDirectories::with_prefix("boxiom").unwrap();
         let config_path = xdg_dirs.find_config_file(config::CONFIG_FILE_NAME);
         if let Some(path) = config_path {
             ConfigFile::from_file(&path)

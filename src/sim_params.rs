@@ -50,12 +50,22 @@ impl SimParams {
         SimParams::new(folder.as_ref(), params.as_mapping().unwrap().clone(), kind)
     }
 
-    pub fn insert(&mut self, key: &str, value: &Value) -> Option<Value> {
-        self.params.insert(key.into(), value.clone())
+    fn get_param_mut(&mut self, key: &str) -> Option<&mut Value> {
+        let indices: Vec<_> = key.split("/").collect();
+        get_param_mut_from_indices(&mut self.params, &indices)
+    }
+
+    fn get_param(&self, key: &str) -> Option<&Value> {
+        let indices: Vec<_> = key.split("/").collect();
+        get_param_from_indices(&self.params, &indices)
+    }
+
+    pub fn insert(&mut self, key: &str, value: &Value) {
+        *self.get_param_mut(key).unwrap() = value.clone();
     }
 
     pub fn get(&self, key: &str) -> Option<&Value> {
-        self.params.get(&Value::String(key.into()))
+        self.get_param(key).map(|v| &*v)
     }
 
     pub fn get_default_string(&self, key: &str, default: &str) -> String {
@@ -108,54 +118,43 @@ impl SimParams {
         Ok(())
     }
 
-    pub fn get_ics_filename(&self) -> Utf8PathBuf {
-        todo!()
-        // let ics_file_base = self.get("input").unwrap().as_str().unwrap();
-        // let ics_format = self.get("ICFormat").unwrap().as_i64().unwrap();
-        // let ics_extension = match ics_format {
-        //     3 => "hdf5",
-        //     1 => "",
-        //     _ => unimplemented!(),
-        // };
-        // let path = Utf8Path::new(ics_file_base);
-        // let filename_with_extension = path.with_extension(ics_extension);
-        // if self.folder.join(&filename_with_extension).is_file() {
-        //     filename_with_extension.into()
-        // } else {
-        //     // Simply return the path to the parent folder of the initial conditions
-        //     let f = path.parent().unwrap().into();
-        //     println!(
-        //         "Did not find ICS file at {:?}, assuming ICS are a folder at {:?}",
-        //         filename_with_extension, f
-        //     );
-        //     f
-        // }
+    pub fn get_ics_files(&self) -> Vec<Utf8PathBuf> {
+        let ics_files = self.get("input/paths").unwrap();
+        ics_files
+            .as_sequence()
+            .unwrap()
+            .into_iter()
+            .map(|f| Utf8Path::new(f.as_str().unwrap()).into())
+            .collect()
     }
 
     pub fn copy_ics(&self, target_folder: &Utf8Path, symlink_ics: bool) -> Result<()> {
         let sim_output_folder = get_output_folder_from_sim_folder(self, target_folder);
-        let ics_file_name = self.get_ics_filename();
-        // Nothing to do if the ICS are given as an absolute path
-        if ics_file_name.is_absolute() {
-            return Ok(());
-        }
-        fs::create_dir_all(&sim_output_folder)?;
-        let source = self.folder.join(&ics_file_name);
-        let target = target_folder.join(&ics_file_name);
-        if symlink_ics {
-            std::os::unix::fs::symlink(
-                &source.canonicalize().context(format!(
-                    "While trying to obtain absolute path to initial conditions at {:?}",
-                    source
-                ))?,
-                &target,
-            )
-            .context(format!(
-                "While symlinking ics file from {:?} to {:?}",
-                source, target
-            ))?;
-        } else {
-            copy_file(&source, &target)?;
+        for ics_file_name in self.get_ics_files() {
+            // Nothing to do if the ICS are given as an absolute path
+            if ics_file_name.is_absolute() {
+                continue;
+            }
+            fs::create_dir_all(&sim_output_folder)?;
+            let source = self.folder.join(&ics_file_name);
+            let target = target_folder.join(&ics_file_name);
+            fs::create_dir_all(target.parent().unwrap())
+                .expect("Failed to create target directory");
+            if symlink_ics {
+                std::os::unix::fs::symlink(
+                    &source.canonicalize().context(format!(
+                        "While trying to obtain absolute path to initial conditions at {:?}",
+                        source
+                    ))?,
+                    &target,
+                )
+                .context(format!(
+                    "While symlinking ics file from {:?} to {:?}",
+                    source, target
+                ))?;
+            } else {
+                copy_file(&source, &target)?;
+            }
         }
         Ok(())
     }
@@ -184,6 +183,26 @@ impl SimParams {
             SimParamsKind::Input => Ok(self.get("numCores").unwrap().as_i64().unwrap()),
             SimParamsKind::Output => todo!(),
         }
+    }
+}
+
+// I dont know how to make functions generic over mutability ...
+fn get_param_mut_from_indices<'a>(
+    params: &'a mut Mapping,
+    indices: &[&str],
+) -> Option<&'a mut Value> {
+    if indices.len() == 1 {
+        Some(params.get_mut(indices[0])?)
+    } else {
+        get_param_mut_from_indices(params[indices[0]].as_mapping_mut()?, &indices[1..])
+    }
+}
+
+fn get_param_from_indices<'a>(params: &'a Mapping, indices: &[&str]) -> Option<&'a Value> {
+    if indices.len() == 1 {
+        Some(params.get(indices[0])?)
+    } else {
+        get_param_from_indices(params[indices[0]].as_mapping()?, &indices[1..])
     }
 }
 

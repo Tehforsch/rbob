@@ -20,7 +20,7 @@ pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 
 pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "./arepo";
 
-pub static CONFIG_FILE_NAME: &str = "config_raxiom.yaml";
+pub static CONFIG_FILE_NAME: &str = "config.yaml";
 
 pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
 
