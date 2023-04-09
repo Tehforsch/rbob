@@ -2,7 +2,6 @@ use anyhow::anyhow;
 use anyhow::Result;
 
 use crate::config;
-use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::util::get_shell_command_output;
@@ -12,21 +11,6 @@ pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
     for (i, sim) in sim_set.iter().enumerate() {
         println!("Running sim {}", i);
         let job_id = run_sim(sim, verbose, run_after)?;
-        if matches!(
-            sim.get(config::CASCADE_IDENTIFIER),
-            Some(ParamValue::Bool(true))
-        ) {
-            match config::JOB_FILE_RUN_COMMAND.as_str() {
-                "bash" => {}
-                _ => {
-                    run_after = job_id;
-                    assert!(
-                        run_after.is_some(),
-                        "Failed to get job id from previous job! Run without -v ? "
-                    );
-                }
-            }
-        }
     }
     Ok(())
 }

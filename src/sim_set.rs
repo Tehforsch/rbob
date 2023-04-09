@@ -15,7 +15,6 @@ use serde::Serialize;
 use serde_yaml::Value;
 
 use crate::config;
-use crate::param_value::ParamValue;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
 use crate::util::get_common_path;
@@ -136,38 +135,6 @@ impl SimSet {
     pub fn is_empty(&self) -> bool {
         self.simulations.is_empty()
     }
-
-    pub fn quotient(&self, param: &str) -> Vec<SimSet> {
-        let mut possible_values = HashSet::new();
-        for sim in self.iter() {
-            possible_values.insert(sim[param].clone());
-        }
-        let mut sub_sim_sets = vec![];
-        for possible_value in possible_values.iter() {
-            sub_sim_sets.push(SimSet {
-                simulations: self
-                    .iter()
-                    .filter(|sim| sim[param] == *possible_value)
-                    .cloned()
-                    .enumerate()
-                    .collect(),
-            });
-        }
-        sub_sim_sets.sort_by_key(|sim_set| sim_set.iter().next().unwrap()[param].clone());
-        sub_sim_sets
-    }
-
-    pub fn quotients<'a>(&'a self, params: &[&str]) -> Vec<SimSet> {
-        let next_param = params.first();
-        match next_param {
-            Some(param) => self
-                .quotient(param)
-                .into_iter()
-                .flat_map(|sim_set| sim_set.quotients(&params[1..]))
-                .collect(),
-            None => vec![self.clone()],
-        }
-    }
 }
 
 fn get_sim_params(
@@ -186,7 +153,7 @@ fn get_sim_params(
 
 fn get_sim_params_from_substitutions(
     base: SimParams,
-    substitutions: Vec<HashMap<String, ParamValue>>,
+    substitutions: Vec<HashMap<String, Value>>,
 ) -> Result<Vec<(usize, SimParams)>> {
     substitutions
         .iter()
@@ -209,14 +176,14 @@ fn is_special_param(k: &str) -> bool {
 
 fn get_substitutions_normal(
     substitutions: &HashMap<String, Value>,
-) -> Result<Vec<HashMap<String, ParamValue>>> {
+) -> Result<Vec<HashMap<String, Value>>> {
     let length = count_length_or_singular(Box::new(substitutions.iter()))?;
     (0..length)
         .map(|i| {
             let mut subst = HashMap::new();
             for (k, v) in substitutions.iter() {
                 let this_v = if let Value::Sequence(s) = v { &s[i] } else { v };
-                subst.insert(k.to_string(), ParamValue::new(this_v)?);
+                subst.insert(k.into(), v.clone());
             }
             Ok(subst)
         })
@@ -236,7 +203,7 @@ fn get_parameter_groups(
 pub fn get_substitutions_cartesian(
     substitutions: &HashMap<String, Value>,
     grouped_params: Option<Vec<Vec<String>>>,
-) -> Result<Vec<HashMap<String, ParamValue>>> {
+) -> Result<Vec<HashMap<String, Value>>> {
     let parameter_groups = get_parameter_groups(substitutions, grouped_params);
     let lengths: Vec<usize> = parameter_groups
         .iter()
@@ -276,7 +243,7 @@ pub fn get_substitutions_cartesian(
             } else {
                 param
             };
-            r.insert(k.to_owned(), ParamValue::new(value)?);
+            r.insert(k.to_owned(), value.clone());
         }
         result.push(r);
     }
@@ -302,96 +269,4 @@ fn count_length_or_singular<'a>(
         }
     }
     Ok(length.unwrap_or(1))
-}
-
-#[cfg(test)]
-mod tests {
-    use serde_yaml::to_value;
-
-    use super::*;
-    #[test]
-    fn normal_sim_set() -> Result<()> {
-        let mut substitutions = HashMap::new();
-        substitutions.insert("a".to_owned(), to_value([1, 2, 3])?);
-        substitutions.insert("b".to_owned(), to_value([4, 5, 6])?);
-        let s = get_substitutions_normal(&substitutions)?;
-        assert_eq!(s.len(), 3);
-        assert_eq!(s[0]["a"], ParamValue::Int(1));
-        assert_eq!(s[0]["b"], ParamValue::Int(4));
-        assert_eq!(s[1]["a"], ParamValue::Int(2));
-        assert_eq!(s[1]["b"], ParamValue::Int(5));
-        assert_eq!(s[2]["a"], ParamValue::Int(3));
-        assert_eq!(s[2]["b"], ParamValue::Int(6));
-        Ok(())
-    }
-
-    #[test]
-    fn cartesian_sim_set_config() -> Result<()> {
-        let mut substitutions = HashMap::new();
-        substitutions.insert("a".to_owned(), to_value([1, 2])?);
-        substitutions.insert("b".to_owned(), to_value([3, 4])?);
-        let s = dbg!(get_substitutions_cartesian(&substitutions, None)?);
-        assert_eq!(s.len(), 4);
-        assert_eq!(s[0]["a"], ParamValue::Int(1));
-        assert_eq!(s[0]["b"], ParamValue::Int(3));
-
-        assert_eq!(s[1]["a"], ParamValue::Int(1));
-        assert_eq!(s[1]["b"], ParamValue::Int(4));
-
-        assert_eq!(s[2]["a"], ParamValue::Int(2));
-        assert_eq!(s[2]["b"], ParamValue::Int(3));
-
-        assert_eq!(s[3]["a"], ParamValue::Int(2));
-        assert_eq!(s[3]["b"], ParamValue::Int(4));
-        Ok(())
-    }
-
-    #[test]
-    fn cartesian_sim_set_config_parameter_groups() -> Result<()> {
-        let mut substitutions = HashMap::new();
-        substitutions.insert("a".to_owned(), to_value([1, 2])?);
-        substitutions.insert("b".to_owned(), to_value([3, 4])?);
-        substitutions.insert("c".to_owned(), to_value([4, 5])?);
-        let s = dbg!(get_substitutions_cartesian(
-            &substitutions,
-            Some(vec![
-                vec!["a".to_owned(), "c".to_owned()],
-                vec!["b".to_owned()]
-            ])
-        )?);
-        assert_eq!(s.len(), 4);
-        assert_eq!(s[0]["a"], ParamValue::Int(1));
-        assert_eq!(s[0]["b"], ParamValue::Int(3));
-        assert_eq!(s[0]["c"], ParamValue::Int(4));
-
-        assert_eq!(s[1]["a"], ParamValue::Int(1));
-        assert_eq!(s[1]["b"], ParamValue::Int(4));
-        assert_eq!(s[1]["c"], ParamValue::Int(4));
-
-        assert_eq!(s[2]["a"], ParamValue::Int(2));
-        assert_eq!(s[2]["b"], ParamValue::Int(3));
-        assert_eq!(s[2]["c"], ParamValue::Int(5));
-
-        assert_eq!(s[3]["a"], ParamValue::Int(2));
-        assert_eq!(s[3]["b"], ParamValue::Int(4));
-        assert_eq!(s[3]["c"], ParamValue::Int(5));
-        Ok(())
-    }
-
-    #[test]
-    fn cartesian_sim_set_config_parameter_groups_wrong_lengths() -> Result<()> {
-        let mut substitutions = HashMap::new();
-        substitutions.insert("a".to_owned(), to_value([1, 2])?);
-        substitutions.insert("b".to_owned(), to_value([3, 4])?);
-        substitutions.insert("c".to_owned(), to_value([4, 5, 6])?);
-        assert!(get_substitutions_cartesian(
-            &substitutions,
-            Some(vec![
-                vec!["a".to_owned(), "c".to_owned()],
-                vec!["b".to_owned()]
-            ])
-        )
-        .is_err());
-        Ok(())
-    }
 }

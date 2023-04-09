@@ -7,9 +7,7 @@ use args::SubCommand;
 use bob::config;
 use bob::config::DEFAULT_BOB_CONFIG_NAME;
 use bob::copy::copy_sim_set;
-use bob::diff;
 use bob::make::build_sim_set;
-use bob::param_value::ParamValue;
 use bob::run::run_sim_set;
 use bob::sim_params::SimParams;
 use bob::sim_set::SimSet;
@@ -24,17 +22,6 @@ pub mod args;
 fn main() -> Result<(), Box<dyn Error>> {
     let a = Opts::parse();
     match a.subcmd {
-        SubCommand::Show(l) => {
-            let sim_set = get_sim_set_from_input(&l.folder)?;
-            show_sim_set(sim_set, &l.param_names, l.all)?;
-        }
-        SubCommand::Diff(l) => {
-            diff::show_sim_diff(&l.folder1, &l.folder2)?;
-        }
-        SubCommand::ShowOutput(l) => {
-            let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            show_sim_set(sim_set, &l.param_names, l.all)?;
-        }
         SubCommand::Copy(l) => {
             let sim_set = get_sim_set_from_input(&l.input_folder)?;
             copy_sim_set(
@@ -71,48 +58,6 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
     )?;
     build_sim_set(&output_sim_set, verbose, &args.systype)?;
     run_sim_set(&output_sim_set, verbose)
-}
-
-fn print_param_value(param: &str, value: &ParamValue) {
-    println!("\t{}: {:?}", param, value);
-}
-
-fn show_sim_set(sim_set: SimSet, param_names: &[String], all: bool) -> Result<()> {
-    let print_param = |sim: &SimParams, param: &str| print_param_value(param, &sim[param]);
-    for (i, sim) in sim_set.enumerate() {
-        println!("{}:", i);
-        if param_names.is_empty() {
-            for param in sim.keys() {
-                if all || sim_set.varies(param) {
-                    print_param(sim, param)
-                }
-            }
-        } else {
-            for param in param_names.iter() {
-                if config::CALC_PARAMS.contains(&param.as_ref()) {
-                    print_calc_param(sim, param);
-                } else if sim.contains_key(param) {
-                    print_param(sim, param)
-                } else {
-                    return Err(anyhow!(
-                        "Parameter {} not present in parameter files!",
-                        param
-                    ));
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-fn print_calc_param(sim: &SimParams, param: &str) {
-    match param {
-        "timeUnit" => {
-            let value = nice_time(sim.units.length / sim.units.velocity);
-            print_param_value(param, &ParamValue::Str(value));
-        }
-        _ => unreachable!(),
-    }
 }
 
 fn get_sim_set_from_input(folder: &Utf8Path) -> Result<SimSet> {

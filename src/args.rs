@@ -15,9 +15,6 @@ pub struct Opts {
 
 #[derive(Clap, Debug)]
 pub enum SubCommand {
-    Show(ShowSimulationInfo),
-    Diff(ShowSimulationDiff),
-    ShowOutput(ShowSimulationInfoOutput),
     Copy(CopySimulation),
     Build(BuildSimulation),
     Run(RunSimulation),
