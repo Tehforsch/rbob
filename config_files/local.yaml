@@ -11,5 +11,4 @@ system_config:
 job_file_run_command: "bash"
 job_file_template: |
     #!/bin/bash
-    {additionalCommands}
-    {runProgram} -n {numCores} {executableName} {runParams} 1> >(tee {logFile} ) 2> >(tee stderr.log )
+    {run_program} -n {num_cores} {executable_name} --parameter-file-path {param_file} {run_params} 1> >(tee {log_file} ) 2> >(tee stderr.log )

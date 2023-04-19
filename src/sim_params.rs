@@ -61,7 +61,9 @@ impl SimParams {
     }
 
     pub fn insert(&mut self, key: &str, value: &Value) {
-        *self.get_param_mut(key).unwrap() = value.clone();
+        *self
+            .get_param_mut(key)
+            .unwrap_or_else(|| panic!("Failed to find key: {}", key)) = value.clone();
     }
 
     pub fn get(&self, key: &str) -> Option<&Value> {
@@ -87,11 +89,18 @@ impl SimParams {
     }
 
     pub fn new(folder: &Utf8Path, params: Mapping, kind: SimParamsKind) -> Result<SimParams> {
-        Ok(SimParams {
+        // Super ugly, but I don't want to overengineer this for now
+        let job_params = JobParams::default();
+        let mut sim_params = SimParams {
             folder: folder.to_owned(),
             params,
             kind,
-        })
+        };
+        sim_params.params.insert(
+            Value::String("job".into()),
+            serde_yaml::to_value(&job_params).unwrap(),
+        );
+        Ok(sim_params)
     }
 
     pub fn get_name(&self) -> String {
@@ -109,7 +118,9 @@ impl SimParams {
     }
 
     fn get_param_file_contents(&self) -> String {
-        serde_yaml::to_string(&self.params).unwrap()
+        let mut params = self.params.clone();
+        params.remove("job");
+        serde_yaml::to_string(&params).unwrap()
     }
 
     pub fn write_job_file(&self, path: &Utf8Path) -> Result<()> {
@@ -160,17 +171,26 @@ impl SimParams {
     }
 
     fn get_job_file_contents(&self) -> Result<String> {
-        let job_params = self.get_job_params()?;
-        self.get_job_file_contents_from_job_params(&job_params)
+        self.get_job_file_contents_from_job_params()
     }
 
-    pub fn get_job_file_contents_from_job_params(&self, job_params: &JobParams) -> Result<String> {
-        let replacements = job_params.to_hashmap();
+    pub fn get_job_file_contents_from_job_params(&self) -> Result<String> {
+        let to_str = |v: &Value| match v {
+            Value::Null => todo!(),
+            Value::Bool(b) => b.to_string(),
+            Value::Number(x) => x.to_string(),
+            Value::String(s) => s.to_owned(),
+            Value::Sequence(_) => todo!(),
+            Value::Mapping(_) => todo!(),
+            Value::Tagged(_) => todo!(),
+        };
+        let replacements = self.params["job"]
+            .as_mapping()
+            .unwrap()
+            .into_iter()
+            .map(|(k, v)| (to_str(k), to_str(v)))
+            .collect();
         strfmt_anyhow(&config::JOB_FILE_TEMPLATE, replacements)
-    }
-
-    pub fn get_job_params(&self) -> Result<JobParams> {
-        JobParams::new(self)
     }
 
     pub fn write_bob_param_file(&self, path: &Utf8Path) -> Result<()> {
@@ -202,7 +222,7 @@ fn get_param_from_indices<'a>(params: &'a Mapping, indices: &[&str]) -> Option<&
     if indices.len() == 1 {
         Some(params.get(indices[0])?)
     } else {
-        get_param_from_indices(params[indices[0]].as_mapping()?, &indices[1..])
+        get_param_from_indices(params.get(indices[0])?.as_mapping()?, &indices[1..])
     }
 }
 

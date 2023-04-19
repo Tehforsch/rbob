@@ -31,10 +31,10 @@ pub static DEFAULT_WALL_TIME: &str = "23:00:00";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 
 pub static SPECIAL_PARAMS: &[&str] = &[
-    "numCores",
-    "runParams",
-    "additionalCommands",
-    "wallTime",
-    "simType",
-    "simLabel",
+    "num_cores",
+    "run_params",
+    "additional_commands",
+    "wall_time",
+    "sim_type",
+    "sim_label",
 ];
