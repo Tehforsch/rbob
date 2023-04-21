@@ -184,7 +184,10 @@ impl SimParams {
             Value::Mapping(_) => todo!(),
             Value::Tagged(_) => todo!(),
         };
-        let replacements = self.params["job"]
+        let mut job_params: JobParams = serde_yaml::from_value(self.params["job"].clone()).unwrap();
+        job_params.set_core_nums();
+        let replacements = serde_yaml::to_value(job_params)
+            .unwrap()
             .as_mapping()
             .unwrap()
             .into_iter()

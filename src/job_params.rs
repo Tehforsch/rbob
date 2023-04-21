@@ -17,6 +17,13 @@ pub struct JobParams {
     pub param_file: String,
     pub run_program: String,
 }
+impl JobParams {
+    pub fn set_core_nums(&mut self) {
+        let num_cores = self.num_cores;
+        (self.num_nodes, self.num_cores_per_node, self.partition) =
+            get_core_distribution(num_cores, &config::SYSTEM_CONFIG);
+    }
+}
 
 pub fn get_core_distribution(
     num_cores: i64,
