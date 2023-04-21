@@ -17,7 +17,7 @@ lazy_static! {
 pub static DEFAULT_BOB_CONFIG_NAME: &str = "sims.bob";
 pub static DEFAULT_PARAM_FILE_NAME: &str = "params.yml";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
-pub static DEFAULT_RUN_PARAMS: &str = "--headless true -v";
+pub static DEFAULT_RUN_PARAMS: &str = "-v";
 
 pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "arepo_postprocess";
 
