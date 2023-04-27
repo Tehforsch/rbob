@@ -217,7 +217,13 @@ fn get_param_mut_from_indices<'a>(
     if indices.len() == 1 {
         Some(params.get_mut(indices[0])?)
     } else {
-        get_param_mut_from_indices(params[indices[0]].as_mapping_mut()?, &indices[1..])
+        get_param_mut_from_indices(
+            params
+                .get_mut(indices[0])
+                .unwrap_or_else(|| panic!("Key not found: {:?}", indices[0]))
+                .as_mapping_mut()?,
+            &indices[1..],
+        )
     }
 }
 
