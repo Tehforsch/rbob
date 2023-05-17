@@ -131,12 +131,21 @@ impl SimParams {
 
     pub fn get_ics_files(&self) -> Vec<Utf8PathBuf> {
         let ics_files = self.get("input/paths").unwrap();
-        ics_files
+        let mut ics_files: Vec<Utf8PathBuf> = ics_files
             .as_sequence()
             .unwrap()
             .into_iter()
             .map(|f| Utf8Path::new(f.as_str().unwrap()).into())
-            .collect()
+            .collect();
+        match self.params["postprocess"]["grid"] {
+            Value::Tagged(ref tagged_value) => {
+                if tagged_value.tag == "read" {
+                    ics_files.push(Utf8Path::new(tagged_value.value.as_str().unwrap()).to_owned());
+                }
+            }
+            _ => {}
+        }
+        ics_files
     }
 
     pub fn copy_ics(&self, target_folder: &Utf8Path, symlink_ics: bool) -> Result<()> {
