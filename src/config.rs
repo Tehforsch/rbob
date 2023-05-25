@@ -19,7 +19,7 @@ pub static DEFAULT_PARAM_FILE_NAME: &str = "params.yml";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 pub static DEFAULT_RUN_PARAMS: &str = "-v";
 
-pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "arepo_postprocess";
+pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "raxiom";
 
 pub static CONFIG_FILE_NAME: &str = "config.yaml";
 

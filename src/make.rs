@@ -27,7 +27,7 @@ fn build_sim(sim: &SimParams, verbose: bool, _systype: &Option<Systype>) -> Resu
 fn build_raxiom(verbose: bool) -> Result<()> {
     let out = get_shell_command_output(
         "cargo",
-        &["build", "--release", "--example", "arepo_postprocess"],
+        &["build", "--release"],
         Some(&RAXIOM_PATH),
         verbose,
     );

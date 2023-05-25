@@ -1,5 +1,5 @@
 raxiom_path:  "~/projects/raxiom/"
-raxiom_build_path:  "/run/media/extHdd/.cargo-target/release/examples"
+raxiom_build_path:  "/run/media/extHdd/.cargo-target/release"
 default_systype: "Manjaro"
 bob_path: "~/.cargo/bin/bob"
 system_config:
