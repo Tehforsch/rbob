@@ -145,6 +145,12 @@ impl SimParams {
             }
             _ => {}
         }
+        match self.params["postprocess"].get("remap_from") {
+            Some(val) => {
+                ics_files.push(Utf8Path::new(val.as_str().unwrap()).to_owned());
+            }
+            None => {}
+        }
         ics_files
     }
 
