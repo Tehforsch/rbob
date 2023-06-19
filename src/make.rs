@@ -10,27 +10,46 @@ use crate::systype::Systype;
 use crate::util::copy_file;
 use crate::util::get_shell_command_output;
 
-pub fn build_sim_set(sim_set: &SimSet, verbose: bool, systype: &Option<Systype>) -> Result<()> {
+pub fn build_sim_set(
+    sim_set: &SimSet,
+    verbose: bool,
+    systype: &Option<Systype>,
+    debug_build: bool,
+) -> Result<()> {
     for (i, sim) in sim_set.enumerate() {
         println!("Building sim {}", i);
-        build_sim(sim, verbose, systype)?;
+        build_sim(sim, verbose, systype, debug_build)?;
     }
     Ok(())
 }
 
-fn build_sim(sim: &SimParams, verbose: bool, _systype: &Option<Systype>) -> Result<()> {
-    build_raxiom(verbose)?;
-    copy_binary(sim)?;
+fn build_sim(
+    sim: &SimParams,
+    verbose: bool,
+    _systype: &Option<Systype>,
+    debug_build: bool,
+) -> Result<()> {
+    build_raxiom(verbose, debug_build)?;
+    copy_binary(sim, debug_build)?;
     Ok(())
 }
 
-fn build_raxiom(verbose: bool) -> Result<()> {
-    let out = get_shell_command_output(
-        "cargo",
-        &["build", "--release"],
-        Some(&RAXIOM_PATH),
-        verbose,
-    );
+fn build_raxiom(verbose: bool, debug_build: bool) -> Result<()> {
+    let out = if debug_build {
+        get_shell_command_output(
+            "cargo",
+            &["build", "--color=always"],
+            Some(&RAXIOM_PATH),
+            verbose,
+        )
+    } else {
+        get_shell_command_output(
+            "cargo",
+            &["build", "--release", "--color=always"],
+            Some(&RAXIOM_PATH),
+            verbose,
+        )
+    };
     if !out.success {
         println!("{}", out.stdout);
         println!("{}", out.stderr);
@@ -39,8 +58,13 @@ fn build_raxiom(verbose: bool) -> Result<()> {
     Ok(())
 }
 
-fn copy_binary(sim: &SimParams) -> Result<()> {
-    let source = RAXIOM_BUILD_PATH.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
+fn copy_binary(sim: &SimParams, debug_build: bool) -> Result<()> {
+    let path = if debug_build {
+        RAXIOM_BUILD_PATH.parent().unwrap().join("debug")
+    } else {
+        RAXIOM_BUILD_PATH.to_owned()
+    };
+    let source = path.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     let target = sim.folder.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     copy_file(source, target)
 }

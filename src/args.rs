@@ -37,6 +37,8 @@ pub struct CopySimulation {
 pub struct BuildSimulation {
     pub output_folder: Utf8PathBuf,
     pub systype: Option<Systype>,
+    #[clap(short, long)]
+    pub debug_build: bool,
 }
 
 /// Run each of the simulations in the output directory

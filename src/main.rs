@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&sim_set, a.verbose, &l.systype)?;
+            build_sim_set(&sim_set, a.verbose, &l.systype, l.debug_build)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -52,7 +52,7 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         args.delete,
         args.symlink_ics,
     )?;
-    build_sim_set(&output_sim_set, verbose, &args.systype)?;
+    build_sim_set(&output_sim_set, verbose, &args.systype, false)?;
     run_sim_set(&output_sim_set, verbose)
 }
 
