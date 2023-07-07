@@ -57,4 +57,6 @@ pub struct StartSimulation {
     pub systype: Option<Systype>,
     #[clap(short, long)]
     pub symlink_ics: bool,
+    #[clap(long)]
+    pub debug_build: bool,
 }

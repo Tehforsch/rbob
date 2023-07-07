@@ -52,7 +52,7 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         args.delete,
         args.symlink_ics,
     )?;
-    build_sim_set(&output_sim_set, verbose, &args.systype, false)?;
+    build_sim_set(&output_sim_set, verbose, &args.systype, args.debug_build)?;
     run_sim_set(&output_sim_set, verbose)
 }
 
