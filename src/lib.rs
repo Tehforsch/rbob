@@ -1,3 +1,4 @@
+mod cascade;
 pub mod config;
 mod config_file;
 pub mod copy;

@@ -13,6 +13,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_yaml::Value;
 
+use crate::cascade::get_substitutions_cascade;
+use crate::cascade::CascadeArgs;
 use crate::config;
 use crate::sim_params::SimParams;
 use crate::sim_params::SimParamsKind;
@@ -20,9 +22,10 @@ use crate::util::get_folders;
 
 #[derive(Serialize, Deserialize)]
 enum CartesianType {
-    NoCartesian,
+    None,
     All,
     Grouped(Vec<Vec<String>>),
+    Cascade(CascadeArgs),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -106,10 +109,13 @@ fn get_sim_params(
     base_sim_params: SimParams,
 ) -> Result<Vec<(usize, SimParams)>> {
     let substitutions = match &config.cartesian_type {
-        CartesianType::NoCartesian => get_substitutions_normal(&config.substitutions),
+        CartesianType::None => get_substitutions_normal(&config.substitutions),
         CartesianType::All => get_substitutions_cartesian(&config.substitutions, None),
         CartesianType::Grouped(l) => {
             get_substitutions_cartesian(&config.substitutions, Some(l.to_vec()))
+        }
+        CartesianType::Cascade(cascade) => {
+            get_substitutions_cascade(&base_sim_params, &config.substitutions, cascade)
         }
     }?;
     get_sim_params_from_substitutions(base_sim_params, substitutions)
@@ -166,7 +172,7 @@ fn get_parameter_groups(
     param_groups
 }
 
-fn get_substitutions_cartesian(
+pub fn get_substitutions_cartesian(
     substitutions: &HashMap<String, Value>,
     grouped_params: Option<Vec<Vec<String>>>,
 ) -> Result<Vec<HashMap<String, Value>>> {

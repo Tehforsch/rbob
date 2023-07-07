@@ -17,6 +17,8 @@ camino = { version = "1.1.4", features =["serde1"] }
 lazy_static = "1.4.0"
 itertools = "0.10.5"
 regex = "1"
+# Keeping hdf5 at an open PR which adds support for 1.14.0 until it is merged
+hdf5 = { branch = "master", git = "https://github.com/aldanor/hdf5-rust" }
 
 [dev-dependencies]
 tempdir = "0.3.7"
