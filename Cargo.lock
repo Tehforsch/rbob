@@ -101,6 +101,7 @@ dependencies = [
  "hdf5",
  "itertools",
  "lazy_static",
+ "pathdiff",
  "rand 0.8.5",
  "regex",
  "serde",
@@ -509,6 +510,15 @@ name = "paste"
 version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4b27ab7be369122c218afc2079489cdcb4b517c0a3fc386ff11e1fedfcc2b35"
+
+[[package]]
+name = "pathdiff"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
+dependencies = [
+ "camino",
+]
 
 [[package]]
 name = "pkg-config"

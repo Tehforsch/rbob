@@ -5,6 +5,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
+use pathdiff::diff_utf8_paths;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_yaml::Value;
@@ -145,6 +146,7 @@ pub fn get_substitutions_cascade(
     substitutions: &HashMap<String, Value>,
     cascade: &CascadeArgs,
 ) -> Result<Vec<HashMap<String, Value>>> {
+    let base_folder = &base_sim_params.folder;
     let mut other_substitutions =
         get_non_cascade_substitutions(substitutions, cascade.snapshots.len())?;
     let mut insert_substitution = |i, name: &str, value| {
@@ -157,30 +159,41 @@ pub fn get_substitutions_cascade(
             None => {}
         }
     };
-    let times = cascade.get_times(&base_sim_params.folder);
-    let cosmology = get_cosmology(&cascade.get_files_for_snapshot(&base_sim_params.folder, 0)[0]);
+    let times = cascade.get_times(&base_folder);
+    let cosmology = get_cosmology(&cascade.get_files_for_snapshot(&base_folder, 0)[0]);
     assert_eq!(times.len(), cascade.snapshots.len() + 1);
     for (i, (time_begin, time_end)) in times.iter().zip(times[1..].iter()).enumerate() {
-        let files = cascade.get_files_for_snapshot(&base_sim_params.folder, i);
+        let files = cascade.get_files_for_snapshot(&base_folder, i);
         let time_diff_seconds = time_begin.time_until_seconds(time_end, &cosmology);
-        let seconds_to_kiloyear = 1.0 / (31560000.0 * 1000.0);
+        let time_diff_kiloyear = time_diff_seconds / (31560000.0 * 1000.0);
         println!(
             "sim {}: {:?} to {:?} ({:.5} kyr)",
-            i,
-            time_begin,
-            time_end,
-            time_diff_seconds * seconds_to_kiloyear
+            i, time_begin, time_end, time_diff_kiloyear
         );
         insert_substitution(
             i,
             "input/paths",
-            Value::Sequence(files.into_iter().map(|f| f.as_str().into()).collect()),
+            Value::Sequence(
+                files
+                    .iter()
+                    .map(|f| {
+                        let f = diff_utf8_paths(f, &base_folder).unwrap();
+                        f.as_str().into()
+                    })
+                    .collect(),
+            ),
         );
         insert_substitution(
             i,
             "simulation/final_time",
-            format!("{} kyr", time_diff_seconds * seconds_to_kiloyear).into(),
+            format!("{} kyr", time_diff_kiloyear).into(),
         );
+        if cascade.original_simulation_comoving {
+            let a = read_header_attr(&files[0], "Time")?;
+            let h = read_header_attr(&files[0], "HubbleParam")?;
+            insert_substitution(i, "cosmology/a", a.into());
+            insert_substitution(i, "cosmology/h", h.into());
+        }
     }
     Ok(other_substitutions)
 }
