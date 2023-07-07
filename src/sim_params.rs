@@ -147,7 +147,12 @@ impl SimParams {
         }
         match self.params["postprocess"].get("remap_from") {
             Some(val) => {
-                ics_files.push(Utf8Path::new(val.as_str().unwrap()).to_owned());
+                if *val != Value::Null {
+                    let path = Utf8Path::new(val.as_str().unwrap()).to_owned();
+                    if path.is_file() || path.is_dir() {
+                        ics_files.push(path);
+                    }
+                }
             }
             None => {}
         }

@@ -188,6 +188,13 @@ pub fn get_substitutions_cascade(
             "simulation/final_time",
             format!("{} kyr", time_diff_kiloyear).into(),
         );
+        if i > 0 {
+            insert_substitution(
+                i,
+                "postprocess/remap_from",
+                format!("../{}/output/snapshots", i - 1).into(),
+            );
+        }
         if cascade.original_simulation_comoving {
             let a = read_header_attr(&files[0], "Time")?;
             let h = read_header_attr(&files[0], "HubbleParam")?;
