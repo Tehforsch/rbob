@@ -7,12 +7,26 @@ use crate::sim_set::SimSet;
 use crate::util::get_shell_command_output;
 
 pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
-    let run_after = None;
+    let is_cascade = is_cascade(sim_set.iter().last().unwrap());
+    if is_cascade {
+        println!("Starting job as cascade");
+    }
+    let mut run_after = None;
     for (i, sim) in sim_set.iter().enumerate() {
         println!("Running sim {}", i);
-        run_sim(sim, verbose, run_after)?;
+        let previous_job_id = run_sim(sim, verbose, run_after)?;
+        run_after = previous_job_id.filter(|_| !is_cascade);
+        dbg!(previous_job_id, run_after);
     }
     Ok(())
+}
+
+fn is_cascade(sim: &SimParams) -> bool {
+    if let Some(val) = sim.get("postprocess/remap_from") {
+        !val.is_null()
+    } else {
+        false
+    }
 }
 
 fn run_sim(
