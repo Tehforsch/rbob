@@ -15,8 +15,7 @@ pub fn run_sim_set(sim_set: &SimSet, verbose: bool) -> Result<()> {
     for (i, sim) in sim_set.iter().enumerate() {
         println!("Running sim {}", i);
         let previous_job_id = run_sim(sim, verbose, run_after)?;
-        run_after = previous_job_id.filter(|_| !is_cascade);
-        dbg!(previous_job_id, run_after);
+        run_after = previous_job_id.filter(|_| is_cascade);
     }
     Ok(())
 }
@@ -74,7 +73,7 @@ fn get_run_command_args(
     let job_file_name = job_file_path.file_name().unwrap().into();
     match dependency_job_id {
         Some(id) => vec![
-            format!("--dependency=afterany:{id}", id = id),
+            format!("--dependency=afterok:{id}", id = id),
             job_file_name,
         ],
         None => vec![job_file_name],
@@ -90,7 +89,7 @@ fn get_job_id(output: &str) -> Result<Option<usize>> {
         let re = Regex::new("Submitted batch job ([0-9]*)").unwrap();
         let capture = re.captures_iter(output).next();
         match capture {
-            None => Ok(None),
+            None => panic!("Could not parse id from job submission output."),
             Some(capture) => Ok(Some(
                 capture
                     .get(1)
