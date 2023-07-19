@@ -232,13 +232,16 @@ impl SimParams {
 
     pub fn get_ics_filename(&self) -> Utf8PathBuf {
         let ics_file_base = self.get("InitCondFile").unwrap().unwrap_string();
+        let path = Utf8Path::new(ics_file_base);
+        if path.extension().is_some() {
+            return path.to_owned();
+        }
         let ics_format = self.get("ICFormat").unwrap().unwrap_i64();
         let ics_extension = match ics_format {
             3 => "hdf5",
             1 => "",
             _ => unimplemented!(),
         };
-        let path = Utf8Path::new(ics_file_base);
         let filename_with_extension = path.with_extension(ics_extension);
         if self.folder.join(&filename_with_extension).is_file() {
             filename_with_extension.into()
