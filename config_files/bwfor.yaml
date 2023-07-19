@@ -23,3 +23,4 @@ job_file_template: |
     #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
     startexe="{runProgram} -n {numCores} {executableName} {paramFile} {runParams}"
     {additionalCommands}exec $startexe
+make_command: "make"
