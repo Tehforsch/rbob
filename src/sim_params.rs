@@ -315,6 +315,23 @@ impl SimParams {
         Ok(())
     }
 
+    pub fn copy_treecol_file_if_exists(
+        &self,
+        source_folder: &Utf8Path,
+        target_folder: &Utf8Path,
+    ) -> Result<()> {
+        if self.get("TREECOLV2").is_some() {
+            let treecol_file_name = "TreeCol_lookup.dat";
+            let treecol_file = source_folder.join(&treecol_file_name);
+            if treecol_file.is_absolute() {
+                return Ok(());
+            }
+            let output_treecol_file = target_folder.join(&treecol_file_name);
+            copy_file(treecol_file, output_treecol_file)?;
+        }
+        Ok(())
+    }
+
     pub fn copy_output_list_file_if_exists(
         &self,
         source_folder: &Utf8Path,
