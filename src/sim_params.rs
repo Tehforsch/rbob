@@ -323,9 +323,6 @@ impl SimParams {
         if self.get("TREECOLV2").is_some() {
             let treecol_file_name = "TreeCol_lookup.dat";
             let treecol_file = source_folder.join(&treecol_file_name);
-            if treecol_file.is_absolute() {
-                return Ok(());
-            }
             let output_treecol_file = target_folder.join(&treecol_file_name);
             copy_file(treecol_file, output_treecol_file)?;
         }
