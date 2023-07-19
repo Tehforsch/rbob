@@ -22,6 +22,7 @@ pub struct ConfigFile {
     pub job_file_template: String,
     pub job_file_run_command: String,
     pub system_config: SystemConfiguration,
+    pub make_command: String,
 }
 
 impl ConfigFile {
@@ -51,6 +52,7 @@ impl ConfigFile {
             job_file_run_command: self.job_file_run_command,
             job_file_template: self.job_file_template,
             system_config: self.system_config,
+            make_command: self.make_command,
         })
     }
 }

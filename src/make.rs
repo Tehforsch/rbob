@@ -71,7 +71,7 @@ fn write_systype_file(systype: &Option<Systype>) -> Result<()> {
 fn build_arepo(verbose: bool) -> Result<()> {
     delete_arepoconfig_header_file_if_present(&AREPO_PATH)?;
     let out = get_shell_command_output(
-        "remake",
+        &config::MAKE_COMMAND,
         &[
             &"-j",
             &config::DEFAULT_NUM_CORES_TO_COMPILE.to_string().as_ref(),
