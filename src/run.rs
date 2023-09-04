@@ -72,10 +72,7 @@ fn get_run_command_args(
 ) -> Vec<String> {
     let job_file_name = job_file_path.file_name().unwrap().into();
     match dependency_job_id {
-        Some(id) => vec![
-            format!("--dependency=afterok:{id}", id = id),
-            job_file_name,
-        ],
+        Some(id) => vec![format!("--dependency=afterok:{id}", id = id), job_file_name],
         None => vec![job_file_name],
     }
 }
