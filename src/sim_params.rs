@@ -130,33 +130,39 @@ impl SimParams {
     }
 
     pub fn get_ics_files(&self) -> Vec<Utf8PathBuf> {
-        let ics_files = self.get("input/paths").unwrap();
-        let mut ics_files: Vec<Utf8PathBuf> = ics_files
-            .as_sequence()
-            .unwrap()
-            .into_iter()
-            .map(|f| Utf8Path::new(f.as_str().unwrap()).into())
-            .collect();
-        match self.params["postprocess"]["grid"] {
-            Value::Tagged(ref tagged_value) => {
-                if tagged_value.tag == "read" {
-                    ics_files.push(Utf8Path::new(tagged_value.value.as_str().unwrap()).to_owned());
-                }
-            }
-            _ => {}
+        let mut all_ics_files: Vec<Utf8PathBuf> = vec![];
+        if let Some(ics_files) = self.get("input/paths") {
+            all_ics_files.extend(
+                ics_files
+                    .as_sequence()
+                    .unwrap()
+                    .into_iter()
+                    .map(|f| Utf8Path::new(f.as_str().unwrap()).into()),
+            );
         }
-        match self.params["postprocess"].get("remap_from") {
-            Some(val) => {
-                if *val != Value::Null {
-                    let path = Utf8Path::new(val.as_str().unwrap()).to_owned();
-                    if path.is_file() || path.is_dir() {
-                        ics_files.push(path);
+        if self.params.contains_key("postprocess") {
+            match self.params["postprocess"]["grid"] {
+                Value::Tagged(ref tagged_value) => {
+                    if tagged_value.tag == "read" {
+                        all_ics_files
+                            .push(Utf8Path::new(tagged_value.value.as_str().unwrap()).to_owned());
                     }
                 }
+                _ => {}
             }
-            None => {}
+            match self.params["postprocess"].get("remap_from") {
+                Some(val) => {
+                    if *val != Value::Null {
+                        let path = Utf8Path::new(val.as_str().unwrap()).to_owned();
+                        if path.is_file() || path.is_dir() {
+                            all_ics_files.push(path);
+                        }
+                    }
+                }
+                None => {}
+            }
         }
-        ics_files
+        all_ics_files
     }
 
     pub fn copy_ics(&self, target_folder: &Utf8Path, symlink_ics: bool) -> Result<()> {
