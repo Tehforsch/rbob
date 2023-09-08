@@ -13,26 +13,15 @@ use crate::util::get_shell_command_output;
 pub fn build_sim_set(
     sim_set: &SimSet,
     verbose: bool,
-    systype: &Option<Systype>,
+    _systype: &Option<Systype>,
     debug_build: bool,
     run_example: &Option<String>,
 ) -> Result<()> {
-    for (i, sim) in sim_set.enumerate() {
-        println!("Building sim {}", i);
-        build_sim(sim, verbose, systype, debug_build, run_example.clone())?;
-    }
-    Ok(())
-}
-
-fn build_sim(
-    sim: &SimParams,
-    verbose: bool,
-    _systype: &Option<Systype>,
-    debug_build: bool,
-    run_example: Option<String>,
-) -> Result<()> {
     build_raxiom(verbose, debug_build, &run_example)?;
-    copy_binary(sim, debug_build, &run_example)?;
+    // We copy to the parent folder of the simulation once
+    for sim in sim_set.iter().take(1) {
+        copy_binary(sim, debug_build, &run_example)?;
+    }
     Ok(())
 }
 
@@ -65,6 +54,10 @@ fn copy_binary(sim: &SimParams, debug_build: bool, run_example: &Option<String>)
     } else {
         path.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME)
     };
-    let target = sim.folder.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
+    let target = sim
+        .folder
+        .parent()
+        .unwrap()
+        .join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
     copy_file(source, target)
 }
