@@ -1,8 +1,8 @@
-use boxiom::systype::Systype;
 use camino::Utf8PathBuf;
 use clap::Parser;
+use rbob::systype::Systype;
 
-/// Boxiom. The Builder for raxiom
+/// Rbob. The Builder for subsweep
 #[derive(Parser, Debug)]
 #[clap(version = "0.1.0", author = "Toni Peter")]
 pub struct Opts {

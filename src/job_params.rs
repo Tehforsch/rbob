@@ -57,7 +57,7 @@ impl Default for JobParams {
             run_params: config::DEFAULT_RUN_PARAMS.into(),
             param_file: config::DEFAULT_PARAM_FILE_NAME.into(),
             run_program: config::DEFAULT_RUN_PROGRAM.into(),
-            executable_name: config::DEFAULT_RAXIOM_EXECUTABLE_NAME.into(),
+            executable_name: config::DEFAULT_SUBSWEEP_EXECUTABLE_NAME.into(),
         }
     }
 }

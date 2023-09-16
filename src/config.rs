@@ -6,8 +6,8 @@ use crate::job_params::SystemConfiguration;
 
 lazy_static! {
     pub static ref CONFIG_FILE: ConfigFile = ConfigFile::read().unwrap().expanduser().unwrap();
-    pub static ref RAXIOM_PATH: Utf8PathBuf = CONFIG_FILE.raxiom_path.clone();
-    pub static ref RAXIOM_BUILD_PATH: Utf8PathBuf = CONFIG_FILE.raxiom_build_path.clone();
+    pub static ref SUBSWEEP_PATH: Utf8PathBuf = CONFIG_FILE.subsweep_path.clone();
+    pub static ref SUBSWEEP_BUILD_PATH: Utf8PathBuf = CONFIG_FILE.subsweep_build_path.clone();
     pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
     pub static ref JOB_FILE_TEMPLATE: String = CONFIG_FILE.job_file_template.clone();
     pub static ref JOB_FILE_RUN_COMMAND: String = CONFIG_FILE.job_file_run_command.clone();
@@ -19,14 +19,14 @@ pub static DEFAULT_PARAM_FILE_NAME: &str = "params.yml";
 pub static DEFAULT_JOB_FILE_NAME: &str = "job";
 pub static DEFAULT_RUN_PARAMS: &str = "-v";
 
-pub static DEFAULT_RAXIOM_EXECUTABLE_NAME: &str = "raxiom";
+pub static DEFAULT_SUBSWEEP_EXECUTABLE_NAME: &str = "subsweep";
 
 pub static CONFIG_FILE_NAME: &str = "config.yaml";
 
 pub static DEFAULT_RUN_PROGRAM: &str = "mpirun";
 
 pub static DEFAULT_LOG_FILE: &str = "stdout.log";
-pub static DEFAULT_JOB_NAME: &str = "raxiom";
+pub static DEFAULT_JOB_NAME: &str = "subsweep";
 pub static DEFAULT_WALL_TIME: &str = "23:00:00";
 pub static DEFAULT_NUM_CORES: &i64 = &1;
 

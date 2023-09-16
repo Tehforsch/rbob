@@ -273,6 +273,6 @@ pub fn get_param_file_path<U: AsRef<Utf8Path>>(folder: U) -> Utf8PathBuf {
 
 fn read_param_file(path: &Utf8Path) -> Result<Value> {
     let data = fs::read_to_string(path)
-        .context(format!("While reading raxiom param file at {:?}", path,))?;
+        .context(format!("While reading subsweep param file at {:?}", path,))?;
     serde_yaml::from_str(&data).context("Reading param file contents")
 }

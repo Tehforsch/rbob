@@ -1,5 +1,5 @@
 [package]
-name = "boxiom"
+name = "rbob"
 version = "0.1.0"
 authors = ["tehforsch <Tonipeter92@googlemail.com>"]
 edition = "2021"

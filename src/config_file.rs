@@ -15,8 +15,8 @@ use crate::util::expanduser;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigFile {
-    pub raxiom_path: Utf8PathBuf,
-    pub raxiom_build_path: Utf8PathBuf,
+    pub subsweep_path: Utf8PathBuf,
+    pub subsweep_build_path: Utf8PathBuf,
     pub default_systype: String,
     pub bob_path: Utf8PathBuf,
     pub job_file_template: String,
@@ -26,7 +26,7 @@ pub struct ConfigFile {
 
 impl ConfigFile {
     pub fn read() -> Result<ConfigFile> {
-        let xdg_dirs = xdg::BaseDirectories::with_prefix("boxiom").unwrap();
+        let xdg_dirs = xdg::BaseDirectories::with_prefix("rbob").unwrap();
         let config_path = xdg_dirs.find_config_file(config::CONFIG_FILE_NAME);
         if let Some(path) = config_path {
             ConfigFile::from_file(&path)
@@ -43,8 +43,8 @@ impl ConfigFile {
 
     pub fn expanduser(self) -> Result<ConfigFile> {
         Ok(ConfigFile {
-            raxiom_path: Utf8Path::new(&expanduser(&self.raxiom_path)?).to_owned(),
-            raxiom_build_path: Utf8Path::new(&expanduser(&self.raxiom_build_path)?).to_owned(),
+            subsweep_path: Utf8Path::new(&expanduser(&self.subsweep_path)?).to_owned(),
+            subsweep_build_path: Utf8Path::new(&expanduser(&self.subsweep_build_path)?).to_owned(),
             bob_path: Utf8Path::new(&expanduser(&self.bob_path)?).to_owned(),
             default_systype: self.default_systype.clone(),
             job_file_run_command: self.job_file_run_command,

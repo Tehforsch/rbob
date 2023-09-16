@@ -2,8 +2,8 @@ use anyhow::anyhow;
 use anyhow::Result;
 
 use crate::config;
-use crate::config::RAXIOM_BUILD_PATH;
-use crate::config::RAXIOM_PATH;
+use crate::config::SUBSWEEP_BUILD_PATH;
+use crate::config::SUBSWEEP_PATH;
 use crate::sim_params::SimParams;
 use crate::sim_set::SimSet;
 use crate::systype::Systype;
@@ -17,7 +17,7 @@ pub fn build_sim_set(
     debug_build: bool,
     run_example: &Option<String>,
 ) -> Result<()> {
-    build_raxiom(verbose, debug_build, &run_example)?;
+    build_subsweep(verbose, debug_build, &run_example)?;
     // We copy to the parent folder of the simulation once
     for sim in sim_set.iter().take(1) {
         copy_binary(sim, debug_build, &run_example)?;
@@ -25,7 +25,7 @@ pub fn build_sim_set(
     Ok(())
 }
 
-fn build_raxiom(verbose: bool, debug_build: bool, run_example: &Option<String>) -> Result<()> {
+fn build_subsweep(verbose: bool, debug_build: bool, run_example: &Option<String>) -> Result<()> {
     let mut args: Vec<String> = vec!["build".into(), "--color=always".into()];
     if !debug_build {
         args.push("--release".into());
@@ -34,7 +34,7 @@ fn build_raxiom(verbose: bool, debug_build: bool, run_example: &Option<String>) 
         args.push("--example".into());
         args.push(run_example.into());
     }
-    let out = get_shell_command_output("cargo", &args, Some(&RAXIOM_PATH), verbose);
+    let out = get_shell_command_output("cargo", &args, Some(&SUBSWEEP_PATH), verbose);
     if !out.success {
         println!("{}", out.stdout);
         println!("{}", out.stderr);
@@ -45,19 +45,19 @@ fn build_raxiom(verbose: bool, debug_build: bool, run_example: &Option<String>) 
 
 fn copy_binary(sim: &SimParams, debug_build: bool, run_example: &Option<String>) -> Result<()> {
     let path = if debug_build {
-        RAXIOM_BUILD_PATH.parent().unwrap().join("debug")
+        SUBSWEEP_BUILD_PATH.parent().unwrap().join("debug")
     } else {
-        RAXIOM_BUILD_PATH.to_owned()
+        SUBSWEEP_BUILD_PATH.to_owned()
     };
     let source = if let Some(run_example) = run_example {
         path.join("examples").join(run_example)
     } else {
-        path.join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME)
+        path.join(config::DEFAULT_SUBSWEEP_EXECUTABLE_NAME)
     };
     let target = sim
         .folder
         .parent()
         .unwrap()
-        .join(config::DEFAULT_RAXIOM_EXECUTABLE_NAME);
+        .join(config::DEFAULT_SUBSWEEP_EXECUTABLE_NAME);
     copy_file(source, target)
 }
