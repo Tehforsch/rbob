@@ -33,6 +33,7 @@ pub fn copy_sim_set<U: AsRef<Utf8Path>>(
             ))
         })
         .collect();
+    symlink_to_plot_folder(input_folder, output_folder);
     output_sim_set
 }
 
@@ -51,4 +52,24 @@ fn copy_sim(
     let mut new_sim_params = sim.clone();
     new_sim_params.folder = sim_output_folder.to_owned();
     Ok(new_sim_params)
+}
+
+fn symlink_to_plot_folder(source_folder: impl AsRef<Utf8Path>, sim_output_folder: &Utf8Path) {
+    let source = source_folder.as_ref().join("plots");
+    if source.exists() {
+        let target = sim_output_folder.join("plots");
+        let res = &source.canonicalize();
+        if let Err(e) = res {
+            println!(
+                "While trying to obtain absolute path to plots folder at {:?}: {}",
+                source, e
+            );
+        }
+        if let Err(e) = std::os::unix::fs::symlink(&source, &target) {
+            println!(
+                "While trying to create symlink to plots folder at {:?}: {}",
+                target, e
+            );
+        }
+    }
 }
