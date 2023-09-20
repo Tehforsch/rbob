@@ -58,18 +58,20 @@ fn symlink_to_plot_folder(source_folder: impl AsRef<Utf8Path>, sim_output_folder
     let source = source_folder.as_ref().join("plots");
     if source.exists() {
         let target = sim_output_folder.join("plots");
-        let res = &source.canonicalize();
-        if let Err(e) = res {
-            println!(
-                "While trying to obtain absolute path to plots folder at {:?}: {}",
-                source, e
-            );
-        }
-        if let Err(e) = std::os::unix::fs::symlink(&source, &target) {
-            println!(
-                "While trying to create symlink to plots folder at {:?}: {}",
-                target, e
-            );
-        }
+        let source = &source.canonicalize();
+        match source {
+            Err(e) => {
+                println!(
+                    "While trying to obtain absolute path to plots folder at {:?}: {}",
+                    source, e
+                );
+            }
+            Ok(source) => std::os::unix::fs::symlink(&source, &target).unwrap_or_else(|e| {
+                println!(
+                    "While trying to create symlink to plots folder at {:?}: {}",
+                    target, e
+                );
+            }),
+        };
     }
 }
