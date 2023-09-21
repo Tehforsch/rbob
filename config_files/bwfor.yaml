@@ -1,7 +1,8 @@
 plot_template_folder: "~/projects/phd/plotTemplates"
-arepo_path: "~/projects/arepo"
+subsweep_path: "~/projects/subsweep"
+subsweep_build_path: "~/projects/subsweep/target/release"
 default_systype: "bwFor"
-bob_path: "~/projects/bob/target/release/bob"
+bob_path: "~/projects/bob/target/release/rbob"
 system_config:
     max_num_cores: 2048
     max_num_cores_per_node: 64
@@ -14,12 +15,12 @@ job_file_run_command: "sbatch"
 job_file_template: |
     #!/bin/bash
     #SBATCH --partition={partition}
-    #SBATCH --nodes={numNodes}
-    #SBATCH --ntasks-per-node={numCoresPerNode}
-    #SBATCH --time={wallTime}
+    #SBATCH --nodes={num_nodes}
+    #SBATCH --ntasks-per-node={num_cores_per_node}
+    #SBATCH --time={wall_time}
     #SBATCH --mail-type=BEGIN,END,FAIL
     #SBATCH --mail-user=hp240@uni-heidelberg.de
-    #SBATCH --output={logFile}
+    #SBATCH --output={log_file}
     #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
-    startexe="{runProgram} -n {numCores} {executableName} {paramFile} {runParams}"
-    {additionalCommands}exec $startexe
+    startexe="{run_program} -n {num_cores} ../{executable_name} {param_file} {run_params}"
+    exec $startexe
