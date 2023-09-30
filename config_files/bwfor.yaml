@@ -22,5 +22,6 @@ job_file_template: |
     #SBATCH --mail-user=hp240@uni-heidelberg.de
     #SBATCH --output={log_file}
     #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
+    export LD_LIBRARY_PATH=/gpfs/bwfor/home/hd/hd_hd/hd_hp240/projects/hdf5-build/lib:$LD_LIBRARY_PATH
     startexe="{run_program} -n {num_cores} ../{executable_name} {param_file} {run_params}"
     exec $startexe
