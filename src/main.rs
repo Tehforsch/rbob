@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 l.input_folder,
                 l.output_folder,
                 l.delete,
-                l.symlink_ics,
+                !l.do_not_symlink_ics,
             )?;
         }
         SubCommand::Build(l) => {
@@ -50,7 +50,7 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         &args.input_folder,
         &args.output_folder,
         args.delete,
-        args.symlink_ics,
+        !args.do_not_symlink_ics,
     )?;
     build_sim_set(
         &output_sim_set,

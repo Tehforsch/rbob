@@ -29,7 +29,7 @@ pub struct CopySimulation {
     #[clap(short, long)]
     pub delete: bool,
     #[clap(short, long)]
-    pub symlink_ics: bool,
+    pub do_not_symlink_ics: bool,
 }
 
 /// Build arepo for each of the configuration files in the output directory
@@ -56,7 +56,7 @@ pub struct StartSimulation {
     pub delete: bool,
     pub systype: Option<Systype>,
     #[clap(short, long)]
-    pub symlink_ics: bool,
+    pub do_not_symlink_ics: bool,
     #[clap(long)]
     pub debug_build: bool,
     #[clap(long)]
