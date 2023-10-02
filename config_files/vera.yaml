@@ -1,0 +1,30 @@
+subsweep_path: "~/projects/subsweep"
+subsweep_build_path: "~/projects/subsweep/target/release"
+default_systype: "bwFor"
+default_features: []
+system_config:
+    max_num_cores: 2048
+    max_num_cores_per_node: 72
+    partitions:
+      - - 1
+        - "p.vera"
+job_file_run_command: "sbatch"
+job_file_template: |
+    #!/bin/bash
+    #SBATCH --partition={partition}
+    #SBATCH --nodes={num_nodes}
+    #SBATCH --ntasks-per-node={num_cores_per_node}
+    #SBATCH --time={wall_time}
+    #SBATCH --mail-type=BEGIN,END,FAIL
+    #SBATCH --mail-user=hp240@uni-heidelberg.de
+    #SBATCH --output={log_file}
+    #SBATCH --export=HDF5_DISABLE_VERSION_CHECK=2
+    #SBATCH --export=RUST_BACKTRACE=1
+    module load gcc/13
+    module load clang/15
+    module load hdf5-serial/1.12.2
+    module load openmpi/4.1
+    module load gsl/2.4
+    module load fftw-serial/3.3.10
+    startexe="{run_program} -n {num_cores} ../{executable_name} {param_file} {run_params}"
+    exec $startexe
