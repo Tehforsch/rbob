@@ -11,6 +11,7 @@ lazy_static! {
     pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
     pub static ref JOB_FILE_TEMPLATE: String = CONFIG_FILE.job_file_template.clone();
     pub static ref JOB_FILE_RUN_COMMAND: String = CONFIG_FILE.job_file_run_command.clone();
+    pub static ref DEFAULT_FEATURES: Vec<String> = CONFIG_FILE.default_features.clone();
     pub static ref SYSTEM_CONFIG: SystemConfiguration = CONFIG_FILE.system_config.clone();
 }
 

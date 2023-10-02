@@ -5,7 +5,9 @@ use args::StartSimulation;
 use args::SubCommand;
 use camino::Utf8Path;
 use clap::Parser;
+use rbob::build_config::BuildConfig;
 use rbob::config::DEFAULT_BOB_CONFIG_NAME;
+use rbob::config::DEFAULT_FEATURES;
 use rbob::copy::copy_sim_set;
 use rbob::make::build_sim_set;
 use rbob::run::run_sim_set;
@@ -30,7 +32,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
-            build_sim_set(&sim_set, a.verbose, &l.systype, l.debug_build, &None)?;
+            let build_config = BuildConfig {
+                debug_build: l.debug_build,
+                run_example: l.run_example,
+                features: DEFAULT_FEATURES.clone(),
+            };
+            build_sim_set(&sim_set, a.verbose, &build_config)?;
         }
         SubCommand::Run(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
@@ -52,13 +59,12 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         args.delete,
         !args.do_not_symlink_ics,
     )?;
-    build_sim_set(
-        &output_sim_set,
-        verbose,
-        &args.systype,
-        args.debug_build,
-        &args.run_example,
-    )?;
+    let build_config = BuildConfig {
+        debug_build: args.debug_build,
+        run_example: args.run_example.clone(),
+        features: DEFAULT_FEATURES.clone(),
+    };
+    build_sim_set(&output_sim_set, verbose, &build_config)?;
     run_sim_set(&output_sim_set, verbose)
 }
 

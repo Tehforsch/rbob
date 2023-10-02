@@ -1,6 +1,5 @@
 use camino::Utf8PathBuf;
 use clap::Parser;
-use rbob::systype::Systype;
 
 /// Rbob. The Builder for subsweep
 #[derive(Parser, Debug)]
@@ -36,9 +35,10 @@ pub struct CopySimulation {
 #[derive(Parser, Debug)]
 pub struct BuildSimulation {
     pub output_folder: Utf8PathBuf,
-    pub systype: Option<Systype>,
-    #[clap(short, long)]
+    #[clap(long)]
     pub debug_build: bool,
+    #[clap(long)]
+    pub run_example: Option<String>,
 }
 
 /// Run each of the simulations in the output directory
@@ -54,7 +54,6 @@ pub struct StartSimulation {
     pub output_folder: Utf8PathBuf,
     #[clap(short, long)]
     pub delete: bool,
-    pub systype: Option<Systype>,
     #[clap(short, long)]
     pub do_not_symlink_ics: bool,
     #[clap(long)]

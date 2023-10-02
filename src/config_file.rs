@@ -21,6 +21,7 @@ pub struct ConfigFile {
     pub bob_path: Utf8PathBuf,
     pub job_file_template: String,
     pub job_file_run_command: String,
+    pub default_features: Vec<String>,
     pub system_config: SystemConfiguration,
 }
 
@@ -49,6 +50,7 @@ impl ConfigFile {
             default_systype: self.default_systype.clone(),
             job_file_run_command: self.job_file_run_command,
             job_file_template: self.job_file_template,
+            default_features: self.default_features,
             system_config: self.system_config,
         })
     }
