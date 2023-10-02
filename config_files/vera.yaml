@@ -1,6 +1,5 @@
 subsweep_path: "~/projects/subsweep"
 subsweep_build_path: "~/projects/subsweep/target/release"
-default_systype: "bwFor"
 default_features: []
 system_config:
     max_num_cores: 2048

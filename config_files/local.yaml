@@ -1,8 +1,6 @@
 default_features: []
 subsweep_path:  "~/projects/subsweep/"
 subsweep_build_path:  "/run/media/extHdd/.cargo-target/release"
-default_systype: "Manjaro"
-bob_path: "~/.cargo/bin/bob"
 system_config:
     max_num_cores: 6
     max_num_cores_per_node: 6

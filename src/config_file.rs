@@ -17,7 +17,6 @@ use crate::util::expanduser;
 pub struct ConfigFile {
     pub subsweep_path: Utf8PathBuf,
     pub subsweep_build_path: Utf8PathBuf,
-    pub default_systype: String,
     pub job_file_template: String,
     pub job_file_run_command: String,
     pub default_features: Vec<String>,
@@ -45,7 +44,6 @@ impl ConfigFile {
         Ok(ConfigFile {
             subsweep_path: Utf8Path::new(&expanduser(&self.subsweep_path)?).to_owned(),
             subsweep_build_path: Utf8Path::new(&expanduser(&self.subsweep_build_path)?).to_owned(),
-            default_systype: self.default_systype.clone(),
             job_file_run_command: self.job_file_run_command,
             job_file_template: self.job_file_template,
             default_features: self.default_features,

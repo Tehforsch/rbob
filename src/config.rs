@@ -8,7 +8,6 @@ lazy_static! {
     pub static ref CONFIG_FILE: ConfigFile = ConfigFile::read().unwrap().expanduser().unwrap();
     pub static ref SUBSWEEP_PATH: Utf8PathBuf = CONFIG_FILE.subsweep_path.clone();
     pub static ref SUBSWEEP_BUILD_PATH: Utf8PathBuf = CONFIG_FILE.subsweep_build_path.clone();
-    pub static ref DEFAULT_SYSTYPE: String = CONFIG_FILE.default_systype.clone();
     pub static ref JOB_FILE_TEMPLATE: String = CONFIG_FILE.job_file_template.clone();
     pub static ref JOB_FILE_RUN_COMMAND: String = CONFIG_FILE.job_file_run_command.clone();
     pub static ref DEFAULT_FEATURES: Vec<String> = CONFIG_FILE.default_features.clone();

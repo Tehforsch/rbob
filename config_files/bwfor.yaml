@@ -2,8 +2,6 @@ default_features: ["parallel-hdf5"]
 plot_template_folder: "~/projects/phd/plotTemplates"
 subsweep_path: "~/projects/subsweep"
 subsweep_build_path: "~/projects/subsweep/target/release"
-default_systype: "bwFor"
-bob_path: "~/projects/bob/target/release/rbob"
 system_config:
     max_num_cores: 2048
     max_num_cores_per_node: 64

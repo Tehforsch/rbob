@@ -1,7 +1,5 @@
 plot_template_folder: "~/projects/phd/plotTemplates"
 arepo_path:  "~/projects/arepo"
-default_systype: "SuperMucIntel"
-bob_path: "~/projects/bob/bob"
 system_config:
     max_num_cores: 8192
     max_num_cores_per_node: 48
