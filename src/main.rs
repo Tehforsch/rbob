@@ -8,6 +8,7 @@ use clap::Parser;
 use rbob::build_config::BuildConfig;
 use rbob::config::DEFAULT_BOB_CONFIG_NAME;
 use rbob::config::DEFAULT_FEATURES;
+use rbob::config::DEFAULT_PROFILE;
 use rbob::copy::copy_sim_set;
 use rbob::make::build_sim_set;
 use rbob::run::run_sim_set;
@@ -33,9 +34,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         SubCommand::Build(l) => {
             let sim_set = get_sim_set_from_output(&l.output_folder)?;
             let build_config = BuildConfig {
-                debug_build: l.debug_build,
                 run_example: l.run_example,
                 features: DEFAULT_FEATURES.clone(),
+                profile: get_profile(l.debug_build),
             };
             build_sim_set(&sim_set, a.verbose, &build_config)?;
         }
@@ -51,6 +52,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn get_profile(debug_build: bool) -> String {
+    if debug_build {
+        "dev".into()
+    } else {
+        DEFAULT_PROFILE.clone().unwrap_or("release".into())
+    }
+}
+
 fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Result<()> {
     let output_sim_set = copy_sim_set(
         &sim_set,
@@ -60,7 +69,7 @@ fn start_sim_set(sim_set: SimSet, args: &StartSimulation, verbose: bool) -> Resu
         !args.do_not_symlink_ics,
     )?;
     let build_config = BuildConfig {
-        debug_build: args.debug_build,
+        profile: get_profile(args.debug_build),
         run_example: args.run_example.clone(),
         features: DEFAULT_FEATURES.clone(),
     };

@@ -20,6 +20,7 @@ pub struct ConfigFile {
     pub job_file_template: String,
     pub job_file_run_command: String,
     pub default_features: Vec<String>,
+    pub default_profile: Option<String>,
     pub system_config: SystemConfiguration,
 }
 
@@ -47,6 +48,7 @@ impl ConfigFile {
             job_file_run_command: self.job_file_run_command,
             job_file_template: self.job_file_template,
             default_features: self.default_features,
+            default_profile: self.default_profile,
             system_config: self.system_config,
         })
     }

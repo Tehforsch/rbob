@@ -21,9 +21,7 @@ pub fn build_sim_set(sim_set: &SimSet, verbose: bool, build_config: &BuildConfig
 
 fn build_subsweep(verbose: bool, build_config: &BuildConfig) -> Result<()> {
     let mut args: Vec<String> = vec!["build".into(), "--color=always".into()];
-    if !build_config.debug_build {
-        args.push("--release".into());
-    }
+    args.push(format!("--profile={}", &build_config.profile));
     if let Some(run_example) = &build_config.run_example {
         args.push("--example".into());
         args.push(run_example.into());
@@ -46,11 +44,10 @@ fn build_subsweep(verbose: bool, build_config: &BuildConfig) -> Result<()> {
 }
 
 fn copy_binary(sim: &SimParams, build_config: &BuildConfig) -> Result<()> {
-    let path = if build_config.debug_build {
-        SUBSWEEP_BUILD_PATH.parent().unwrap().join("debug")
-    } else {
-        SUBSWEEP_BUILD_PATH.to_owned()
-    };
+    let path = SUBSWEEP_BUILD_PATH
+        .parent()
+        .unwrap()
+        .join(&build_config.profile);
     let source = if let Some(run_example) = &build_config.run_example {
         path.join("examples").join(run_example)
     } else {
