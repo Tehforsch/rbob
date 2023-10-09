@@ -1,4 +1,5 @@
 subsweep_path: "~/projects/subsweep"
+default_profile: "release-lto"
 subsweep_build_path: "~/projects/subsweep/target/release"
 default_features: []
 system_config:

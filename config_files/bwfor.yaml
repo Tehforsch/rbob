@@ -1,4 +1,5 @@
 default_features: ["parallel-hdf5"]
+default_profile: "release-lto"
 plot_template_folder: "~/projects/phd/plotTemplates"
 subsweep_path: "~/projects/subsweep"
 subsweep_build_path: "~/projects/subsweep/target/release"

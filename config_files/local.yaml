@@ -1,4 +1,5 @@
 default_features: []
+default_profile: "release"
 subsweep_path:  "~/projects/subsweep/"
 subsweep_build_path:  "/run/media/extHdd/.cargo-target/release"
 system_config:
