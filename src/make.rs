@@ -44,10 +44,11 @@ fn build_subsweep(verbose: bool, build_config: &BuildConfig) -> Result<()> {
 }
 
 fn copy_binary(sim: &SimParams, build_config: &BuildConfig) -> Result<()> {
-    let path = SUBSWEEP_BUILD_PATH
-        .parent()
-        .unwrap()
-        .join(&build_config.profile);
+    let profile_path = match build_config.profile.as_str() {
+        "dev" => "debug",
+        x => &x,
+    };
+    let path = SUBSWEEP_BUILD_PATH.parent().unwrap().join(profile_path);
     let source = if let Some(run_example) = &build_config.run_example {
         path.join("examples").join(run_example)
     } else {
