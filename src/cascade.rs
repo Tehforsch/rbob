@@ -166,6 +166,7 @@ pub fn get_substitutions_cascade(
         let files = cascade.get_files_for_snapshot(&base_folder, i);
         let time_diff_seconds = time_begin.time_until_seconds(time_end, &cosmology);
         let time_diff_kiloyear = time_diff_seconds / (31560000.0 * 1000.0);
+        assert!(time_diff_seconds > 0.0, "Negative time difference between snapshots. Either the cascade snapshots are in the wrong order or the final time is before the time of the last snapshot.");
         println!(
             "sim {}: {:?} to {:?} ({:.5} kyr)",
             i, time_begin, time_end, time_diff_kiloyear
