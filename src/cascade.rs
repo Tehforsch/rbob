@@ -177,8 +177,12 @@ pub fn get_substitutions_cascade(
                 files
                     .iter()
                     .map(|f| {
-                        let f = diff_utf8_paths(f, &base_folder).unwrap();
-                        f.as_str().into()
+                        if f.is_absolute() {
+                            f.as_str().into()
+                        } else {
+                            let f = diff_utf8_paths(f, &base_folder).unwrap();
+                            f.as_str().into()
+                        }
                     })
                     .collect(),
             ),
