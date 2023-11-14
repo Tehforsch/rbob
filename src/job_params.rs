@@ -37,6 +37,11 @@ pub fn get_core_distribution(
     }
     let num_cores_per_node = num_cores.min(system_conf.max_num_cores_per_node);
     let num_nodes = num_cores / num_cores_per_node;
+    let num_nodes = if num_cores % num_cores_per_node > 0 {
+        num_nodes + 1
+    } else {
+        num_nodes
+    };
     let partition = system_conf.get_partition(num_nodes).into();
     (num_nodes, num_cores_per_node, partition)
 }
