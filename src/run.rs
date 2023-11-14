@@ -48,6 +48,7 @@ fn run_job_file(
     dependency_job_id: Option<usize>,
 ) -> Result<Option<usize>> {
     let args = get_run_command_args(job_file_path, dependency_job_id);
+    let verbose = verbose && !config::SYSTEM_CONFIG.dependencies_allowed();
     let out = get_shell_command_output(
         &config::JOB_FILE_RUN_COMMAND,
         &args,
@@ -86,7 +87,7 @@ fn get_job_id(output: &str) -> Result<Option<usize>> {
         let re = Regex::new("Submitted batch job ([0-9]*)").unwrap();
         let capture = re.captures_iter(output).next();
         match capture {
-            None => panic!("Could not parse id from job submission output."),
+            None => panic!("Could not parse id from job submission output: {}", output),
             Some(capture) => Ok(Some(
                 capture
                     .get(1)
