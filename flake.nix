@@ -15,8 +15,9 @@
     overlays = [ (import rust-overlay) ];
     pkgs = import nixpkgs { inherit system overlays; };
   in {
-    devShells.rust_nightly = with pkgs;
+    devShells.default = with pkgs;
     mkShell.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv; } {
+      name = "rbob/subsweep";
       buildInputs = [
         pkg-config
         (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
